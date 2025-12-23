@@ -1,3 +1,3 @@
 public class GitTest {
-    bye
+    hi2
 }
