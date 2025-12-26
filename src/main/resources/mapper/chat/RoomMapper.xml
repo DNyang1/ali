@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.chat.dao.RoomDAO">
+    <insert id="insertRoom" parameterType="com.finalProject.ali.chat.dto.RoomDTO" useGeneratedKeys="true" keyProperty="roomId">
+        INSERT INTO room (created_at)
+        VALUES (NOW())
+    </insert>
+
+    <select id="findById" resultType="com.finalProject.ali.chat.dto.RoomDTO">
+        SELECT
+        room_id AS roomId,
+        create_at AS createAt
+        FROM room
+        WHERE room_id = #{roomId}
+    </select>
+
+    <select id="findMyRooms" resultType="com.finalProject.ali.chat.dto.RoomListDTO">
+        SELECT
+        rm.room_id AS roomId,
+        c.message AS lastMessage,
+        c.sender_id AS lastSenderId,
+        c.chat_at AS lastChatAt
+        FROM room_members rm
+        LEFT JOIN chat c
+        ON c.chat_id = (
+        SELECT c2.chat_id
+        FROM chat c2
+        WHERE c2.room_id = rm.room_id
+        ORDER BY c2.chat_id DESC
+        LIMIT 1
+        )
+        WHERE rm.user_id = #{userId}
+        ORDER BY
+        CASE WHEN c.chat_id IS NULL THEN 1 ELSE 0 END,
+        c.chat_id DESC;
+    </select>
+
+
+</mapper>

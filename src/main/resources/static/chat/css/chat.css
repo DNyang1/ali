@@ -1,0 +1,12 @@
+.layout { display:flex; height: 90vh; border:1px solid #ddd; }
+.sidebar { width: 320px; border-right:1px solid #ddd; padding:12px; box-sizing:border-box; }
+.content { flex:1; display:flex; flex-direction:column; }
+.room-list { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.room-item { padding:10px; border:1px solid #eee; cursor:pointer; }
+.room-item.active { border-color:#999; }
+.chat-header { padding:12px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; }
+.chat-body { flex:1; padding:12px; overflow:auto; }
+.chat-input { padding:12px; border-top:1px solid #ddd; display:flex; gap:8px; }
+.msg { margin:8px 0; max-width: 70%; padding:8px 10px; border:1px solid #eee; border-radius:10px; }
+.msg.me { margin-left:auto; }
+.meta { font-size:12px; opacity:.7; margin-top:2px; }
