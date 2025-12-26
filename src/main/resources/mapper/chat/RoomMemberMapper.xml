@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.chat.dao.RoomMemberDAO">
+    <!-- 그룹 가능: 여러 user_id를 한 번에 insert -->
+    <insert id="insertMembers">
+        INSERT INTO room_members (room_id, user_id)
+        VALUES
+        <foreach collection="userIds" item="userId" separator=",">
+            (#{roomId}, #{userId})
+        </foreach>
+    </insert>
+
+    <select id="findMemberIds" resultType="string">
+        SELECT user_id
+        FROM room_members
+        WHERE room_id = #{roomId}
+        ORDER BY user_id
+    </select>
+
+    <delete id="deleteMembersByRoomId">
+        DELETE FROM room_members
+        WHERE room_id = #{roomId}
+    </delete>
+</mapper>
