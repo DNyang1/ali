@@ -21,13 +21,13 @@ public class UserController {
 
     @GetMapping("/register")
     public String registerPage() {
-        return "users/register";
+        return "user/register";
     }
 
     // 페이지 이동: /user/login 호출 시 login.html 반환
     @GetMapping("/login")
     public String loginPage() {
-        return "users/login";
+        return "user/login";
     }
 
     @PostMapping("/signup")
@@ -60,13 +60,13 @@ public class UserController {
     @GetMapping("/logout")
     public String logout(jakarta.servlet.http.HttpSession session) {
         session.invalidate(); // 세션 무효화
-        return "redirect:/users/index"; // 메인 페이지로 이동
+        return "redirect:/user/index"; // 메인 페이지로 이동
     }
 
     // 루트(/) 경로 접속 시 index.html 반환
     @GetMapping("/index")
     public String indexPage(HttpSession session) {
         // 세션 정보는 스프링이 자동으로 관리하므로 뷰 이름만 정확히 리턴하면 됩니다.
-        return "users/index";
+        return "user/index";
     }
 }
