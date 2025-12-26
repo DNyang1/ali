@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입 - 전체 입력</title>
+  <style>
+    input { margin-bottom: 5px; width: 250px; padding: 5px; }
+    button { width: 264px; padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+<h2>회원가입</h2>
+<input type="text" id="userId" placeholder="아이디 (user_id)"><br>
+<input type="password" id="password" placeholder="비밀번호 (password)"><br>
+<input type="text" id="name" placeholder="이름 (name)"><br>
+<input type="email" id="email" placeholder="이메일 (email)"><br>
+<input type="text" id="phone" placeholder="전화번호 (phone)"><br>
+<input type="text" id="birth" placeholder="생년월일 (birth: YYYYMMDD)"><br>
+<input type="text" id="address" placeholder="주소 (address)"><br>
+<button onclick="signup()">가입하기</button>
+
+<script>
+  function signup() {
+    // UserDTO 및 MyBatis 파라미터와 정확히 일치하는 데이터 객체 생성
+    const data = {
+      userId: document.getElementById('userId').value,
+      password: document.getElementById('password').value,
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value,
+      birth: document.getElementById('birth').value,
+      address: document.getElementById('address').value
+    };
+
+    // 경로를 /user/signup으로 맞춰서 요청 (UserController 수정 기준)
+    fetch('/user/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+            .then(res => res.text())
+            .then(msg => {
+              // UserController에서 ResponseEntity.ok("success")로 반환할 경우
+              if(msg === 'success' || msg === '회원가입 성공') {
+                alert('가입 완료! 모든 정보가 DB에 저장되었습니다.');
+                location.href = '/user/index';
+              } else {
+                alert('가입 실패: ' + msg);
+              }
+            })
+            .catch(err => console.error('Error:', err));
+  }
+</script>
+</body>
+</html>
