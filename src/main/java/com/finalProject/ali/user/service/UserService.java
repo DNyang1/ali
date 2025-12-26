@@ -1,7 +1,7 @@
-package com.finalProject.ali.users.Service;
+package com.finalProject.ali.user.service;
 
-import com.finalProject.ali.users.DAO.UserDAO;
-import com.finalProject.ali.users.DTO.UserDTO;
+import com.finalProject.ali.user.dao.UserDAO;
+import com.finalProject.ali.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

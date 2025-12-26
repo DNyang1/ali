@@ -1,6 +1,6 @@
-package com.finalProject.ali.users.DAO;
+package com.finalProject.ali.user.dao;
 
-import com.finalProject.ali.users.DTO.UserDTO;
+import com.finalProject.ali.user.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

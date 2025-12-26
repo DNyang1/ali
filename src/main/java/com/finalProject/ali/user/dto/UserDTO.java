@@ -1,4 +1,4 @@
-package com.finalProject.ali.users.DTO;
+package com.finalProject.ali.user.dto;
 
 import lombok.Data;
 

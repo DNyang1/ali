@@ -1,7 +1,7 @@
-package com.finalProject.ali.users.Controller;
+package com.finalProject.ali.user.controller;
 
-import com.finalProject.ali.users.DTO.UserDTO;
-import com.finalProject.ali.users.Service.UserService;
+import com.finalProject.ali.user.dto.UserDTO;
+import com.finalProject.ali.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

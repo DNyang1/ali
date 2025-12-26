@@ -2,14 +2,14 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.finalProject.ali.users.DAO.UserDAO">
+<mapper namespace="com.finalProject.ali.user.dao.UserDAO">
 
-    <insert id="insertUser" parameterType="com.finalProject.ali.users.DTO.UserDTO">
+    <insert id="insertUser" parameterType="com.finalProject.ali.user.dto.UserDTO">
         INSERT INTO users (user_id, password, email, name, phone, birth, address, created_at)
         VALUES (#{userId}, #{password}, #{email}, #{name}, #{phone}, #{birth}, #{address}, NOW())
     </insert>
 
-    <select id="findByUserId" resultType="com.finalProject.ali.users.DTO.UserDTO">
+    <select id="findByUserId" resultType="com.finalProject.ali.user.dto.UserDTO">
         SELECT * FROM users WHERE user_id = #{userId}
     </select>
 

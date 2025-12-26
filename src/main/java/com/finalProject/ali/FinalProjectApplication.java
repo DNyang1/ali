@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.finalProject.ali.users.DAO")
+@MapperScan("com.finalProject.ali.user.dao")
 public class FinalProjectApplication {
 
     public static void main(String[] args) {
