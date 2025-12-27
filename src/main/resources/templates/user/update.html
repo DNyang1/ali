@@ -1,10 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>정보 수정</title>
 </head>
 <body>
+<h2>회원 정보 수정</h2>
+<input type="text" id="userId" th:value="${session.loginUser.userId}" readonly><br>
+<input type="text" id="name" th:value="${session.loginUser.name}" placeholder="이름"><br>
+<input type="email" id="email" th:value="${session.loginUser.email}" placeholder="이메일"><br>
+<input type="text" id="phone" th:value="${session.loginUser.phone}" placeholder="전화번호"><br>
+<input type="text" id="address" th:value="${session.loginUser.address}" placeholder="주소"><br>
+<button onclick="updateInfo()">수정하기</button>
+<a href="/user/index">취소</a>
 
+<script>
+    function updateInfo() {
+        const data = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            address: document.getElementById('address').value
+        };
+
+        fetch('/user/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(res => {
+                if(res.ok) {
+                    alert('정보가 수정되었습니다.');
+                    location.href = '/user/index';
+                } else {
+                    alert('수정 실패');
+                }
+            })
+            .catch(err => console.error('Error:', err));
+    }
+</script>
 </body>
 </html>

@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserDAO {
     void insertUser(UserDTO userDTO); // 회원가입
+
     UserDTO findByUserId(String userId);
 
+    void updateUser(UserDTO userDTO);
 }

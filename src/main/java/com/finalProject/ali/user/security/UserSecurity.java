@@ -22,10 +22,15 @@ public class UserSecurity {
         http
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(basic -> basic.disable())
-                .formLogin(form -> form.disable())
+                .formLogin(form -> form
+                        .loginPage("/user/login") // 권한 없을 때 이동할 페이지 (GET 요청)
+                        .loginProcessingUrl("/doLogin_dummy") // 중요: Security가 가로채지 못하게 가짜 주소 입력
+                        .permitAll()
+                )
                 .authorizeHttpRequests(auth -> auth
                         // permitAll에 /user/index와 /user/logout이 잘 포함되어 있는지 확인
-                        .requestMatchers("/user/register", "/user/signup", "/user/login", "/user/index", "/user/logout").permitAll()
+                        .requestMatchers("/user/register", "/user/signup", "/user/login",
+                                "/user/update","/user/index", "/user/logout").permitAll()
                         .anyRequest().authenticated()
                 )
                 // 아래 로그아웃 설정을 추가하면 세션 정리가 더 확실해집니다.

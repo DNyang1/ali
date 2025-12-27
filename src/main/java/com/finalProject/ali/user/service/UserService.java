@@ -30,4 +30,9 @@ public class UserService {
         }
         return null; // 로그인 실패
     }
+
+    // 업데이트
+    public void updateUserInfo(UserDTO userDTO) {
+        userDAO.updateUser(userDTO);
+    }
 }

@@ -69,4 +69,39 @@ public class UserController {
         // 세션 정보는 스프링이 자동으로 관리하므로 뷰 이름만 정확히 리턴하면 됩니다.
         return "user/index";
     }
+
+    // UserController.java 에 추가
+
+    @GetMapping("/update")
+    public String updatePage() {
+        return "user/update"; // update.html 반환
+    }
+
+    @PostMapping("/update")
+    @ResponseBody
+    public ResponseEntity<String> update(@RequestBody UserDTO userDTO, HttpSession session) {
+        // 1. 현재 로그인된 세션 정보 가져오기
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+
+        if (loginUser != null) {
+            // 2. 보안을 위해 세션의 아이디를 DTO에 강제 세팅 (남의 정보 수정 방지)
+            userDTO.setUserId(loginUser.getUserId());
+
+            // 3. DB 업데이트
+            userService.updateUserInfo(userDTO);
+
+            // 4. 세션 정보 최신화 (이름 등이 바뀌었을 수 있으므로)
+            // 주의: 비밀번호 등은 보안상 세션에 유지하지 않는 것이 좋지만,
+            // 현재 구조상 index.html에서 이름을 보여주기 위해 세션 갱신이 필요합니다.
+            loginUser.setName(userDTO.getName());
+            loginUser.setEmail(userDTO.getEmail());
+            loginUser.setPhone(userDTO.getPhone());
+            loginUser.setAddress(userDTO.getAddress());
+            session.setAttribute("loginUser", loginUser);
+
+            return ResponseEntity.ok("success");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+    }
+
 }
