@@ -24,5 +24,27 @@
         WHERE user_id = #{userId}
     </update>
 
+    <select id="findSupplierByUserId" resultType="com.finalProject.ali.user.dto.SupplierDTO">
+        SELECT * FROM supplier WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertSupplier" parameterType="com.finalProject.ali.user.dto.SupplierDTO">
+        INSERT INTO supplier (
+        supplier_id, user_id, cp_number, cp_name, cp_phone, cp_address, created_at
+        ) VALUES (
+        #{supplierId}, #{userId}, #{cpNumber}, #{cpName}, #{cpPhone}, #{cpAddress}, NOW()
+        )
+    </insert>
+
+    <update id="updateSupplier" parameterType="com.finalProject.ali.user.dto.SupplierDTO">
+        UPDATE supplier
+        SET cp_name = #{cpName},
+        cp_number = #{cpNumber},
+        cp_phone = #{cpPhone},
+        cp_address = #{cpAddress},
+        updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
 
 </mapper>

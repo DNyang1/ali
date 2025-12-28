@@ -1,5 +1,6 @@
 package com.finalProject.ali.user.controller;
 
+import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import com.finalProject.ali.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +18,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // 루트(/) 경로 접속 시 index.html 반환(나중에 홈화면으로 변경)
+    @GetMapping("/index")
+    public String indexPage(HttpSession session) {
+        return "user/index";
+    }
 
 
     @GetMapping("/register")
@@ -24,7 +30,7 @@ public class UserController {
         return "user/register";
     }
 
-    // 페이지 이동: /user/login 호출 시 login.html 반환
+
     @GetMapping("/login")
     public String loginPage() {
         return "user/login";
@@ -36,8 +42,6 @@ public class UserController {
         userService.register(userDTO);
         return ResponseEntity.ok("회원가입 성공");
     }
-
-    // UserController.java
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session) {
@@ -48,7 +52,7 @@ public class UserController {
         UserDTO user = userService.login(userId, password);
 
         if (user != null) {
-            // [이 코드가 반드시 있어야 함] 세션에 유저 정보를 저장
+            //세션에 유저 정보를 저장
             session.setAttribute("loginUser", user);
             return ResponseEntity.ok("success");
         } else {
@@ -56,27 +60,18 @@ public class UserController {
         }
     }
 
-    // 로그아웃 기능 추가
+    // 로그아웃
     @GetMapping("/logout")
     public String logout(jakarta.servlet.http.HttpSession session) {
         session.invalidate(); // 세션 무효화
         return "redirect:/user/index"; // 메인 페이지로 이동
     }
 
-    // 루트(/) 경로 접속 시 index.html 반환
-    @GetMapping("/index")
-    public String indexPage(HttpSession session) {
-        // 세션 정보는 스프링이 자동으로 관리하므로 뷰 이름만 정확히 리턴하면 됩니다.
-        return "user/index";
-    }
-
-    // UserController.java 에 추가
 
     @GetMapping("/update")
     public String updatePage() {
         return "user/update"; // update.html 반환
     }
-
     @PostMapping("/update")
     @ResponseBody
     public ResponseEntity<String> update(@RequestBody UserDTO userDTO, HttpSession session) {
@@ -103,5 +98,48 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
     }
+
+    // UserController.java 에 추가
+    @GetMapping("/switch-role")
+    public String switchRole(HttpSession session) {
+        // 1. 세션에서 현재 로그인 유저 가져오기
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+
+        if (loginUser == null) {
+            System.out.println("DEBUG: 세션에 loginUser가 없음!");
+            return "redirect:/user/login";
+        }
+        // 2. 서비스로 판매자 정보(supplier)가 있는지 조회
+        SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
+
+        if (supplier == null) {
+            // 3. 판매자 정보가 없으면 등록 페이지로 이동
+            return "user/supplier_register";
+        }
+
+        // 4. 이미 판매자라면 판매자 전용 메인 페이지로 이동
+        session.setAttribute("supplierInfo", supplier);
+        return "redirect:/supplier/index";
+    }
+
+    @PostMapping("/supplier-signup")
+    @ResponseBody
+    public ResponseEntity<String> supplierSignup(@RequestBody SupplierDTO supplierDTO, HttpSession session) {
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+
+        if (loginUser != null) {
+            // 세션의 userId를 SupplierDTO에 심어줌
+            supplierDTO.setUserId(loginUser.getUserId());
+            // supplier_id 생성 (예: s_아이디)
+            supplierDTO.setSupplierId("s_" + loginUser.getUserId());
+            // 서비스 호출하여 DB 저장 (userService.registerSupplier)
+            userService.registerSupplier(supplierDTO);
+
+            return ResponseEntity.ok("success");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+    }
+
+
 
 }

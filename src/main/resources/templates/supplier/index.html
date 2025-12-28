@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>공급자 대시보드</title></head>
+<body>
+<h1>공급자 모드</h1>
+<hr>
+<div th:if="${supplier != null}">
+  <p>상호명: <span th:text="${supplier.cpName}"></span></p>
+  <p>사업자번호: <span th:text="${supplier.cpNumber}"></span></p>
+
+  <a th:href="@{/supplier/update}" style="padding: 10px; background: orange; color: white; text-decoration: none;">공급자 정보 수정</a>
+  <br><br>
+  <a th:href="@{/user/index}">구매자 페이지로 돌아가기</a>
+</div>
+</body>
+</html>
