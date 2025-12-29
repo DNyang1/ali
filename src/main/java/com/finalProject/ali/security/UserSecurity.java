@@ -16,7 +16,6 @@ public class UserSecurity {
         return new BCryptPasswordEncoder();
     }
 
-    // UserSecurity.java 수정 제안
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -36,7 +35,7 @@ public class UserSecurity {
 //                        .anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
-                // 아래 로그아웃 설정을 추가하면 세션 정리가 더 확실해집니다.
+
                 .logout(logout -> logout
                         .logoutUrl("/user/logout") // 로그아웃을 처리할 URL
                         .logoutSuccessUrl("/user/index") // 로그아웃 성공 후 이동할 페이지

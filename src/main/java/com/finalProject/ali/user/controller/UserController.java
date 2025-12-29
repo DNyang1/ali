@@ -164,5 +164,21 @@ public class UserController {
         }
     }
 
+    // 마이페이지
+    @GetMapping("/mypage")
+    public String myPage(HttpSession session, org.springframework.ui.Model model) {
+        // 1. 세션에서 로그인된 유저 정보 확인
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+
+        if (loginUser == null) {
+            return "redirect:/user/login"; // 로그인 안 되어 있으면 로그인 페이지로
+        }
+
+        // 2. 화면에 유저 정보를 뿌려주기 위해 모델에 담기
+        model.addAttribute("user", loginUser);
+
+        return "user/mypage"; // templates/user/mypage.html 반환
+    }
+
 
 }
