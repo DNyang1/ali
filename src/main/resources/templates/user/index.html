@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <link rel="stylesheet" href="/user/css/index.css"/>
   <meta charset="UTF-8">
   <title>메인 페이지</title>
-  <style>
-    .container { text-align: center; margin-top: 50px; }
-    .btn { padding: 10px 20px; text-decoration: none; background: #007bff; color: white; border-radius: 5px; margin: 5px; }
-    .logout-btn { background: #dc3545; }
-  </style>
 </head>
 <body>
 <div class="container">
@@ -26,6 +22,9 @@
     <a th:href="@{/user/switch-role}" class="btn" style="background-color: #6c757d;">판매자 모드 전환</a>
 
     <a th:href="@{/user/update}" class="btn">정보 수정</a>
+    <a th:href="@{/user/update_password}" class="btn">비밀번호 변경</a>
+
+
     <a th:href="@{/user/logout}" class="btn logout-btn">로그아웃</a>
   </div>
 </div>
