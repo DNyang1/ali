@@ -1,6 +1,7 @@
 package com.finalProject.ali.user.service;
 
 import com.finalProject.ali.user.dao.UserDAO;
+import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
     @Autowired
     private UserDAO userDAO;
+
     @Autowired private BCryptPasswordEncoder passwordEncoder;
 
     // 회원가입
@@ -35,4 +37,18 @@ public class UserService {
     public void updateUserInfo(UserDTO userDTO) {
         userDAO.updateUser(userDTO);
     }
+    public void updateSupplier(SupplierDTO supplierDTO) {
+        userDAO.updateSupplier(supplierDTO);
+    }
+
+    // 판매자 정보 가져오기
+    public SupplierDTO getSupplierInfo(String userId) {
+        return userDAO.findSupplierByUserId(userId);
+    }
+
+    // 판매자 최초 등록하기
+    public void registerSupplier(SupplierDTO supplierDTO) {
+        userDAO.insertSupplier(supplierDTO);
+    }
+
 }
