@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Alibaba Style Main</title>
+    <link rel="stylesheet" href="/index/css/index.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="top">
+        <div class="left">
+            <b class="logo">Ali.com</b>
+            <button id="allCategoryBtn">모든 카테고리</button>
+        </div>
+        <div class="right">
+            <span>한국어-KRW</span>
+            <a th:href="@{/user/login}">로그인</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="tabs">
+            <span class="active">제품</span>
+            <span>제조업체</span>
+        </div>
+
+        <div class="search-box">
+            <input type="text" placeholder="여성 의류">
+
+            <button class="search-btn">검색</button>
+        </div>
+    </div>
+</header>
+
+<div class="welcome-bar">
+    <div class="welcome-left">
+        <strong>
+            Ali.com에 오신 것을 환영합니다
+        </strong>
+    </div>
+</div>
+
+<div class="all-category-overlay hidden" id="allCategoryOverlay">
+    <div class="all-category-panel">
+        <!-- 닫기 버튼 -->
+        <button class="category-close" id="categoryCloseBtn">✕</button>
+
+        <div class="all-category-wrap">
+            <aside class="all-category-left">
+                <h3>모든 카테고리</h3>
+                <ul id="allCategoryList"></ul>
+            </aside>
+
+            <section class="all-category-right">
+                <h3 id="allCategoryTitle">고객님을 위한 카테고리</h3>
+                <div class="all-category-grid" id="allCategoryGrid"></div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <aside class="category-box">
+        <h3>고객님을 위한 카테고리</h3>
+        <ul id="categoryList"></ul>
+    </aside>
+</div>
+
+<section class="biz">
+
+    <div class="banner left">
+        <div class="text">
+            <h2><span>Ali</span> Guaranteed</h2>
+            <p>✔ 빠른 주문 및 결제 &nbsp; ✔ 정시 배송 &nbsp; ✔ 환불 보장</p>
+            <button class="explore-btn">지금 살펴보기</button>
+        </div>
+
+        <div class="products">
+            <div class="card">
+                <img src="https://picsum.photos/200?1">
+                <b>₩896</b>
+                <span class="ship">무료 배송</span>
+            </div>
+            <div class="card">
+                <img src="https://picsum.photos/200?2">
+                <b>₩314</b>
+                <span class="ship">무료 배송</span>
+            </div>
+            <div class="card">
+                <img src="https://picsum.photos/200?3">
+                <b>₩493</b>
+                <span class="ship">무료 배송</span>
+            </div>
+            <div class="card">
+                <img src="https://picsum.photos/200?4">
+                <b>₩7,541</b>
+                <span class="ship">무료 배송</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="banner right">
+        <div class="text">
+            <h2>⚡ 빠른 커스터마이징</h2>
+            <p>✔ 낮은 MOQ &nbsp; ✔ 14일 내 발송 &nbsp; ✔ 디자인 충실</p>
+            <button class="explore-btn">지금 살펴보기</button>
+        </div>
+
+        <div class="products">
+            <div class="card">
+                <img src="https://picsum.photos/200?5">
+                <b>₩6,272</b>
+                <span>MOQ: 100</span>
+            </div>
+            <div class="card">
+                <img src="https://picsum.photos/200?6">
+                <b>₩4,465</b>
+                <span>MOQ: 5</span>
+            </div>
+            <div class="card">
+                <img src="https://picsum.photos/200?7">
+                <b>₩139,609</b>
+                <span>MOQ: 1</span>
+            </div>
+            <div class="card">
+                <img src="https://picsum.photos/200?8">
+                <b>₩13,633</b>
+                <span>MOQ: 2</span>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<script src="/index/js/index.js"></script>
+</body>
+</html>

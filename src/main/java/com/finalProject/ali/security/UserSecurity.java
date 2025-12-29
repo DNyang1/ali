@@ -1,4 +1,4 @@
-package com.finalProject.ali.user.security;
+package com.finalProject.ali.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,13 +28,13 @@ public class UserSecurity {
                         .permitAll()
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // permitAll에 /user/index와 /user/logout이 잘 포함되어 있는지 확인
+//                        // permitAll에 /user/index와 /user/logout이 잘 포함되어 있는지 확인
 //                        .requestMatchers("/user/register", "/user/signup", "/user/login",
 //                                "/user/update","/user/index", "/user/logout",
 //                                "/user/switch-role","/user/supplier-signup",
 //                                "/supplier/**").permitAll()
 //                        .anyRequest().authenticated()
-                                .anyRequest().permitAll()
+                        .anyRequest().permitAll()
                 )
                 // 아래 로그아웃 설정을 추가하면 세션 정리가 더 확실해집니다.
                 .logout(logout -> logout

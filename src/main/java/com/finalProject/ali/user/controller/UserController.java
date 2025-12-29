@@ -99,7 +99,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
     }
 
-    // UserController.java 에 추가
+    // 판매자와 구매자 전환
     @GetMapping("/switch-role")
     public String switchRole(HttpSession session) {
         // 1. 세션에서 현재 로그인 유저 가져오기
@@ -140,6 +140,29 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
     }
 
+    // 비밀번호 수정
+    @GetMapping("/update_password")
+    public String updatePasswordPage() {
+        return "user/update_password";
+    }
+    @PostMapping("/update_password")
+    @ResponseBody
+    public ResponseEntity<String> updatePassword(@RequestParam String currentPassword,
+                                                 @RequestParam String newPassword,
+                                                 HttpSession session) {
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        if (loginUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+
+        boolean isChanged = userService.changePassword(loginUser.getUserId(), currentPassword, newPassword);
+
+        if (isChanged) {
+            // 비밀번호가 바뀌었으므로 세션을 무효화하거나 업데이트 권장
+            session.removeAttribute("loginUser");
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("wrong_password");
+        }
+    }
 
 
 }

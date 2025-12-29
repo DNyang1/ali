@@ -1,0 +1,67 @@
+/* ===== Page Header ===== */
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 24px;
+}
+
+.page-desc {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* ===== KPI ===== */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.kpi-card {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.kpi-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kpi-title {
+    margin: 0;
+    font-size: 14px;
+}
+
+.kpi-link {
+    font-size: 12px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.kpi-body {
+    margin-top: 12px;
+}
+
+.kpi-value {
+    font-size: 24px;
+}
+
+.kpi-unit {
+    margin-left: 4px;
+    font-size: 14px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1200px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
