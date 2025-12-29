@@ -12,7 +12,7 @@
     <select id="findById" resultType="com.finalProject.ali.chat.dto.RoomDTO">
         SELECT
         room_id AS roomId,
-        create_at AS createAt
+        created_at AS createdAt
         FROM room
         WHERE room_id = #{roomId}
     </select>
@@ -37,6 +37,4 @@
         CASE WHEN c.chat_id IS NULL THEN 1 ELSE 0 END,
         c.chat_id DESC;
     </select>
-
-
 </mapper>

@@ -6,7 +6,9 @@ import com.finalProject.ali.chat.dao.RoomMemberDAO;
 import com.finalProject.ali.chat.dto.ChatDTO;
 import com.finalProject.ali.chat.dto.RoomDTO;
 import com.finalProject.ali.chat.dto.RoomListDTO;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,7 +95,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<RoomListDTO> getMyRooms(String userId) {
-        return roomDAO.findMyRooms(userId);
+        return roomMemberDAO.getMyRooms(userId);
     }
 
 }
