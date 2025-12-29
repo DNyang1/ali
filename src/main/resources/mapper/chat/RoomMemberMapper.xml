@@ -4,7 +4,32 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.chat.dao.RoomMemberDAO">
-    <!-- 그룹 가능: 여러 user_id를 한 번에 insert -->
+
+    <!-- 1) 내 채팅방 리스트 -->
+    <select id="getMyRooms"
+            resultType="com.finalProject.ali.chat.dto.RoomListDTO">
+        SELECT
+        rm.room_id AS roomId,
+        (
+        SELECT c.message
+        FROM chat c
+        WHERE c.room_id = rm.room_id
+        ORDER BY c.chat_id DESC
+        LIMIT 1
+        ) AS lastMessage,
+        (
+        SELECT c.chat_at
+        FROM chat c
+        WHERE c.room_id = rm.room_id
+        ORDER BY c.chat_id DESC
+        LIMIT 1
+        ) AS lastChatAt
+        FROM room_members rm
+        WHERE rm.user_id = #{userId}
+        ORDER BY COALESCE(lastChatAt, '1970-01-01') DESC
+    </select>
+
+    <!-- 2) 그룹 가능: 여러 user_id를 한 번에 insert -->
     <insert id="insertMembers">
         INSERT INTO room_members (room_id, user_id)
         VALUES
@@ -15,7 +40,7 @@
 
     <select id="findMemberIds" resultType="string">
         SELECT user_id
-        FROM room_members
+        FROM room_members rm
         WHERE room_id = #{roomId}
         ORDER BY user_id
     </select>
