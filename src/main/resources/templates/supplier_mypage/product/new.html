@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${pageTitle}">상품 등록</title>
+    <link rel="stylesheet" href="/supplier_mypage/css/layout.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar" th:replace="supplier_mypage/partials/sidebar :: sidebar"></aside>
+    <div class="main">
+        <header class="topbar" th:replace="supplier_mypage/partials/topbar :: topbar"></header>
+
+        <main class="content">
+            <section class="panel">
+                <header class="panel-head">
+                    <h2 class="panel-title">상품 등록</h2>
+                    <a class="panel-link" href="/supplier_mypage/product">목록</a>
+                </header>
+
+                <div class="panel-body">
+                    <form th:action="@{/supplier_mypage/product}" method="post" th:object="${form}">
+                        <label>카테고리 ID</label>
+                        <input type="text" th:field="*{categoryId}"/><br/><br/>
+
+                        <label>상품명</label>
+                        <input type="text" th:field="*{productName}" required/><br/><br/>
+
+                        <label>설명</label>
+                        <textarea th:field="*{description}"></textarea><br/><br/>
+
+                        <label>MOQ</label>
+                        <input type="number" th:field="*{moq}"/><br/><br/>
+
+                        <label>커스터마이즈</label>
+                        <select th:field="*{isCustomizable}">
+                            <option value="0">불가</option>
+                            <option value="1">가능</option>
+                        </select><br/><br/>
+
+                        <button type="submit">등록</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+</body>
+</html>
