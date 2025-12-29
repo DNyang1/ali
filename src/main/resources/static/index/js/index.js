@@ -87,4 +87,11 @@ if (categoryBox && overlay) {
     });
 }
 
+// 상품리스트 가기
+document.querySelectorAll('.explore-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        window.location.href = '/products';
+    });
+});
+
 
