@@ -1,7 +1,7 @@
 package com.finalProject.ali.products.service;
 
-import com.finalProject.ali.products.dao.ProductDAO;
-import com.finalProject.ali.products.dto.ProductDTO;
+import com.finalProject.ali.products.dao.ProductsDAO;
+import com.finalProject.ali.products.dto.ProductsDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +11,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final ProductDAO productDAO;
+    private final ProductsDAO productDAO;
 
-    public List<ProductDTO> productList(){
+    public List<ProductsDTO> productList(){
         return productDAO.productList();
     }
 }

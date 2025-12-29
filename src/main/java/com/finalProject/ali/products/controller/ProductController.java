@@ -1,6 +1,6 @@
 package com.finalProject.ali.products.controller;
 
-import com.finalProject.ali.products.dto.ProductDTO;
+import com.finalProject.ali.products.dto.ProductsDTO;
 import com.finalProject.ali.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -19,7 +19,7 @@ public class ProductController {
     @GetMapping("/products")
     public String productsList(Model model) {
 
-        List<ProductDTO> products = productService.productList();
+        List<ProductsDTO> products = productService.productList();
         model.addAttribute("products", products);
 
         return "products/products_list";

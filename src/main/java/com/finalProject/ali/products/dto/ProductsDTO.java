@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.sql.Date;
 
 @Getter @Setter
-public class ProductDTO {
+public class ProductsDTO {
 
     private Long productId;
     private String categoryId;
