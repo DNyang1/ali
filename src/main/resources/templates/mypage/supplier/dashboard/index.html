@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${pageTitle} ?: '공급자 대시보드'">공급자 대시보드</title>
+
+    <link rel="stylesheet" href="/mypage/supplier/css/layout.css">
+    <link rel="stylesheet" href="/mypage/supplier/css/dashboard.css">
+</head>
+
+<body class="supplier-layout">
+
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" th:replace="mypage/supplier/partials/sidebar :: sidebar"></aside>
+
+    <div class="main">
+        <!-- Topbar -->
+        <header class="topbar" th:replace="mypage/supplier/partials/topbar :: topbar"></header>
+
+        <!-- Content -->
+        <main class="content">
+
+            <!-- Page Header -->
+            <section class="page-header">
+                <h1 class="page-title">대시보드</h1>
+                <p class="page-desc">주문·문의·정산 현황을 한눈에 확인하고 빠르게 처리하세요.</p>
+            </section>
+
+            <!-- KPI Cards -->
+            <section class="kpi-grid" aria-label="요약 지표">
+                <article class="kpi-card">
+                    <div class="kpi-head">
+                        <h2 class="kpi-title">진행 중 주문</h2>
+                        <a class="kpi-link" href="/mypage/supplier/order?status=IN_PROGRESS">바로가기</a>
+                    </div>
+                    <div class="kpi-body">
+                        <strong class="kpi-value"
+                                th:text="${summary.inProgressOrders} ?: 0">0</strong>
+                        <span class="kpi-unit">건</span>
+                    </div>
+                </article>
+
+                <article class="kpi-card">
+                    <div class="kpi-head">
+                        <h2 class="kpi-title">답변 대기 문의</h2>
+                        <a class="kpi-link" href="/mypage/supplier/inquiry?status=OPEN">바로가기</a>
+                    </div>
+                    <div class="kpi-body">
+                        <strong class="kpi-value"
+                                th:text="${summary.openInquiries} ?: 0">0</strong>
+                        <span class="kpi-unit">건</span>
+                    </div>
+                </article>
+
+                <article class="kpi-card">
+                    <div class="kpi-head">
+                        <h2 class="kpi-title">배송 미처리</h2>
+                        <a class="kpi-link" href="/mypage/supplier/order?filter=SHIPPING_PENDING">바로가기</a>
+                    </div>
+                    <div class="kpi-body">
+                        <strong class="kpi-value"
+                                th:text="${summary.shippingPending} ?: 0">0</strong>
+                        <span class="kpi-unit">건</span>
+                    </div>
+                </article>
+
+                <article class="kpi-card">
+                    <div class="kpi-head">
+                        <h2 class="kpi-title">정산 미확정</h2>
+                        <a class="kpi-link" href="/mypage/supplier/settlement?status=PENDING">바로가기</a>
+                    </div>
+                    <div class="kpi-body">
+                        <strong class="kpi-value"
+                                th:text="${summary.settlementPending} ?: 0">0</strong>
+                        <span class="kpi-unit">건</span>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Action Required -->
+            <section class="panel" aria-label="처리 필요 항목">
+                <header class="panel-head">
+                    <h2 class="panel-title">처리 필요 항목</h2>
+                    <p class="panel-desc">지금 바로 처리하면 이슈를 줄일 수 있어요.</p>
+                </header>
+
+                <div class="panel-body">
+                    <table class="table table-actions">
+                        <thead>
+                        <tr>
+                            <th>항목</th>
+                            <th>건수</th>
+                            <th>최신 발생일</th>
+                            <th>바로가기</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>답변 대기 문의</td>
+                            <td th:text="${summary.openInquiries} ?: 0">0</td>
+                            <td th:text="${summary.latestInquiryAt} ?: '-'">-</td>
+                            <td>
+                                <a href="/mypage/supplier/inquiry?status=OPEN">처리하기</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>배송 미처리 주문</td>
+                            <td th:text="${summary.shippingPending} ?: 0">0</td>
+                            <td th:text="${summary.latestShippingPendingAt} ?: '-'">-</td>
+                            <td>
+                                <a href="/mypage/supplier/order?filter=SHIPPING_PENDING">처리하기</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>정산 미확정 내역</td>
+                            <td th:text="${summary.settlementPending} ?: 0">0</td>
+                            <td th:text="${summary.latestSettlementPendingAt} ?: '-'">-</td>
+                            <td>
+                                <a href="/mypage/supplier/settlement?status=PENDING">처리하기</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Recent Orders + Recent Inquiries -->
+            <section class="grid-2">
+                <!-- Recent Orders -->
+                <section class="panel">
+                    <header class="panel-head">
+                        <h2 class="panel-title">최근 주문</h2>
+                        <a class="panel-link" href="/mypage/supplier/order">전체 보기</a>
+                    </header>
+
+                    <div class="panel-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>주문번호</th>
+                                <th>상품</th>
+                                <th>구매자</th>
+                                <th>상태</th>
+                                <th>주문일</th>
+                                <th>액션</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                <td colspan="6">최근 주문이 없습니다.</td>
+                            </tr>
+
+                            <tr th:each="o : ${recentOrders}">
+                                <td th:text="${o.orderNo}">ORD-0001</td>
+                                <td th:text="${o.productName}">상품명</td>
+                                <td th:text="${o.buyerName}">구매자</td>
+                                <td th:text="${o.status}">PENDING</td>
+                                <td th:text="${o.createdAt}">2025-12-28</td>
+                                <td>
+                                    <a th:href="@{/mypage/supplier/order/{id}(id=${o.id})}">상세</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Recent Inquiries -->
+                <section class="panel">
+                    <header class="panel-head">
+                        <h2 class="panel-title">최근 문의</h2>
+                        <a class="panel-link" href="/mypage/supplier/inquiry">전체 보기</a>
+                    </header>
+
+                    <div class="panel-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>문의번호</th>
+                                <th>상품</th>
+                                <th>구매자</th>
+                                <th>상태</th>
+                                <th>요청일</th>
+                                <th>액션</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(recentInquiries)}">
+                                <td colspan="6">최근 문의가 없습니다.</td>
+                            </tr>
+
+                            <tr th:each="r : ${recentInquiries}">
+                                <td th:text="${r.inquiryNo}">INQ-0001</td>
+                                <td th:text="${r.productName}">상품명</td>
+                                <td th:text="${r.buyerName}">구매자</td>
+                                <td th:text="${r.status}">OPEN</td>
+                                <td th:text="${r.createdAt}">2025-12-28</td>
+                                <td>
+                                    <a th:href="@{/mypage/supplier/inquiry/{id}(id=${r.id})}">상세</a>
+                                    <span> / </span>
+                                    <a th:href="@{/mypage/supplier/inquiry/{id}/reply(id=${r.id})}">답변</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Notifications -->
+            <section class="panel">
+                <header class="panel-head">
+                    <h2 class="panel-title">알림</h2>
+                    <a class="panel-link" href="/mypage/supplier/notification">전체 보기</a>
+                </header>
+
+                <div class="panel-body">
+                    <ul class="notifications">
+                        <li th:if="${#lists.isEmpty(notifications)}">새 알림이 없습니다.</li>
+
+                        <li th:each="n : ${notifications}">
+                            <div th:text="${n.title}">알림 제목</div>
+                            <small th:text="${n.createdAt}">2025-12-28</small>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+</body>
+</html>
