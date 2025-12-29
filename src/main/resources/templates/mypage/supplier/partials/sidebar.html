@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar" class="sidebar-inner">
+    <div class="sidebar-head">
+        <a class="sidebar-brand" href="/mypage/supplier/dashboard">Supplier MyPage</a>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="사이드 메뉴">
+            <ul class="menu">
+                <li class="menu-item" th:classappend="${activeMenu}=='dashboard' ? ' active'">
+                    <a href="/mypage/supplier/dashboard">대시보드</a>
+                </li>
+
+                <li class="menu-item" th:classappend="${activeMenu}=='product' ? ' active'">
+                    <a href="/mypage/supplier/product">상품 관리</a>
+                </li>
+
+                <li class="menu-item" th:classappend="${activeMenu}=='order' ? ' active'">
+                    <a href="/mypage/supplier/order">주문 관리</a>
+                </li>
+
+                <li class="menu-item" th:classappend="${activeMenu}=='inquiry' ? ' active'">
+                    <a href="/mypage/supplier/inquiry">문의 관리</a>
+                </li>
+
+                <li class="menu-item" th:classappend="${activeMenu}=='chat' ? ' active'">
+                    <a href="/mypage/supplier/chat">채팅 / 메시지</a>
+                </li>
+
+                <li class="menu-item" th:classappend="${activeMenu}=='company' ? ' active'">
+                    <a href="/mypage/supplier/company">회사 정보</a>
+                </li>
+
+                <li class="menu-item" th:classappend="${activeMenu}=='settlement' ? ' active'">
+                    <a href="/mypage/supplier/settlement">정산</a>
+                </li>
+
+                <li class="menu-item" th:classappend="${activeMenu}=='setting' ? ' active'">
+                    <a href="/mypage/supplier/setting">설정</a>
+                </li>
+            </ul>
+    </nav>
+</aside>
+</body>
+</html>

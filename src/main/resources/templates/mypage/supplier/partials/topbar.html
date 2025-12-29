@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="topbar">
+    <div class="topbar-inner">
+        <div class="topbar-left">
+            <a class="brand" href="/mypage/supplier/dashboard">공급자센터</a>
+        </div>
+
+        <div class="topbar-right">
+            <nav class="topbar-actions" aria-label="상단 메뉴">
+                <a class="topbar-action" href="/mypage/supplier/notifications" aria-label="알림">
+                    알림 <span class="badge" th:text="${summary.unreadNotifications} ?: 0">0</span>
+                </a>
+                <a class="topbar-action" href="/mypage/supplier/chat" aria-label="메시지">
+                    메시지 <span class="badge" th:text="${summary.unreadMessages} ?: 0">0</span>
+                </a>
+            </nav>
+
+            <div class="topbar-profile">
+                <span class="company-name" th:text="${supplier.companyName} ?: '회사명'">회사명</span>
+                <a class="logout" href="/logout">로그아웃</a>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>
