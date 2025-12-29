@@ -16,10 +16,8 @@ public class SupplierDashboardController extends BaseSupplierController {
         model.addAttribute("pageTitle", "공급자 대시보드");
         model.addAttribute("activeMenu", "dashboard");
 
-        // 공통 모델
         addCommonAttributes(model);
 
-        // 대시보드 전용 리스트
         model.addAttribute("recentOrders", Collections.emptyList());
         model.addAttribute("recentInquiries", Collections.emptyList());
         model.addAttribute("notifications", Collections.emptyList());

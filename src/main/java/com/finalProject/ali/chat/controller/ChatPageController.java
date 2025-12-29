@@ -25,25 +25,21 @@ public class ChatPageController {
 
         model.addAttribute("currentUserId", userId);
 
-        // 내 채팅방 리스트 조회해서 왼쪽에 내려줌
         List<RoomListDTO> rooms = chatService.getMyRooms(userId);
         model.addAttribute("rooms", rooms);
 
-        // roomId가 없으면, 내 방 중 첫 번째를 자동 선택
         Long currentRoomId = roomId;
         if (currentRoomId == null && !rooms.isEmpty()) {
             currentRoomId = rooms.get(0).getRoomId();
         }
         model.addAttribute("currentRoomId", currentRoomId);
 
-        //  선택된 방이 있으면 메시지 조회, 없으면 빈 리스트
         List<ChatDTO> messages = Collections.emptyList();
         if (currentRoomId != null) {
             messages = chatService.getChatsByRoomId(currentRoomId);
         }
         model.addAttribute("messages", messages);
 
-        // 우측 상단 타이틀도 선택된 방 기준으로 표시
         if (currentRoomId != null) {
             model.addAttribute("currentRoomTitle", "Room #" + currentRoomId);
             model.addAttribute("currentRoomSub", "");
