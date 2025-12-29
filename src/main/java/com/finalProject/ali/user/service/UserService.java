@@ -14,6 +14,7 @@ public class UserService {
 
     @Autowired private BCryptPasswordEncoder passwordEncoder;
 
+
     // 회원가입
     public void register(UserDTO userDTO) {
         // 비밀번호 암호화
@@ -50,5 +51,24 @@ public class UserService {
     public void registerSupplier(SupplierDTO supplierDTO) {
         userDAO.insertSupplier(supplierDTO);
     }
+
+    public boolean changePassword(String userId, String currentPassword, String newPassword) {
+        // 1. DB에서 현재 유저 정보 가져오기
+        UserDTO user = userDAO.getUserById(userId);
+
+        // 2. 현재 비밀번호 일치 여부 확인
+        if (passwordEncoder.matches(currentPassword, user.getPassword())) {
+            // 3. 일치하면 새 비밀번호 암호화 후 업데이트
+            String encryptedPassword = passwordEncoder.encode(newPassword);
+            userDAO.updatePassword(userId, encryptedPassword);
+            return true;
+        }
+        return false; // 비밀번호 불일치
+    }
+
+
+
+
+
 
 }
