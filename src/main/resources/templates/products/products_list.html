@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 리스트</title>
+    <link rel="stylesheet" href="/products/css/products.css">
+</head>
+<body>
+
+<h2 class="page-title">전체 상품</h2>
+
+<div class="product-grid" id="productGrid">
+    <div class="product-card" th:each="p : ${products}">
+        <!-- 이미지 (임시) -->
+        <img th:src="@{|https://picsum.photos/300?random=${p.productId}|}"
+             alt="상품 이미지">
+
+        <div class="info">
+            <p class="title" th:text="${p.productName}"></p>
+
+            <div class="meta">
+                <span class="moq" th:text="|MOQ ${p.moq}|"></span>
+
+                <span class="custom"
+                      th:if="${p.isCustomizable == 1}">
+                    커스터마이징 가능
+                </span>
+                <span class="custom" th:if="${p.isCustomizable == 0}">커스텀 불가</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/products/js/products.js"></script>
+</body>
+</html>
