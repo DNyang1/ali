@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.supplier_mypage.product.dao.OptionDAO">
+
+    <select id="findByProductId"
+            resultType="com.finalProject.ali.supplier_mypage.product.dto.OptionDTO">
+        SELECT
+            option_id    AS optionId,
+            product_id   AS productId,
+            option_name  AS optionName,
+            option_value AS optionValue
+        FROM options
+        WHERE product_id = #{productId}
+        ORDER BY option_name, option_value
+    </select>
+
+    <insert id="insert">
+        INSERT INTO options(option_id, product_id, option_name, option_value)
+        VALUES (#{optionId}, #{productId}, #{optionName}, #{optionValue})
+    </insert>
+
+</mapper>
