@@ -1,9 +1,10 @@
 package com.finalProject.ali.cart.service;
 
-import com.finalProject.ali.cart.dto.AddCartItem;
-import com.finalProject.ali.cart.dto.CartDTO;
+import com.finalProject.ali.cart.dto.AddCartItemRequest;
+import com.finalProject.ali.cart.dto.CartResponse;
 
 public interface CartService {
-    CartDTO getCart(String userId);
-    void addItem(String userId, AddCartItem request);
+    CartResponse getCart(String userId);
+    void addItem(String userId, AddCartItemRequest request);
+    void deleteItem(String userId, String cartItemId);
 }

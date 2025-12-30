@@ -1,14 +1,12 @@
 package com.finalProject.ali.cart.controller;
 
-import com.finalProject.ali.cart.dto.AddCartItem;
-import com.finalProject.ali.cart.dto.CartDTO;
+import com.finalProject.ali.cart.dto.AddCartItemRequest;
+import com.finalProject.ali.cart.dto.CartResponse;
 import com.finalProject.ali.cart.service.CartService;
+import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/cart")
@@ -17,18 +15,25 @@ public class CartController {
 
     private final CartService cartService;
 
-    private String getCurrentUserId(HttpSession session) {
-        return (String) session.getAttribute("loginUser");
-    }
-
     @GetMapping
-    public CartDTO getCart(HttpSession session) {
-        String userId = getCurrentUserId(session);
+    public CartResponse getCart(HttpSession session) {
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
         return cartService.getCart(userId);
     }
 
-    public void addItem(@RequestBody AddCartItem request, HttpSession session) {
-        String userId = getCurrentUserId(session);
+    @PostMapping("/items")
+    public void addItem(
+            @RequestBody AddCartItemRequest request, HttpSession session) {
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
         cartService.addItem(userId, request);
+    }
+
+    @DeleteMapping("/items/{cartItemId}")
+    public void deleteItem(@PathVariable String cartItemId, HttpSession session){
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
+        cartService.deleteItem(userId, cartItemId);
     }
 }

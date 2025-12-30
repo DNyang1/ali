@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddCartItem {
+public class AddCartItemRequest {
     private String productId;
     private Long quantity;
 }
