@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle != null ? pageTitle : 'ALI'}">ALI</title>
+
+    <!-- 공통 헤더 스타일 -->
+    <link rel="stylesheet" href="/main/css/main-header.css">
+    <link rel="stylesheet" href="/main/css/common.css">
+    <!-- 페이지 전용 CSS -->
+    <!--
+    <link rel="stylesheet" href="/main/css/여기페이지이름.css">
+    -->
+</head>
+<body>
+
+<!-- 메인 공통 헤더 -->
+<div th:replace="layout/mainHeader :: mainHeader"></div>
+
+<!-- ===================== 페이지 내용 ===================== -->
+<main class="container">
+    <h1 style="padding:60px 0; text-align:center; color:#94a3b8;">
+        여기에 페이지 내용 작성
+    </h1>
+</main>
+<!-- ====================================================== -->
+
+<!-- 공통 푸터 -->
+<footer th:replace="layout/footer :: footer"></footer>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(content, links)">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} ?: '유저 마이페이지'">유저 마이페이지</title>
+
+    <link rel="stylesheet" href="/mypage/common/css/layout.css"/>
+    <link rel="stylesheet" href="/mypage/user/css/layout.css"/>
+
+    <!-- 페이지별 추가 css 들어오는 자리 -->
+    <th:block th:replace="${links}" />
+</head>
+
+<body>
+<div class="mypage-layout">
+    <div th:replace="mypage/user/partials/header :: header"></div>
+
+    <div class="mypage-body">
+        <div th:replace="mypage/user/partials/sidebar :: sidebar"></div>
+
+        <main class="mypage-content content">
+            <th:block th:replace="${content}" />
+        </main>
+    </div>
+
+    <footer th:replace="layout/footer :: footer"></footer>
+</div>
+</body>
+</html>

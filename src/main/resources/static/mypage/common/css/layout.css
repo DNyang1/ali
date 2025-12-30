@@ -1,0 +1,40 @@
+.mypage-layout{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.mypage-body{
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.mypage-body > aside{
+    padding: 0;
+    margin: 0;
+    flex: 0 0 var(--sidebar-w, 240px);
+}
+
+.mypage-body > aside .sidebar{
+    height: 100%;
+    min-height: calc(100vh - var(--topbar-h, 64px));
+}
+
+.mypage-content{
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    padding: 22px;
+}
+
+footer{
+    flex: 0 0 auto;
+    margin-top: auto;
+}
+
+@media (max-width: 860px){
+    .mypage-body{ display: block; }
+    .mypage-body > aside{ display: none; }
+    .mypage-content{ padding: 14px; }
+}

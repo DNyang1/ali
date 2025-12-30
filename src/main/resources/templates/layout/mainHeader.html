@@ -1,0 +1,35 @@
+<header th:fragment="mainHeader" class="site-header">
+    <div class="header-inner">
+
+        <div class="header-left">
+            <a th:href="@{/}" class="logo">ALI</a>
+        </div>
+
+        <div class="header-right">
+
+            <!-- 비로그인 -->
+            <div th:if="${loginUser == null}" class="auth">
+                <a th:href="@{/cart}" class="chip">
+                    장바구니 <span th:text="${cartCount} ?: 0">0</span>
+                </a>
+                <a th:href="@{/login}" class="link">로그인</a>
+                <a th:href="@{/join}" class="btn">회원가입</a>
+            </div>
+
+            <!-- 로그인 -->
+            <div th:if="${loginUser != null}" class="auth">
+                <a th:href="@{/cart}" class="chip">
+                    장바구니 <span th:text="${cartCount} ?: 0">0</span>
+                </a>
+                <a th:href="@{/chat}" class="chip">
+                    메시지 <span th:text="${unreadChatCount} ?: 0">0</span>
+                </a>
+                <a th:href="@{/mypage/user/dashboard}" class="chip">
+                    내 마이페이지
+                </a>
+                <a th:href="@{/logout}" class="logout">로그아웃</a>
+            </div>
+
+        </div>
+    </div>
+</header>
