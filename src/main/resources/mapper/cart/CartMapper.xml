@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.cart.mapper.CartMapper">
+    <select id="findActiveCart" resultType="com.finalProject.ali.cart.domain.Cart">
+        SELECT *
+        FROM cart
+        WHERE user_id = #{userId}
+            AND status = 'ACTIVE'
+        LIMIT 1
+    </select>
+
+    <insert id="insert">
+        INSERT INTO cart (cart_id, user_id, status)
+        VALUES (#{cartId}, #{userId}, #{status})
+    </insert>
+
+</mapper>
