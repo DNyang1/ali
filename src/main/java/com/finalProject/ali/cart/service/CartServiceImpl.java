@@ -65,7 +65,8 @@ public class CartServiceImpl implements CartService{
         CartItem item =
                 cartItemMapper.findByCartIdAndProductId(
                         cart.getCartId(),
-                        request.getProductId()
+                        request.getProductId(),
+                        request.getSkuId()
                 );
 
         if (item == null) {

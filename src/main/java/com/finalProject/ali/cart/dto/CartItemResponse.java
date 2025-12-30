@@ -10,5 +10,6 @@ import lombok.Setter;
 public class CartItemResponse {
     private String cartItemId;
     private String productId;
+    private String skuId;
     private Long quantity;
 }
