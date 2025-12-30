@@ -1,51 +1,58 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
 <head>
     <meta charset="UTF-8"/>
-    <title th:text="${pageTitle}">SKU 옵션 수정</title>
-    <link rel="stylesheet" href="/mypage/supplier/css/layout.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} ?: 'SKU 옵션 수정'">SKU 옵션 수정</title>
+    <link rel="stylesheet" href="/mypage/supplier/css/product.css">
+
 </head>
+
 <body>
-<div class="layout">
-    <aside class="sidebar" th:replace="mypage/supplier/partials/sidebar :: sidebar"></aside>
-    <div class="main">
-        <header class="topbar" th:replace="mypage/supplier/partials/topbar :: topbar"></header>
 
-        <main class="content">
-            <section class="panel">
-                <header class="panel-head">
-                    <h2 class="panel-title">SKU 옵션 수정</h2>
-                    <a class="panel-link" th:href="@{/mypage/supplier/product/{id}/sku(id=${productId})}">SKU 목록</a>
-                </header>
+    <section class="panel">
+        <header class="panel-head">
+            <h2 class="panel-title">SKU 옵션 수정</h2>
+            <a class="panel-link"
+               th:href="@{/mypage/supplier/product/{id}/sku(id=${productId})}">
+                SKU 목록
+            </a>
+        </header>
 
-                <div class="panel-body">
-                    <p><b>SKU</b> : <span th:text="${skuId}">sku</span></p>
+        <div class="panel-body">
+            <p>
+                <b>SKU</b> :
+                <span th:text="${skuId}">sku</span>
+            </p>
 
-                    <form th:action="@{/mypage/supplier/product/{pid}/sku/{sid}/edit-options(pid=${productId}, sid=${skuId})}"
-                          method="post">
+            <form th:action="@{/mypage/supplier/product/{pid}/sku/{sid}/edit-options(pid=${productId}, sid=${skuId})}"
+                  method="post">
 
-                        <div th:if="${#lists.isEmpty(options)}">
-                            이 상품에 등록된 옵션이 없습니다. 먼저 옵션을 등록하세요.
-                        </div>
-
-                        <div th:if="${!#lists.isEmpty(options)}">
-                            <label th:each="o : ${options}" style="display:block; margin:6px 0;">
-                                <input type="checkbox" name="optionIds"
-                                       th:value="${o.optionId}"
-                                       th:checked="${selectedOptionIds.contains(o.optionId)}"/>
-                                <span th:text="${o.optionName + ':' + o.optionValue}">Color:Red</span>
-                            </label>
-                        </div>
-
-                        <div style="margin-top:12px;">
-                            <button type="submit">저장</button>
-                        </div>
-
-                    </form>
+                <div th:if="${#lists.isEmpty(options)}">
+                    이 상품에 등록된 옵션이 없습니다. 먼저 옵션을 등록하세요.
                 </div>
-            </section>
-        </main>
-    </div>
-</div>
+
+                <div th:if="${!#lists.isEmpty(options)}">
+                    <label th:each="o : ${options}"
+                           style="display:block; margin:6px 0;">
+                        <input type="checkbox"
+                               name="optionIds"
+                               th:value="${o.optionId}"
+                               th:checked="${selectedOptionIds.contains(o.optionId)}"/>
+                        <span th:text="${o.optionName + ':' + o.optionValue}">
+                            Color:Red
+                        </span>
+                    </label>
+                </div>
+
+                <div style="margin-top:12px;">
+                    <button type="submit">저장</button>
+                </div>
+
+            </form>
+        </div>
+    </section>
+
 </body>
 </html>

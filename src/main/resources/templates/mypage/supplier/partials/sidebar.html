@@ -1,46 +1,47 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<body>
-<aside th:fragment="sidebar" class="sidebar-inner">
-    <div class="sidebar-head">
-        <a class="sidebar-brand" href="/mypage/supplier/dashboard">Supplier MyPage</a>
-    </div>
+<nav th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-title">공급자 메뉴</div>
 
-    <nav class="sidebar-nav" aria-label="사이드 메뉴">
-            <ul class="menu">
-                <li class="menu-item" th:classappend="${activeMenu}=='dashboard' ? ' active'">
-                    <a href="/mypage/supplier/dashboard">대시보드</a>
-                </li>
+    <a th:href="@{/mypage/supplier/dashboard}"
+       th:classappend="${activeMenu=='dashboard'} ? ' active' : ''">
+        대시보드
+    </a>
 
-                <li class="menu-item" th:classappend="${activeMenu}=='product' ? ' active'">
-                    <a href="/mypage/supplier/product">상품 관리</a>
-                </li>
+    <a th:href="@{/mypage/supplier/product}"
+       th:classappend="${activeMenu=='product'} ? ' active' : ''">
+        상품
+    </a>
 
-                <li class="menu-item" th:classappend="${activeMenu}=='order' ? ' active'">
-                    <a href="/mypage/supplier/order">주문 관리</a>
-                </li>
+    <a th:href="@{/mypage/supplier/order}"
+       th:classappend="${activeMenu=='order'} ? ' active' : ''">
+        주문
+    </a>
 
-                <li class="menu-item" th:classappend="${activeMenu}=='inquiry' ? ' active'">
-                    <a href="/mypage/supplier/inquiry">문의 관리</a>
-                </li>
+    <a th:href="@{/mypage/supplier/inquiry}"
+       th:classappend="${activeMenu=='inquiry'} ? ' active' : ''">
+        문의
+    </a>
 
-                <li class="menu-item" th:classappend="${activeMenu}=='chat' ? ' active'">
-                    <a href="/mypage/supplier/chat">채팅 / 메시지</a>
-                </li>
+    <a th:href="@{/mypage/supplier/chat}"
+       th:classappend="${activeMenu=='chat'} ? ' active' : ''">
+        채팅
+    </a>
 
-                <li class="menu-item" th:classappend="${activeMenu}=='company' ? ' active'">
-                    <a href="/mypage/supplier/company">회사 정보</a>
-                </li>
+    <a th:href="@{/mypage/supplier/settlement}"
+       th:classappend="${activeMenu=='settlement'} ? ' active' : ''">
+        정산
+    </a>
 
-                <li class="menu-item" th:classappend="${activeMenu}=='settlement' ? ' active'">
-                    <a href="/mypage/supplier/settlement">정산</a>
-                </li>
+    <a th:href="@{/mypage/supplier/company}"
+       th:classappend="${activeMenu=='company'} ? ' active' : ''">
+        회사정보
+    </a>
 
-                <li class="menu-item" th:classappend="${activeMenu}=='setting' ? ' active'">
-                    <a href="/mypage/supplier/setting">설정</a>
-                </li>
-            </ul>
-    </nav>
-</aside>
-</body>
-</html>
+    <hr class="sidebar-sep"/>
+
+    <!-- 전환 -->
+    <a th:href="@{/mypage/user/dashboard}" class="sidebar-sub">
+        유저로 전환
+    </a>
+
+    <a th:href="@{/}" class="sidebar-sub">메인으로</a>
+</nav>

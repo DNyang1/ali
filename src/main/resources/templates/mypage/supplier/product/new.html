@@ -1,49 +1,46 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
 <head>
     <meta charset="UTF-8"/>
-    <title th:text="${pageTitle}">상품 등록</title>
-    <link rel="stylesheet" href="/mypage/supplier/css/layout.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} ?: '상품 등록'">상품 등록</title>
+    <link rel="stylesheet" href="/mypage/supplier/css/product.css">
+
 </head>
+
 <body>
-<div class="layout">
-    <aside class="sidebar" th:replace="mypage/supplier/partials/sidebar :: sidebar"></aside>
-    <div class="main">
-        <header class="topbar" th:replace="mypage/supplier/partials/topbar :: topbar"></header>
 
-        <main class="content">
-            <section class="panel">
-                <header class="panel-head">
-                    <h2 class="panel-title">상품 등록</h2>
-                    <a class="panel-link" href="/mypage/supplier/product">목록</a>
-                </header>
+    <section class="panel">
+        <header class="panel-head">
+            <h2 class="panel-title">상품 등록</h2>
+            <a class="panel-link" th:href="@{/mypage/supplier/product}">목록</a>
+        </header>
 
-                <div class="panel-body">
-                    <form th:action="@{/mypage/supplier/product}" method="post" th:object="${form}">
-                        <label>카테고리 ID</label>
-                        <input type="text" th:field="*{categoryId}"/><br/><br/>
+        <div class="panel-body">
+            <form th:action="@{/mypage/supplier/product}" method="post" th:object="${form}">
+                <label>카테고리 ID</label>
+                <input type="text" th:field="*{categoryId}"/><br/><br/>
 
-                        <label>상품명</label>
-                        <input type="text" th:field="*{productName}" required/><br/><br/>
+                <label>상품명</label>
+                <input type="text" th:field="*{productName}" required/><br/><br/>
 
-                        <label>설명</label>
-                        <textarea th:field="*{description}"></textarea><br/><br/>
+                <label>설명</label>
+                <textarea th:field="*{description}"></textarea><br/><br/>
 
-                        <label>MOQ</label>
-                        <input type="number" th:field="*{moq}"/><br/><br/>
+                <label>MOQ</label>
+                <input type="number" th:field="*{moq}"/><br/><br/>
 
-                        <label>커스터마이즈</label>
-                        <select th:field="*{isCustomizable}">
-                            <option value="0">불가</option>
-                            <option value="1">가능</option>
-                        </select><br/><br/>
+                <label>커스터마이즈</label>
+                <select th:field="*{isCustomizable}">
+                    <option value="0">불가</option>
+                    <option value="1">가능</option>
+                </select><br/><br/>
 
-                        <button type="submit">등록</button>
-                    </form>
-                </div>
-            </section>
-        </main>
-    </div>
-</div>
+                <button type="submit">등록</button>
+            </form>
+        </div>
+    </section>
+
 </body>
 </html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(content, extraCss)">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${pageTitle} ?: '공급자 마이페이지'">공급자 마이페이지</title>
+
+    <link rel="stylesheet" href="/mypage/common/css/layout.css"/>
+    <link rel="stylesheet" href="/mypage/supplier/css/layout.css"/>
+
+    <th:block th:if="${extraCss != null}" th:insert="${extraCss}"></th:block>
+</head>
+
+<body class="supplier-layout">
+<div class="mypage-layout">
+
+    <div th:replace="mypage/supplier/partials/header :: header"></div>
+
+    <div class="mypage-body">
+        <aside th:replace="mypage/supplier/partials/sidebar :: sidebar"></aside>
+
+        <main class="mypage-content">
+            <th:block th:replace="${content}"></th:block>
+        </main>
+    </div>
+
+    <footer th:replace="layout/footer :: footer"></footer>
+</div>
+</body>
+</html>

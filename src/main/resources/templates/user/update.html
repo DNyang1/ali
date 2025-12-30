@@ -12,7 +12,7 @@
 <input type="text" id="phone" th:value="${session.loginUser.phone}" placeholder="전화번호"><br>
 <input type="text" id="address" th:value="${session.loginUser.address}" placeholder="주소"><br>
 <button onclick="updateInfo()">수정하기</button>
-<a href="/user/index">취소</a>
+<a href="#" onclick="history.back(); return false;">취소</a>
 
 <script src="/user/js/update.js"></script>
 </body>
