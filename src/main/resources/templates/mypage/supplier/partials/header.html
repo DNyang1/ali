@@ -1,0 +1,21 @@
+<header th:fragment="header" class="topbar">
+    <div class="topbar-left">
+        <a th:href="@{/mypage/supplier/dashboard}" class="brand">ALI</a>
+        <span class="page-title" th:text="${pageTitle} ?: '공급자 마이페이지'">공급자 마이페이지</span>
+    </div>
+
+    <div class="topbar-right">
+        <a th:href="@{/mypage/supplier/chat}" class="pill">
+            메시지 <span th:text="${unreadChatCount} ?: 0">0</span>
+        </a>
+
+        <a th:href="@{/mypage/supplier/notification}" class="pill">
+            알림 <span th:text="${notificationCount} ?: 0">0</span>
+        </a>
+
+        <div class="userbox">
+            <span class="username" th:text="${loginUser?.name} ?: '공급자'">공급자</span>
+            <a th:href="@{/logout}" class="logout">로그아웃</a>
+        </div>
+    </div>
+</header>

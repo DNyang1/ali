@@ -1,74 +1,74 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
 <head>
     <meta charset="UTF-8"/>
-    <title th:text="${pageTitle}">상품 관리</title>
-    <link rel="stylesheet" href="/mypage/supplier/css/layout.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} ?: '상품 관리'">상품 관리</title>
+    <link rel="stylesheet" href="/mypage/supplier/css/product.css">
 </head>
+
 <body>
-<div class="layout">
-    <aside class="sidebar" th:replace="mypage/supplier/partials/sidebar :: sidebar"></aside>
-    <div class="main">
-        <header class="topbar" th:replace="mypage/supplier/partials/topbar :: topbar"></header>
 
-        <main class="content">
-            <section class="panel">
-                <header class="panel-head">
-                    <h2 class="panel-title">상품 목록</h2>
-                    <a class="panel-link" href="/mypage/supplier/product/new">상품 등록</a>
-                </header>
+    <section class="panel">
+        <header class="panel-head">
+            <h2 class="panel-title">상품 목록</h2>
+            <a class="panel-link" href="/mypage/supplier/product/new">상품 등록</a>
+        </header>
 
-                <div class="panel-body">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>상품명</th>
-                            <th>MOQ</th>
-                            <th>커스터마이즈</th>
-                            <th>상태</th>
-                        </tr>
-                        </thead>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>상품명</th>
+                    <th>MOQ</th>
+                    <th>커스터마이즈</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
 
-                        <tbody>
-                        <tr th:if="${#lists.isEmpty(products)}">
-                            <td colspan="4">등록된 상품이 없습니다.</td>
-                        </tr>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(products)}">
+                    <td colspan="5">등록된 상품이 없습니다.</td>
+                </tr>
 
-                        <tr th:each="p : ${products}">
-                            <td th:text="${p != null ? p.productId : '-'}">1</td>
+                <tr th:each="p : ${products}">
+                    <td th:text="${p != null ? p.productId : '-'}">1</td>
 
-                            <td>
-                                <a th:if="${p != null}"
-                                   th:href="@{/mypage/supplier/product/{id}(id=${p.productId})}"
-                                   th:text="${p.productName}">상품명</a>
-                                <span th:if="${p == null}">-</span>
-                            </td>
+                    <td>
+                        <a th:if="${p != null}"
+                           th:href="@{/mypage/supplier/product/{id}(id=${p.productId})}"
+                           th:text="${p.productName}">
+                            상품명
+                        </a>
+                        <span th:if="${p == null}">-</span>
+                    </td>
 
-                            <td th:text="${p != null ? p.moq : '-'}">0</td>
-                            <td th:text="${p != null ? (p.isCustomizable == 1 ? '가능' : '불가') : '-'}">가능</td>
+                    <td th:text="${p != null ? p.moq : '-'}">0</td>
+                    <td th:text="${p != null ? (p.isCustomizable == 1 ? '가능' : '불가') : '-'}">
+                        가능
+                    </td>
 
-                            <td>
-                                <span th:text="${p.status}">ACTIVE</span>
+                    <td>
 
-                                <form th:action="@{/mypage/supplier/product/{id}/toggle(id=${p.productId})}"
-                                      method="post"
-                                      style="display:inline; margin-left:8px;">
-                                    <button type="submit"
-                                            th:text="${p.status == 'ACTIVE' ? '비활성화' : '활성화'}">
-                                        비활성화
-                                    </button>
-                                </form>
-                            </td>
+                    <span class="status" th:classappend="${p.status}">
+                        <span th:text="${p.status}">ACTIVE</span>
+                    </span>
+                        <form th:action="@{/mypage/supplier/product/{id}/toggle(id=${p.productId})}"
+                              method="post"
+                              style="display:inline; margin-left:8px;">
+                            <button type="submit"
+                                    class="danger"
+                                    th:text="${p.status == 'ACTIVE' ? '비활성화' : '활성화'}">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-    </div>
-</div>
 </body>
 </html>

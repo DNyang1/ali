@@ -1,0 +1,30 @@
+<nav th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-title">마이페이지</div>
+
+    <a th:href="@{/mypage/user/dashboard}"
+       th:classappend="${activeMenu=='dashboard'} ? ' active' : ''">대시보드</a>
+
+    <a th:href="@{/mypage/user/chat}"
+       th:classappend="${activeMenu=='chat'} ? ' active' : ''">채팅</a>
+
+    <!-- ✅ 장바구니 -->
+    <a th:href="@{/mypage/user/cart}"
+       th:classappend="${activeMenu=='cart'} ? ' active' : ''">장바구니</a>
+
+    <a th:href="@{/mypage/user/order}"
+       th:classappend="${activeMenu=='order'} ? ' active' : ''">주문내역</a>
+
+    <a th:href="@{/mypage/user/inquiry}"
+       th:classappend="${activeMenu=='inquiry'} ? ' active' : ''">문의내역</a>
+
+    <a th:href="@{/mypage/user/payment}"
+       th:classappend="${activeMenu=='payment'} ? ' active' : ''">결제내역</a>
+
+    <a th:href="@{/mypage/user/setting}"
+       th:classappend="${activeMenu=='setting'} ? ' active' : ''">계정설정</a>
+
+    <hr class="sidebar-sep"/>
+
+    <a th:href="@{/mypage/supplier/dashboard}" class="sidebar-sub">공급자로 전환</a>
+    <a th:href="@{/}" class="sidebar-sub">메인으로</a>
+</nav>
