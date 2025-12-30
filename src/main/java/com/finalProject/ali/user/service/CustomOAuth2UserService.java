@@ -24,40 +24,42 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 1. 기본 유저 정보 로드
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 2. 카카오에서 전달받은 속성(attributes) 추출
+        // 어떤 소셜 서비스인지 확인 (google, kakao 등)
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
         Map<String, Object> attributes = oAuth2User.getAttributes();
+        String userId = "";
+        String name = "";
+        String email = "";
 
-        // 카카오 고유 ID (문자열로 변환)
-        String kakaoId = String.valueOf(attributes.get("id"));
-
-        // properties 내 닉네임, 프로필 이미지 정보
-        Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-        String nickname = (String) properties.get("nickname");
-
-        // 3. 우리 서비스 전용 ID 생성 (중복 방지용 접두사)
-        String userId = "kakao_" + kakaoId;
-
-        // 4. DB 조회 및 자동 회원가입 로직
-        UserDTO user = userDAO.findByUserId(userId);
-
-        if (user == null) {
-            // 가입된 정보가 없으면 신규 생성
-            user = new UserDTO();
-            user.setUserId(userId);
-            user.setName(nickname);
-            user.setPassword("OAUTH_USER"); // 소셜 로그인은 비번이 필요 없으므로 임의값 세팅
-            user.setEmail(kakaoId + "@kakao.com"); // 실제 이메일 권한이 없다면 가공해서 저장
-
-            userDAO.insertUser(user);
-            System.out.println("신규 카카오 유저 가입 완료: " + userId);
+        if ("google".equals(registrationId)) {
+            // 구글 데이터 추출
+            userId = "google_" + attributes.get("sub"); // 구글의 고유 식별값은 'sub'
+            name = (String) attributes.get("name");
+            email = (String) attributes.get("email");
+        } else if ("kakao".equals(registrationId)) {
+            // 기존 카카오 로직
+            userId = "kakao_" + attributes.get("id");
+            Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
+            name = (String) properties.get("nickname");
+            email = userId + "@kakao.com";
         }
 
-        // 5. 세션 유지 (기존 컨트롤러 로그인 방식과 일치시킴)
+        // DB 저장 및 세션 처리 로직 (기존과 동일)
+        UserDTO user = userDAO.findByUserId(userId);
+        if (user == null) {
+            user = new UserDTO();
+            user.setUserId(userId);
+            user.setName(name);
+            user.setEmail(email);
+            user.setPassword("OAUTH_USER");
+            userDAO.insertUser(user);
+        }
         session.setAttribute("loginUser", user);
 
         return oAuth2User;
+
     }
 }
