@@ -25,6 +25,7 @@
         <a th:href="@{/mypage/user/notification}" class="pill">
             알림 <span th:text="${notificationCount} ?: 0">0</span>
         </a>
+        
             <span class="username" th:text="${loginUser?.name} ?: '사용자'">사용자</span>
             <a th:href="@{/user/logout}" class="logout">로그아웃</a>
         </div>
