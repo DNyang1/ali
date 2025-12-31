@@ -17,6 +17,9 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
 
     @GetMapping("/mypage/supplier/product/{productId}/option")
     public String optionPage(@PathVariable Long productId, Model model) {
+
+        service.ensureCategoryOptionsSeeded(productId);
+
         model.addAttribute("pageTitle", "옵션 관리");
         model.addAttribute("activeMenu", "product");
         addCommonAttributes(model);
@@ -24,6 +27,7 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
         model.addAttribute("productId", productId);
         model.addAttribute("options", service.options(productId));
         model.addAttribute("form", new OptionDTO());
+
         return "mypage/supplier/product/option";
     }
 
@@ -36,15 +40,21 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
 
     @GetMapping("/mypage/supplier/product/{productId}/sku")
     public String skuPage(@PathVariable Long productId, Model model) {
+
+        service.ensureCategoryOptionsSeeded(productId);
+
         model.addAttribute("pageTitle", "SKU 관리");
         model.addAttribute("activeMenu", "product");
         addCommonAttributes(model);
 
         model.addAttribute("productId", productId);
-        model.addAttribute("skus",service.getSkusWithEditable(productId));
+        model.addAttribute("skus", service.getSkusWithEditable(productId));
         model.addAttribute("options", service.options(productId));
         model.addAttribute("skuForm", new SkuDTO());
+
         return "mypage/supplier/product/sku";
+
+
     }
 
     @PostMapping("/mypage/supplier/product/{productId}/sku")
@@ -105,7 +115,6 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
             return "redirect:/mypage/supplier/product/" + productId + "/sku/{skuId}/edit-options?error=empty";
         }
     }
-
 
 
 
