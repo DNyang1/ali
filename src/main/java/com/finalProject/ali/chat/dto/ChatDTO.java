@@ -12,5 +12,5 @@ public class ChatDTO {
     private String senderId;
     private String message;
     private LocalDateTime chatAt;
-    private Boolean isRead;
+    private Boolean readByOpponent; // 내가 보낸 메시지를 상대가 읽었는지
 }

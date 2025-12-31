@@ -42,7 +42,7 @@ public class ChatController {
         payload.setSenderId(req.getSenderId());
         payload.setMessage(req.getMessage());
         payload.setChatAt(LocalDateTime.now());
-        payload.setIsRead(false);
+//        payload.setIsRead(false);
 
         messagingTemplate.convertAndSend("/topic/rooms/" + req.getRoomId(), payload);
         log.info("WS sent => /topic/rooms/{}", req.getRoomId());

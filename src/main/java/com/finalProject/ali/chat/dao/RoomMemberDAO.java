@@ -16,4 +16,9 @@ public interface RoomMemberDAO {
     List<String> findMemberIds(@Param("roomId") Long roomId);
 
     int deleteMembersByRoomId(@Param("roomId") Long roomId);
+
+    void updateLastReadChatId(@Param("roomId") Long roomId, @Param("userId") String userId, @Param("chatId") Long chatId);
+
+    Long findOpponentLastReadChatId(@Param("roomId") Long roomId, @Param("userId") String userId);
+
 }
