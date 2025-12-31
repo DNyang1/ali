@@ -27,4 +27,6 @@ public interface ChatService {
 
     List<ChatDTO> getChatsForRoomWithReadStatus(Long roomId, String userId);
 
+    Long getOpponentLastReadChatId(Long roomId, String myUserId);
+
 }

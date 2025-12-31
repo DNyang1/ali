@@ -108,7 +108,6 @@ public class ChatServiceImpl implements ChatService {
         return 0L;
     }
 
-
     @Transactional(readOnly = true)
     public List<ChatDTO> getChatsForRoomWithReadStatus(Long roomId, String userId) {
 
@@ -127,6 +126,12 @@ public class ChatServiceImpl implements ChatService {
         }
 
         return list;
+    }
+
+    @Override
+    public Long getOpponentLastReadChatId(Long roomId, String myUserId) {
+        Long v = roomMemberDAO.findOpponentLastReadChatId(roomId, myUserId);
+        return (v == null ? 0L : v);
     }
 
 }

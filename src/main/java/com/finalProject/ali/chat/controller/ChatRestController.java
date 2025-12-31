@@ -1,6 +1,7 @@
 package com.finalProject.ali.chat.controller;
 
 import com.finalProject.ali.chat.dto.ChatDTO;
+import com.finalProject.ali.chat.dto.ChatMessagesResponseDTO;
 import com.finalProject.ali.chat.dto.ReadEventDTO;
 import com.finalProject.ali.chat.dto.RoomListDTO;
 import com.finalProject.ali.chat.service.ChatService;
@@ -34,7 +35,7 @@ public class ChatRestController {
 
     // 특정 방 메시지 조회
     @GetMapping("/rooms/{roomId}/messages")
-    public List<ChatDTO> messages(@PathVariable Long roomId, HttpSession session) {
+    public ChatMessagesResponseDTO messages(@PathVariable Long roomId, HttpSession session) {
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
         if (loginUser == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -45,7 +46,12 @@ public class ChatRestController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        return chatService.getChatsForRoomWithReadStatus(roomId, userId);
+        List<ChatDTO> messages = chatService.getChatsByRoomId(roomId);
+
+        // 상대가 마지막으로 읽은 chat_id
+        Long opponentLastReadChatId = chatService.getOpponentLastReadChatId(roomId, userId);
+
+        return new ChatMessagesResponseDTO(messages, opponentLastReadChatId);
     }
 
     // 읽음 처리
