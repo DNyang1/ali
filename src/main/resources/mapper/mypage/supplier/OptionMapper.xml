@@ -8,18 +8,56 @@
     <select id="findByProductId"
             resultType="com.finalProject.ali.mypage.supplier.product.dto.OptionDTO">
         SELECT
-            option_id    AS optionId,
-            product_id   AS productId,
-            option_name  AS optionName,
-            option_value AS optionValue
-        FROM options
-        WHERE product_id = #{productId}
-        ORDER BY option_name, option_value
+            pov.option_value_id AS optionId,
+            po.product_id       AS productId,
+            po.option_name      AS optionName,
+            pov.option_value    AS optionValue
+        FROM product_option po
+                 JOIN product_option_value pov ON pov.option_id = po.option_id
+        WHERE po.product_id = #{productId}
+        ORDER BY po.option_name, pov.sort_order, pov.option_value
     </select>
 
-    <insert id="insert">
-        INSERT INTO options(option_id, product_id, option_name, option_value)
-        VALUES (#{optionId}, #{productId}, #{optionName}, #{optionValue})
+    <select id="existsProductOption" resultType="int">
+        SELECT COUNT(*)
+        FROM product_option
+        WHERE product_id = #{productId}
+          AND option_name = #{optionName}
+    </select>
+
+    <select id="findProductOptionId" resultType="string">
+        SELECT option_id
+        FROM product_option
+        WHERE product_id = #{productId}
+          AND option_name = #{optionName}
+            LIMIT 1
+    </select>
+
+    <insert id="insertProductOption">
+        INSERT INTO product_option(option_id, product_id, category_id, option_name)
+        VALUES (#{optionId}, #{productId}, #{categoryId}, #{optionName})
     </insert>
 
+    <insert id="insertProductOptionValue">
+        INSERT IGNORE INTO product_option_value(option_value_id, option_id, option_value, sort_order)
+  VALUES (
+        #{optionValueId},
+        #{optionId},
+        #{optionValue},
+        CASE
+        WHEN #{sortOrder} IS NULL OR #{sortOrder} = 0 THEN
+        (SELECT IFNULL(MAX(t.sort_order), 0) + 1
+        FROM product_option_value t
+        WHERE t.option_id = #{optionId})
+        ELSE #{sortOrder}
+        END
+        )
+    </insert>
+
+    <select id="existsProductOptionValue" resultType="int">
+        SELECT COUNT(*)
+        FROM product_option_value
+        WHERE option_id = #{optionId}
+          AND option_value = #{optionValue}
+    </select>
 </mapper>

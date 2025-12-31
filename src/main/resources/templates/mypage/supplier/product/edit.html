@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
@@ -11,39 +12,67 @@
 </head>
 <body>
 
-    <section class="panel">
-        <header class="panel-head">
-            <h2 class="panel-title">상품 수정</h2>
-            <a class="panel-link" th:href="@{/mypage/supplier/product/{id}(id=${form.productId})}">상세</a>
-        </header>
+<section class="panel">
+    <header class="panel-head">
+        <h2 class="panel-title">상품 수정</h2>
+        <a class="panel-link" th:href="@{/mypage/supplier/product/{id}(id=${form.productId})}">상세</a>
+    </header>
 
-        <div class="panel-body">
-            <form th:action="@{/mypage/supplier/product/{id}/edit(id=${form.productId})}"
-                  method="post" th:object="${form}">
+    <div class="panel-body">
+        <form th:action="@{/mypage/supplier/product/{id}/edit(id=${form.productId})}"
+              method="post" th:object="${form}">
 
-                <label>카테고리 ID</label>
-                <input type="text" th:field="*{categoryId}"/><br/><br/>
+            <label>카테고리</label>
 
-                <label>상품명</label>
-                <input type="text" th:field="*{productName}" required/><br/><br/>
+            <select id="cat1">
+                <option value="">대분류 선택</option>
+                <option th:each="c : ${rootCategories}"
+                        th:value="${c.categoryId}"
+                        th:text="${c.categoryName}"
+                        th:selected="${cat1Selected != null and c.categoryId == cat1Selected}">
+                </option>
+            </select>
 
-                <label>설명</label>
-                <textarea th:field="*{description}" rows="5"></textarea><br/><br/>
+            <select id="cat2" th:disabled="${cat2Options == null}">
+                <option value="">중분류 선택</option>
+                <option th:if="${cat2Options != null}"
+                        th:each="c : ${cat2Options}"
+                        th:value="${c.categoryId}"
+                        th:text="${c.categoryName}"
+                        th:selected="${cat2Selected != null and c.categoryId == cat2Selected}">
+                </option>
+            </select>
 
-                <label>MOQ</label>
-                <input type="number" th:field="*{moq}" min="0"/><br/><br/>
+            <select id="cat3" th:disabled="${cat3Options == null}">
+                <option value="">소분류 선택</option>
+                <option th:if="${cat3Options != null}"
+                        th:each="c : ${cat3Options}"
+                        th:value="${c.categoryId}"
+                        th:text="${c.categoryName}"
+                        th:selected="${cat3Selected != null and c.categoryId == cat3Selected}">
+                </option>
+            </select>
+            <input type="hidden" th:field="*{categoryId}" id="categoryId"/>
+            <label>상품명</label>
+            <input type="text" th:field="*{productName}" required/><br/><br/>
 
-                <label>커스터마이즈</label>
-                <select th:field="*{isCustomizable}">
-                    <option value="0">불가</option>
-                    <option value="1">가능</option>
-                </select><br/><br/>
+            <label>설명</label>
+            <textarea th:field="*{description}" rows="5"></textarea><br/><br/>
 
-                <button type="submit">저장</button>
-            </form>
-        </div>
-    </section>
+            <label>MOQ</label>
+            <input type="number" th:field="*{moq}" min="0"/><br/><br/>
 
+            <label>커스터마이즈</label>
+            <select th:field="*{isCustomizable}">
+                <option value="0">불가</option>
+                <option value="1">가능</option>
+            </select><br/><br/>
 
+            <button type="submit">저장</button>
+        </form>
+    </div>
+</section>
+
+<script src="/mypage/supplier/js/category-select.js"></script>
 </body>
 </html>

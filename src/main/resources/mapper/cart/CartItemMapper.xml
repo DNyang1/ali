@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.cart.mapper.CartItemMapper">
+    <select id="findByCartId" resultType="com.finalProject.ali.cart.domain.CartItem">
+        SELECT *
+        FROM cart_item
+        WHERE cart_id = #{cartId}
+    </select>
+    
+    <select id="findByCartIdAndProductId" resultType="com.finalProject.ali.cart.domain.CartItem">
+        SELECT *
+        FROM cart_item
+        WHERE cart_id = #{cartId}
+            AND product_id = #{productId}
+        LIMIT 1
+    </select>
+    
+    <insert id="insert">
+        INSERT INTO cart_item (cart_item_id, cart_id, product_id, quantity)
+        VALUES (#{cartItemId}, #{cartId}, #{productId}, #{quantity})
+    </insert>
+
+    <update id="updateQuantity">
+        UPDATE cart_item
+        SET quantity = #{quantity}
+        WHERE cart_item_id = #{cartItemId}
+    </update>
+    
+    <delete id="deleteById">
+        DELETE FROM cart_item
+        WHERE cart_item_id = #{cartItemId}
+    </delete>
+</mapper>
