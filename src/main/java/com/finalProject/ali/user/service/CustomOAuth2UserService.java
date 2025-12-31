@@ -35,16 +35,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = "";
 
         if ("google".equals(registrationId)) {
-            // 구글 데이터 추출
-            userId = "google_" + attributes.get("sub"); // 구글의 고유 식별값은 'sub'
+            userId = "google_" + attributes.get("sub");
             name = (String) attributes.get("name");
-            email = (String) attributes.get("email");
+            email = (String) attributes.get("email"); // 구글 이메일
         } else if ("kakao".equals(registrationId)) {
-            // 기존 카카오 로직
             userId = "kakao_" + attributes.get("id");
             Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
             name = (String) properties.get("nickname");
             email = userId + "@kakao.com";
+        } else if ("naver".equals(registrationId)) {
+            Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+            userId = "naver_" + response.get("id");
+            name = (String) response.get("name");
+            email = (String) response.get("email");
         }
 
         // DB 저장 및 세션 처리 로직 (기존과 동일)
