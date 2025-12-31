@@ -1,5 +1,6 @@
 package com.finalProject.ali.mypage.supplier.product.controller;
 
+import com.finalProject.ali.mypage.supplier.category.dao.SupplierCategoryDAO;
 import com.finalProject.ali.mypage.supplier.common.controller.BaseSupplierController;
 import com.finalProject.ali.mypage.supplier.product.dto.ProductDTO;
 import com.finalProject.ali.mypage.supplier.product.service.SupplierProductService;
@@ -13,11 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class SupplierProductController extends BaseSupplierController {
 
     private final SupplierProductService supplierProductService;
-
+    private final SupplierCategoryDAO categoryDAO;
     // 임시 supplier_id (로그인 붙이면 여기만 교체)
     private String supplierId() {
         return "TEST_SUPPLIER";
     }
+
 
     @GetMapping("/mypage/supplier/product")
     public String list(Model model) {
@@ -37,6 +39,7 @@ public class SupplierProductController extends BaseSupplierController {
         model.addAttribute("activeMenu", "product");
         addCommonAttributes(model);
 
+        model.addAttribute("rootCategories", categoryDAO.findRoot());
         model.addAttribute("form", new ProductDTO());
         return "mypage/supplier/product/new";
     }
@@ -63,7 +66,31 @@ public class SupplierProductController extends BaseSupplierController {
         model.addAttribute("activeMenu", "product");
         addCommonAttributes(model);
 
-        model.addAttribute("form", supplierProductService.get(id));
+        ProductDTO form = supplierProductService.get(id);
+        model.addAttribute("form", form);
+
+        model.addAttribute("rootCategories", categoryDAO.findRoot());
+
+        if (form.getCategoryId() != null && !form.getCategoryId().isBlank()) {
+            var leaf = categoryDAO.findById(form.getCategoryId());
+            if (leaf != null) {
+                var parent = (leaf.getParentId() != null) ? categoryDAO.findById(leaf.getParentId()) : null;
+                var root   = (parent != null && parent.getParentId() != null) ? categoryDAO.findById(parent.getParentId()) : parent;
+
+                String cat1 = (root != null) ? root.getCategoryId() : null;
+                String cat2 = (parent != null) ? parent.getCategoryId() : null;
+                String cat3 = leaf.getCategoryId();
+
+                model.addAttribute("cat1Selected", cat1);
+                model.addAttribute("cat2Selected", cat2);
+                model.addAttribute("cat3Selected", cat3);
+
+
+                if (cat1 != null) model.addAttribute("cat2Options", categoryDAO.findChildren(cat1));
+                if (cat2 != null) model.addAttribute("cat3Options", categoryDAO.findChildren(cat2));
+            }
+        }
+
         return "mypage/supplier/product/edit";
     }
 
