@@ -6,23 +6,31 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 30px;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         h2 {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .cart-container {
-            border: 1px solid #ddd;
+        .card {
+            background: white;
+            border-radius: 6px;
             padding: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #eee;
         }
 
@@ -32,18 +40,19 @@
 
         button {
             cursor: pointer;
+            padding: 6px 12px;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 20px;
         }
 
         /* 개발용 패널 */
         .dev-panel {
             border: 1px dashed #999;
+            background: #fafafa;
             padding: 15px;
-            background-color: #fafafa;
-        }
-
-        .dev-panel h3 {
-            margin-top: 0;
-            color: #666;
         }
 
         .dev-panel input {
@@ -53,37 +62,38 @@
 </head>
 <body>
 
-<!-- ===================== -->
-<!-- 1️⃣ 실서비스 장바구니 영역 -->
-<!-- ===================== -->
-<section class="cart-container">
-    <h2>🛒 내 장바구니</h2>
+<div class="page">
 
-    <div id="cart-items">
-        <!-- JS로 렌더링 -->
-    </div>
-</section>
+    <!-- 🛒 장바구니 -->
+    <section class="card">
+        <h2>🛒 내 장바구니</h2>
 
-<!-- ===================== -->
-<!-- 2️⃣ 개발용 임시 기능 영역 -->
-<!-- ===================== -->
-<section class="dev-panel">
-    <h3>⚙ 개발용: 임시 상품 추가 (나중에 삭제)</h3>
+        <div id="cart-items"></div>
 
-    <input type="text" id="productId" placeholder="productId">
-    <input type="text" id="skuId" placeholder="skuId">
-    <input type="number" id="quantity" placeholder="수량" value="1" min="1">
-    <button onclick="addItem()">장바구니에 추가</button>
-</section>
+        <div class="actions">
+            <a href="/checkout/checkout.html">
+                <button>결제하기</button>
+            </a>
+        </div>
+    </section>
+
+    <!-- ⚙ 개발용 패널 -->
+    <section class="dev-panel">
+        <h3>⚙ 개발용: 임시 상품 추가</h3>
+
+        <input type="text" id="productId" placeholder="productId">
+        <input type="text" id="skuId" placeholder="skuId">
+        <input type="number" id="quantity" value="1" min="1">
+        <button onclick="addItem()">추가</button>
+    </section>
+
+</div>
 
 <script>
-    // =========================
-    // 장바구니 조회
-    // =========================
     function loadCart() {
         fetch('/cart')
             .then(res => res.json())
-            .then(data => renderCart(data));
+            .then(renderCart);
     }
 
     function renderCart(cart) {
@@ -101,50 +111,33 @@
 
             div.innerHTML = `
                 <span>
-                    상품ID: ${item.productId} / 수량: ${item.quantity} / 재고아이디: ${item.skuId}
+                    상품ID: ${item.productId} /
+                    SKU: ${item.skuId} /
+                    수량: ${item.quantity}
                 </span>
-                <button onclick="deleteItem('${item.cartItemId}')">
-                    삭제
-                </button>
+                <button onclick="deleteItem('${item.cartItemId}')">삭제</button>
             `;
-
             container.appendChild(div);
         });
     }
 
-    // =========================
-    // 임시 상품 추가 (개발용)
-    // =========================
     function addItem() {
-        const productId = document.getElementById('productId').value;
-        const quantity = document.getElementById('quantity').value;
-        const skuId = document.getElementById('skuId').value;
-
         fetch('/cart/items', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                productId: productId,
-                skuId: skuId,
-                quantity: quantity
+                productId: document.getElementById('productId').value,
+                skuId: document.getElementById('skuId').value,
+                quantity: document.getElementById('quantity').value
             })
-        }).then(() => {
-            loadCart();
-        });
+        }).then(loadCart);
     }
 
-    // =========================
-    // 아이템 삭제
-    // =========================
     function deleteItem(cartItemId) {
-        fetch(`/cart/items/${cartItemId}`, {
-            method: 'DELETE'
-        }).then(() => {
-            loadCart();
-        });
+        fetch(`/cart/items/${cartItemId}`, { method: 'DELETE' })
+            .then(loadCart);
     }
 
-    // 초기 로딩
     loadCart();
 </script>
 

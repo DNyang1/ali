@@ -6,4 +6,6 @@ import com.finalProject.ali.cart.dto.CartResponse;
 public interface CartService {
     CartResponse getCart(String userId);
     void addItem(String userId, AddCartItemRequest request);
+
+    void deleteItem(String userId, String cartItemId);
 }
