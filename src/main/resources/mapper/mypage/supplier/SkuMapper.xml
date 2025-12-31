@@ -17,41 +17,43 @@
             s.stock_quantity AS stockQuantity,
             s.price_at_sku   AS priceAtSku,
             s.created_at     AS createdAt,
-            GROUP_CONCAT(CONCAT(o.option_name, ':', o.option_value)
-                ORDER BY o.option_name SEPARATOR ', ') AS optionSummary
+            GROUP_CONCAT(CONCAT(po.option_name, ':', pov.option_value)
+                ORDER BY po.option_name SEPARATOR ', ') AS optionSummary
         FROM sku s
-                 JOIN option_sku os ON os.sku_id = s.sku_id
-                 JOIN options o ON o.option_id = os.option_id
-        WHERE o.product_id = #{productId}
+                 JOIN option_value_sku ovs ON ovs.sku_id = s.sku_id
+                 JOIN product_option_value pov ON pov.option_value_id = ovs.option_value_id
+                 JOIN product_option po ON po.option_id = pov.option_id
+        WHERE po.product_id = #{productId}
         GROUP BY s.sku_id, s.stock_quantity, s.price_at_sku, s.created_at
         ORDER BY s.created_at DESC
     </select>
 
     <insert id="linkOption">
-        INSERT INTO option_sku(option_id, sku_id)
+        INSERT INTO option_value_sku(option_value_id, sku_id)
         VALUES (#{optionId}, #{skuId})
     </insert>
 
     <select id="findOptionsBySkuId"
             resultType="com.finalProject.ali.mypage.supplier.product.dto.OptionDTO">
         SELECT
-            o.option_id    AS optionId,
-            o.product_id   AS productId,
-            o.option_name  AS optionName,
-            o.option_value AS optionValue
-        FROM options o
-                 JOIN option_sku os ON os.option_id = o.option_id
-        WHERE os.sku_id = #{skuId}
-        ORDER BY o.option_name, o.option_value
+            pov.option_value_id AS optionId,
+            po.product_id       AS productId,
+            po.option_name      AS optionName,
+            pov.option_value    AS optionValue
+        FROM option_value_sku ovs
+                 JOIN product_option_value pov ON pov.option_value_id = ovs.option_value_id
+                 JOIN product_option po ON po.option_id = pov.option_id
+        WHERE ovs.sku_id = #{skuId}
+        ORDER BY po.option_name, pov.sort_order, pov.option_value
     </select>
 
     <delete id="deleteLinksBySkuId">
-        DELETE FROM option_sku
+        DELETE FROM option_value_sku
         WHERE sku_id = #{skuId}
     </delete>
 
     <insert id="insertLink">
-        INSERT INTO option_sku(option_id, sku_id)
+        INSERT INTO option_value_sku(option_value_id, sku_id)
         VALUES (#{optionId}, #{skuId})
     </insert>
 

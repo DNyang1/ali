@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.CategoryOptionTemplateDAO">
+
+    <select id="findTemplatesByCategoryIds"
+            resultType="com.finalProject.ali.mypage.supplier.product.dao.CategoryOptionTemplateDAO$TemplateRow">
+        SELECT
+        template_id AS templateId,
+        category_id AS categoryId,
+        option_name AS optionName,
+        input_type  AS inputType,
+        is_required AS isRequired,
+        sort_order  AS sortOrder
+        FROM category_option_template
+        WHERE category_id IN
+        <foreach collection="categoryIds" item="cid" open="(" separator="," close=")">
+            #{cid}
+        </foreach>
+        ORDER BY FIELD(category_id,
+        <foreach collection="categoryIds" item="cid" separator=",">
+            #{cid}
+        </foreach>
+        ), sort_order, option_name
+    </select>
+
+    <select id="findTemplateValueRows"
+            resultType="com.finalProject.ali.mypage.supplier.product.dao.CategoryOptionTemplateDAO$TemplateValueRow">
+        SELECT
+            option_value AS optionValue,
+            sort_order   AS sortOrder
+        FROM category_option_template_value
+        WHERE template_id = #{templateId}
+        ORDER BY sort_order, option_value
+    </select>
+
+    <select id="findTemplateValues" resultType="string">
+        SELECT option_value
+        FROM category_option_template_value
+        WHERE template_id = #{templateId}
+        ORDER BY sort_order, option_value
+    </select>
+
+</mapper>
+
