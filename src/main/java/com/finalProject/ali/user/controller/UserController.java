@@ -3,13 +3,19 @@ package com.finalProject.ali.user.controller;
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import com.finalProject.ali.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 @Controller
@@ -17,6 +23,8 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
     // 루트(/) 경로 접속 시 index.html 반환(나중에 홈화면으로 변경)
     @GetMapping("/index")
@@ -44,17 +52,30 @@ public class UserController {
     }
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session) {
+    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session, HttpServletRequest request) {
         String userId = loginData.get("userId");
         String password = loginData.get("password");
 
         // 서비스에서 유저 정보 가져오기
         UserDTO user = userService.login(userId, password);
 
+        // UserController.java의 login 메서드 수정 부분
         if (user != null) {
-            //세션에 유저 정보를 저장
             session.setAttribute("loginUser", user);
+
+            String principal = user.getUserId();
+
+            UsernamePasswordAuthenticationToken token =
+                    new UsernamePasswordAuthenticationToken(principal, null,
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+
+            SecurityContextHolder.getContext().setAuthentication(token);
+
+            // 세션 레지스트리에 아이디(String) 등록
+            sessionRegistry.registerNewSession(session.getId(), token.getPrincipal());
+
             return ResponseEntity.ok("success");
+
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
         }
@@ -162,6 +183,22 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("wrong_password");
         }
+    }
+
+    // 마이페이지
+    @GetMapping("/mypage")
+    public String myPage(HttpSession session, org.springframework.ui.Model model) {
+        // 1. 세션에서 로그인된 유저 정보 확인
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+
+        if (loginUser == null) {
+            return "redirect:/user/login"; // 로그인 안 되어 있으면 로그인 페이지로
+        }
+
+        // 2. 화면에 유저 정보를 뿌려주기 위해 모델에 담기
+        model.addAttribute("user", loginUser);
+
+        return "user/mypage"; // templates/user/mypage.html 반환
     }
 
 
