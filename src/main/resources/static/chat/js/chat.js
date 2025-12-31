@@ -1,17 +1,16 @@
 let stompClient = null;
-let subscription = null;
+
+// roomId -> { msgSub, readSub }
+const roomSubs = new Map();
 
 let currentRoomId = null;
 let currentUserId = null;
 
 window.addEventListener("DOMContentLoaded", async () => {
-    currentRoomId = Number(document.getElementById("currentRoomId")?.value) || null;
-    currentUserId = document.getElementById("currentUserId")?.value || null;
+    currentRoomId = toNum(document.getElementById("currentRoomId")?.value);
+    currentUserId = (document.getElementById("currentUserId")?.value || "").trim() || null;
 
-    console.log("init", { currentRoomId, currentUserId });
-
-    // WS 연결
-    connect();
+    console.log("[INIT]", { currentRoomId, currentUserId });
 
     // 전송 이벤트
     document.getElementById("sendBtn")?.addEventListener("click", sendMessage);
@@ -19,14 +18,17 @@ window.addEventListener("DOMContentLoaded", async () => {
         if (e.key === "Enter") sendMessage();
     });
 
-    // 방 클릭 이벤트(비동기 전환)
+    // 방 클릭
     bindRoomClicks();
 
-    // 최초 진입 시 roomId가 있으면: 메시지 로딩 + 읽음 처리
+    // WS 연결
+    connect();
+
+    // 최초 진입: 현재 방이 있으면 로딩 + 읽음 처리
     if (currentRoomId) {
         await loadMessages(currentRoomId);
-        await markRead(currentRoomId);         // 읽음 처리
-        clearUnreadBadge(currentRoomId);       // 배지 0
+        await markRead(currentRoomId);
+        setBadge(currentRoomId, 0);
     }
 });
 
@@ -38,25 +40,98 @@ function connect() {
     stompClient.connect(
         {},
         () => {
-            console.log("CONNECTED");
-            if (currentRoomId) {
-                subscribeRoom(currentRoomId);
-            }
+            console.log("[WS] CONNECTED");
+
+            // 화면에 렌더된 모든 방을 전부 구독
+            subscribeAllRoomsFromDom();
         },
-        (err) => console.log("CONNECT ERROR", err)
+        (err) => console.log("[WS] CONNECT ERROR", err)
     );
+}
+
+function subscribeAllRoomsFromDom() {
+    document.querySelectorAll(".room-item").forEach((el) => {
+        const rid = toNum(el.dataset.roomId);
+        if (!rid) return;
+        subscribeRoomTopics(rid);
+    });
+}
+
+function subscribeRoomTopics(roomId) {
+    roomId = toNum(roomId);
+    if (!roomId) return;
+    if (!stompClient?.connected) return;
+
+    // 이미 구독한 방이면 스킵
+    if (roomSubs.has(roomId)) return;
+
+    const msgTopic = `/topic/rooms/${roomId}`;
+    const readTopic = `/topic/rooms/${roomId}/read`;
+
+    console.log("[WS] SUBSCRIBE", { msgTopic, readTopic });
+
+    const msgSub = stompClient.subscribe(msgTopic, async (frame) => {
+        let msg;
+        try {
+            msg = JSON.parse(frame.body);
+        } catch {
+            return;
+        }
+        if (!msg?.roomId) return;
+
+        // 왼쪽 리스트: 마지막 메시지 + 맨 위로
+        updateRoomLastMessage(msg.roomId, msg.message);
+
+        // 내가 보고있는 방이면 append
+        if (toNum(msg.roomId) === toNum(currentRoomId)) {
+            appendMessage(msg);
+
+            // 상대가 보낸 메시지면: 내가 보고 있으니 즉시 읽음 처리 + 배지 0
+            if (msg.senderId && msg.senderId !== currentUserId) {
+                await markRead(currentRoomId);
+                setBadge(currentRoomId, 0);
+            }
+            return;
+        }
+
+        // 다른 방이면 배지 +1 (내가 보낸 건 제외)
+        if (msg.senderId && msg.senderId !== currentUserId) {
+            const now = getBadgeCount(msg.roomId);
+            setBadge(msg.roomId, now + 1);
+        }
+    });
+
+    const readSub = stompClient.subscribe(readTopic, (frame) => {
+        let evt;
+        try {
+            evt = JSON.parse(frame.body);
+        } catch {
+            return;
+        }
+
+        // evt: { roomId, readerId, lastReadChatId }
+        if (!evt?.roomId || !evt?.lastReadChatId) return;
+
+        // 내가 읽은 이벤트는 무시 (내 말풍선에 '읽음'은 상대가 읽어야 뜸)
+        if (evt.readerId === currentUserId) return;
+
+        // 지금 보고 있는 방에서만 말풍선 읽음표시 반영
+        if (toNum(evt.roomId) === toNum(currentRoomId)) {
+            applyReadMarks(evt.lastReadChatId);
+        }
+    });
+
+    roomSubs.set(roomId, { msgSub, readSub });
 }
 
 function bindRoomClicks() {
     document.querySelectorAll(".room-item").forEach((el) => {
         el.addEventListener("click", async () => {
-            const rid = Number(el.dataset.roomId);
+            const rid = toNum(el.dataset.roomId);
             if (!rid) return;
-
-            // 같은 방이면 무시
             if (rid === currentRoomId) return;
 
-            // UI active 토글
+            // active 토글
             document.querySelectorAll(".room-item").forEach((x) => x.classList.remove("active"));
             el.classList.add("active");
 
@@ -70,59 +145,13 @@ function bindRoomClicks() {
             // 메시지 로딩
             await loadMessages(rid);
 
-            // 구독 변경
-            if (stompClient?.connected) {
-                subscribeRoom(rid);
-            }
-
-            // 읽음 처리 + 배지 제거
+            // 읽음 처리 + 배지 0
             await markRead(rid);
-            clearUnreadBadge(rid);
+            setBadge(rid, 0);
 
             // URL만 변경
             history.replaceState(null, "", `/chat/messages?roomId=${rid}`);
         });
-    });
-}
-
-function subscribeRoom(roomId) {
-    roomId = Number(roomId);
-    if (!roomId || !stompClient?.connected) return;
-
-    // 기존 구독 해제
-    if (subscription) {
-        try { subscription.unsubscribe(); } catch (e) {}
-        subscription = null;
-    }
-
-    console.log("SUBSCRIBE =>", `/topic/rooms/${roomId}`);
-
-    subscription = stompClient.subscribe(`/topic/rooms/${roomId}`, async (frame) => {
-        const msg = JSON.parse(frame.body);
-
-        // 안전장치
-        if (!msg?.roomId) return;
-
-        // 왼쪽 리스트 마지막 메시지 갱신 + 맨 위로 이동
-        updateRoomLastMessage(msg.roomId, msg.message);
-
-        // 현재 보고 있는 방이면: 바로 append + 읽음 처리 + 배지 제거
-        if (Number(msg.roomId) === Number(currentRoomId)) {
-            appendMessage(msg);
-
-            // 내가 보낸 메시지면 unread 올릴 필요 X
-            // 상대가 보낸 메시지면 "내가 보고 있으니 읽음 처리"
-            if (msg.senderId && msg.senderId !== currentUserId) {
-                await markRead(currentRoomId);
-                clearUnreadBadge(currentRoomId);
-            }
-            return;
-        }
-
-        // 다른 방 메시지면: 배지 +1 (내가 보낸 메시지는 증가 X)
-        if (msg.senderId && msg.senderId !== currentUserId) {
-            increaseUnreadBadge(msg.roomId, 1);
-        }
     });
 }
 
@@ -132,29 +161,30 @@ async function loadMessages(roomId) {
 
     chatBody.innerHTML = "";
 
-    try {
-        const res = await fetch(`/chat/api/rooms/${roomId}/messages`, {
-            method: "GET",
-            headers: { "Accept": "application/json" }
-        });
+    const res = await fetch(`/chat/api/rooms/${roomId}/messages`, {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+    });
 
-        if (!res.ok) {
-            chatBody.innerHTML = `<div style="padding:10px;">메시지를 불러오지 못했습니다. (${res.status})</div>`;
-            return;
-        }
-
-        const list = await res.json();
-        if (!Array.isArray(list) || list.length === 0) {
-            chatBody.innerHTML = `<div style="padding:10px; opacity:.7;">메시지가 없습니다.</div>`;
-            return;
-        }
-
-        list.forEach(appendMessage);
-        chatBody.scrollTop = chatBody.scrollHeight;
-    } catch (e) {
-        console.log("loadMessages error", e);
-        chatBody.innerHTML = `<div style="padding:10px;">서버 연결 오류</div>`;
+    if (!res.ok) {
+        chatBody.innerHTML = `<div style="padding:10px;">메시지 로드 실패 (${res.status})</div>`;
+        return;
     }
+
+    const data = await res.json();
+    const list = data.messages || [];
+    const opponentLastReadChatId = Number(data.opponentLastReadChatId || 0);
+
+    if (!Array.isArray(list) || list.length === 0) {
+        chatBody.innerHTML = `<div style="padding:10px; opacity:.7;">메시지가 없습니다.</div>`;
+        return;
+    }
+
+    list.forEach(appendMessage);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    // 새로고침/방이동 직후에도 읽음 표시 복구
+    applyReadMarks(opponentLastReadChatId);
 }
 
 function sendMessage() {
@@ -165,12 +195,7 @@ function sendMessage() {
     if (!stompClient?.connected) return;
     if (!currentRoomId || !currentUserId) return;
 
-    const payload = {
-        roomId: currentRoomId,
-        senderId: currentUserId,
-        message: text
-    };
-
+    const payload = { roomId: currentRoomId, senderId: currentUserId, message: text };
     stompClient.send("/app/chat.send", {}, JSON.stringify(payload));
 
     input.value = "";
@@ -183,19 +208,20 @@ function appendMessage(m) {
 
     const div = document.createElement("div");
     const isMe = m.senderId === currentUserId;
-
     div.className = "msg" + (isMe ? " me" : "");
 
+    // 읽음표시를 하려면 chatId 필요
+    if (m.chatId != null) div.dataset.chatId = String(m.chatId);
+
     const time = m.chatAt ? formatTime(m.chatAt) : "";
-    const readMark = (isMe && m.readByOpponent) ? "읽음" : "";
 
     div.innerHTML = `
-      <div class="text"></div>
-      <div class="meta">
-        <span class="time">${escapeHtml(time)}</span>
-        ${readMark ? `<span class="read">${readMark}</span>` : ``}
-      </div>
-    `;
+    <div class="text"></div>
+    <div class="meta">
+      <span class="time">${escapeHtml(time)}</span>
+      <span class="read" style="display:none;">읽음</span>
+    </div>
+  `;
 
     div.querySelector(".text").textContent = m.message || "";
 
@@ -203,14 +229,62 @@ function appendMessage(m) {
     chatBody.scrollTop = chatBody.scrollHeight;
 }
 
+function applyReadMarks(lastReadChatId) {
+    const chatBody = document.getElementById("chatBody");
+    if (!chatBody) return;
 
-function setHeader(title, sub) {
-    const t = document.querySelector(".chat-title");
-    const s = document.querySelector(".chat-sub");
-    if (t) t.textContent = title ?? "";
-    if (s) s.textContent = sub ?? "";
+    const myMsgs = chatBody.querySelectorAll(`.msg.me[data-chat-id]`);
+    myMsgs.forEach((el) => {
+        const chatId = toNum(el.dataset.chatId);
+        if (chatId && chatId <= lastReadChatId) {
+            const readEl = el.querySelector(".read");
+            if (readEl) readEl.style.display = "inline";
+        }
+    });
 }
 
+async function markRead(roomId) {
+    try {
+        const res = await fetch(`/chat/api/rooms/${roomId}/read`, { method: "POST" });
+        if (!res.ok) console.log("[READ] markRead failed", res.status);
+    } catch (e) {
+        console.log("[READ] markRead error", e);
+    }
+}
+
+/* ======= 배지 ======= */
+function getBadgeCount(roomId) {
+    const badge = getBadgeEl(roomId);
+    if (!badge) return 0;
+    return toNum(badge.textContent) || 0;
+}
+
+function setBadge(roomId, count) {
+    const roomEl = document.querySelector(`.room-item[data-room-id="${roomId}"]`);
+    if (!roomEl) return;
+
+    let badge = getBadgeEl(roomId);
+    if (!badge) {
+        const title = roomEl.querySelector(".room-title");
+        if (!title) return;
+
+        badge = document.createElement("span");
+        badge.className = "badge";
+        title.appendChild(badge);
+    }
+
+    const n = Math.max(0, toNum(count) || 0);
+    badge.textContent = String(n);
+    badge.style.display = n === 0 ? "none" : "";
+}
+
+function getBadgeEl(roomId) {
+    const roomEl = document.querySelector(`.room-item[data-room-id="${roomId}"]`);
+    if (!roomEl) return null;
+    return roomEl.querySelector(".badge");
+}
+
+/* ======= 왼쪽 리스트 last message + 상단 이동 ======= */
 function updateRoomLastMessage(roomId, lastMessage) {
     const roomList = document.getElementById("roomList");
     const el = document.querySelector(`.room-item[data-room-id="${roomId}"]`);
@@ -222,55 +296,18 @@ function updateRoomLastMessage(roomId, lastMessage) {
     if (roomList) roomList.prepend(el);
 }
 
-// 읽음 처리 API
-async function markRead(roomId) {
-    if (!roomId) return;
-
-    try {
-        const res = await fetch(`/chat/api/rooms/${roomId}/read`, {
-            method: "POST"
-        });
-        if (!res.ok) {
-            console.log("markRead failed", res.status);
-        }
-    } catch (e) {
-        console.log("markRead error", e);
-    }
+/* ======= UI ======= */
+function setHeader(title, sub) {
+    const t = document.querySelector(".chat-title");
+    const s = document.querySelector(".chat-sub");
+    if (t) t.textContent = title ?? "";
+    if (s) s.textContent = sub ?? "";
 }
 
-// unread badge 처리
-function getBadgeEl(roomId) {
-    const roomEl = document.querySelector(`.room-item[data-room-id="${roomId}"]`);
-    if (!roomEl) return null;
-    return roomEl.querySelector(".badge");
-}
-
-function clearUnreadBadge(roomId) {
-    const roomEl = document.querySelector(`.room-item[data-room-id="${roomId}"]`);
-    if (!roomEl) return;
-
-    const badge = roomEl.querySelector(".badge");
-    if (badge) badge.remove(); // 0이면 아예 제거
-}
-
-function increaseUnreadBadge(roomId, delta) {
-    const roomEl = document.querySelector(`.room-item[data-room-id="${roomId}"]`);
-    if (!roomEl) return;
-
-    let badge = roomEl.querySelector(".badge");
-    if (!badge) {
-        // 없으면 새로 만들기
-        const title = roomEl.querySelector(".room-title");
-        if (!title) return;
-
-        badge = document.createElement("span");
-        badge.className = "badge";
-        badge.textContent = "0";
-        title.appendChild(badge);
-    }
-
-    const now = Number(badge.textContent || "0");
-    badge.textContent = String(now + (delta || 0));
+/* ======= utils ======= */
+function toNum(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
 }
 
 function formatTime(v) {

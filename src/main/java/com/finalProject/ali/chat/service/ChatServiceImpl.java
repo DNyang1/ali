@@ -99,11 +99,13 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Transactional
-    public void markAsRead(Long roomId, String userId) {
+    public Long markAsRead(Long roomId, String userId) {
         Long lastChatId = chatDAO.findLastChatIdByRoomId(roomId);
         if (lastChatId != null && lastChatId > 0) {
             roomMemberDAO.updateLastReadChatId(roomId, userId, lastChatId);
+            return lastChatId;
         }
+        return 0L;
     }
 
     @Transactional(readOnly = true)
@@ -124,6 +126,12 @@ public class ChatServiceImpl implements ChatService {
         }
 
         return list;
+    }
+
+    @Override
+    public Long getOpponentLastReadChatId(Long roomId, String myUserId) {
+        Long v = roomMemberDAO.findOpponentLastReadChatId(roomId, myUserId);
+        return (v == null ? 0L : v);
     }
 
 }

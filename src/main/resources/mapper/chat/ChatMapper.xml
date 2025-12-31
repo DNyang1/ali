@@ -27,5 +27,4 @@
         FROM chat
         WHERE room_id = #{roomId}
     </select>
-
 </mapper>

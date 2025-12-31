@@ -6,5 +6,5 @@ import lombok.Data;
 public class ChatSendDTO {
     private Long roomId;
     private String message;
-    private String senderId;  // 임시
+    private String senderId;
 }

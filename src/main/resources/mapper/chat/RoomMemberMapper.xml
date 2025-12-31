@@ -68,6 +68,4 @@
         AND rm.user_id != #{userId}
         LIMIT 1
     </select>
-
-
 </mapper>
