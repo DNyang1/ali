@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.mypage.supplier.category.dao.SupplierCategoryDAO">
+
+    <select id="findRoot" resultType="com.finalProject.ali.mypage.supplier.category.dto.SupplierCategoryDTO">
+        SELECT category_id AS categoryId,
+               parent_id   AS parentId,
+               category_name AS categoryName,
+               created_at  AS createdAt,
+               updated_at  AS updatedAt
+        FROM category
+        WHERE parent_id IS NULL
+        ORDER BY category_name
+    </select>
+
+    <select id="findChildren" parameterType="string"
+            resultType="com.finalProject.ali.mypage.supplier.category.dto.SupplierCategoryDTO">
+        SELECT category_id AS categoryId,
+               parent_id   AS parentId,
+               category_name AS categoryName,
+               created_at  AS createdAt,
+               updated_at  AS updatedAt
+        FROM category
+        WHERE parent_id = #{parentId}
+        ORDER BY category_name
+    </select>
+
+    <select id="findById" parameterType="string"
+            resultType="com.finalProject.ali.mypage.supplier.category.dto.SupplierCategoryDTO">
+        SELECT category_id AS categoryId,
+               parent_id   AS parentId,
+               category_name AS categoryName,
+               created_at  AS createdAt,
+               updated_at  AS updatedAt
+        FROM category
+        WHERE category_id = #{categoryId}
+    </select>
+
+    <select id="findCategoryChain" resultType="string">
+        WITH RECURSIVE c AS (
+            SELECT category_id, parent_id, 0 AS depth
+            FROM category
+            WHERE category_id = #{categoryId}
+
+            UNION ALL
+
+            SELECT p.category_id, p.parent_id, c.depth + 1
+            FROM category p
+                     JOIN c ON c.parent_id = p.category_id
+        )
+        SELECT category_id
+        FROM c
+        ORDER BY depth DESC
+    </select>
+
+</mapper>

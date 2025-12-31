@@ -19,9 +19,25 @@
 
         <div class="panel-body">
             <form th:action="@{/mypage/supplier/product}" method="post" th:object="${form}">
-                <label>카테고리 ID</label>
-                <input type="text" th:field="*{categoryId}"/><br/><br/>
+                <label>카테고리</label>
 
+                <select id="cat1">
+                    <option value="">대분류 선택</option>
+                    <option th:each="c : ${rootCategories}"
+                            th:value="${c.categoryId}"
+                            th:text="${c.categoryName}">
+                    </option>
+                </select>
+
+                <select id="cat2" disabled>
+                    <option value="">중분류 선택</option>
+                </select>
+
+                <select id="cat3" disabled>
+                    <option value="">소분류 선택</option>
+                </select>
+
+                <input type="hidden" th:field="*{categoryId}" id="categoryId"/>
                 <label>상품명</label>
                 <input type="text" th:field="*{productName}" required/><br/><br/>
 
@@ -41,6 +57,6 @@
             </form>
         </div>
     </section>
-
+    <script src="/mypage/supplier/js/category-select.js"></script>
 </body>
 </html>

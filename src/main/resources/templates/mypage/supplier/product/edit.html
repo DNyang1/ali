@@ -21,9 +21,37 @@
             <form th:action="@{/mypage/supplier/product/{id}/edit(id=${form.productId})}"
                   method="post" th:object="${form}">
 
-                <label>카테고리 ID</label>
-                <input type="text" th:field="*{categoryId}"/><br/><br/>
+                <label>카테고리</label>
 
+                <select id="cat1">
+                    <option value="">대분류 선택</option>
+                    <option th:each="c : ${rootCategories}"
+                            th:value="${c.categoryId}"
+                            th:text="${c.categoryName}"
+                            th:selected="${cat1Selected != null and c.categoryId == cat1Selected}">
+                    </option>
+                </select>
+
+                <select id="cat2" th:disabled="${cat2Options == null}">
+                    <option value="">중분류 선택</option>
+                    <option th:if="${cat2Options != null}"
+                            th:each="c : ${cat2Options}"
+                            th:value="${c.categoryId}"
+                            th:text="${c.categoryName}"
+                            th:selected="${cat2Selected != null and c.categoryId == cat2Selected}">
+                    </option>
+                </select>
+
+                <select id="cat3" th:disabled="${cat3Options == null}">
+                    <option value="">소분류 선택</option>
+                    <option th:if="${cat3Options != null}"
+                            th:each="c : ${cat3Options}"
+                            th:value="${c.categoryId}"
+                            th:text="${c.categoryName}"
+                            th:selected="${cat3Selected != null and c.categoryId == cat3Selected}">
+                    </option>
+                </select>
+                <input type="hidden" th:field="*{categoryId}" id="categoryId"/>
                 <label>상품명</label>
                 <input type="text" th:field="*{productName}" required/><br/><br/>
 
@@ -44,6 +72,6 @@
         </div>
     </section>
 
-
+    <script src="/mypage/supplier/js/category-select.js"></script>
 </body>
 </html>
