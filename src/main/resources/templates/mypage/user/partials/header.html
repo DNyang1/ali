@@ -5,6 +5,16 @@
     </div>
 
     <div class="topbar-right">
+
+    <div th:if="${session.loginUser == null}" class="auth">
+        <a th:href="@{/mypage/user/cart}" class="pill">
+            장바구니 <span th:text="${cartCount} ?: 0">0</span>
+        </a>
+        <a th:href="@{/user/login}" class="link">로그인</a>
+        <a th:href="@{/user/register}" class="btn">회원가입</a>
+    </div>
+
+    <div th:if="${session.loginUser != null}" class="auth">
         <a th:href="@{/mypage/user/cart}" class="pill">
             장바구니 <span th:text="${cartCount} ?: 0">0</span>
         </a>
@@ -12,14 +22,11 @@
         <a th:href="@{/mypage/user/chat}" class="pill">
             안읽은 메시지 <span th:text="${unreadChatCount} ?: 0">0</span>
         </a>
-
         <a th:href="@{/mypage/user/notification}" class="pill">
             알림 <span th:text="${notificationCount} ?: 0">0</span>
         </a>
-
-        <div class="userbox">
             <span class="username" th:text="${loginUser?.name} ?: '사용자'">사용자</span>
-            <a th:href="@{/logout}" class="logout">로그아웃</a>
+            <a th:href="@{/user/logout}" class="logout">로그아웃</a>
         </div>
     </div>
 </header>
