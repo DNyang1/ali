@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>아이디 찾기</title>
+</head>
+<body>
+<h2>아이디 찾기</h2>
+<p>이름과 등록된 정보를 입력하세요.</p>
+
+<input type="text" id="findIdName" placeholder="이름 입력"><br>
+<select id="findIdType">
+  <option value="phone">전화번호</option>
+  <option value="email">이메일</option>
+</select>
+<input type="text" id="findIdValue" placeholder="정보 입력">
+<button onclick="handleFindId()">아이디 찾기</button>
+
+<div id="findIdResult" style="margin-top: 15px; color: blue; font-weight: bold;"></div>
+
+<br>
+<a href="/user/login">로그인으로 돌아가기</a>
+
+<script>
+  async function handleFindId() {
+    const name = document.getElementById('findIdName').value;
+    const type = document.getElementById('findIdType').value;
+    const value = document.getElementById('findIdValue').value;
+
+    const response = await fetch('/user/find_id', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, type, value })
+    });
+
+    const resultDiv = document.getElementById('findIdResult');
+    if (response.ok) {
+      const maskedId = await response.text();
+      resultDiv.innerText = "찾으신 아이디는 [" + maskedId + "] 입니다.";
+    } else {
+      resultDiv.innerText = "일치하는 정보가 없습니다.";
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>비밀번호 재설정</title>
+</head>
+<body>
+<h2>비밀번호 재설정</h2>
+
+<div id="pwStep1">
+  <p>아이디와 가입 시 등록한 이메일을 입력하세요.</p>
+  <input type="text" id="resetUserId" placeholder="아이디"><br>
+  <input type="email" id="resetEmail" placeholder="이메일"><br>
+  <button onclick="nextStep()">다음</button>
+</div>
+
+<div id="pwStep2" style="display:none;">
+  <p>새로 사용할 비밀번호를 입력하세요.</p>
+  <input type="password" id="newPassword" placeholder="새 비밀번호"><br>
+  <input type="password" id="confirmPassword" placeholder="비밀번호 확인"><br>
+  <button onclick="handleReset()">비밀번호 변경</button>
+</div>
+
+<br>
+<a href="/user/login">취소 및 돌아가기</a>
+
+<script>
+  function nextStep() {
+    const userId = document.getElementById('resetUserId').value;
+    const email = document.getElementById('resetEmail').value;
+
+    if(!userId || !email) {
+      alert("아이디와 이메일을 모두 입력해주세요.");
+      return;
+    }
+    // 1단계: 입력 확인 후 폼 전환
+    document.getElementById('pwStep1').style.display = 'none';
+    document.getElementById('pwStep2').style.display = 'block';
+  }
+
+  async function handleReset() {
+    const userId = document.getElementById('resetUserId').value;
+    const newPw = document.getElementById('newPassword').value;
+    const confirmPw = document.getElementById('confirmPassword').value;
+
+    if (newPw !== confirmPw) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    // 호출
+    const response = await fetch('/user/reset_pw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, newPassword: newPw })
+    });
+
+    if (response.ok) {
+      alert("비밀번호가 성공적으로 변경되었습니다.");
+      location.href = "/user/login";
+    } else {
+      alert("비밀번호 변경 실패. 정보를 다시 확인해주세요.");
+    }
+  }
+</script>
+</body>
+</html>

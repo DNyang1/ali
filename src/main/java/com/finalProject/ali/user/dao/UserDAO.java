@@ -3,6 +3,9 @@ package com.finalProject.ali.user.dao;
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Map;
 
 @Mapper
 public interface UserDAO {
@@ -15,10 +18,14 @@ public interface UserDAO {
     void updateSupplier(SupplierDTO supplierDTO);
     // 비밀번호 변경
     UserDTO getUserById(String userId);
-    void updatePassword(String userId, String newPassword);
+    int updatePassword(Map<String, String> params);
 
     // 구매자/판매자 찾기
     SupplierDTO findSupplierByUserId(String userId);
     void insertSupplier(SupplierDTO supplierDTO);
+
+
+    String findIdByPhone(@Param("name") String name, @Param("phone") String phone);
+    String findIdByEmail(@Param("name") String name, @Param("email") String email);
 
 }
