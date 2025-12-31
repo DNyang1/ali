@@ -71,6 +71,7 @@
     <h3>⚙ 개발용: 임시 상품 추가 (나중에 삭제)</h3>
 
     <input type="text" id="productId" placeholder="productId">
+    <input type="text" id="skuId" placeholder="skuId">
     <input type="number" id="quantity" placeholder="수량" value="1" min="1">
     <button onclick="addItem()">장바구니에 추가</button>
 </section>
@@ -100,7 +101,7 @@
 
             div.innerHTML = `
                 <span>
-                    상품ID: ${item.productId} / 수량: ${item.quantity}
+                    상품ID: ${item.productId} / 수량: ${item.quantity} / 재고아이디: ${item.skuId}
                 </span>
                 <button onclick="deleteItem('${item.cartItemId}')">
                     삭제
@@ -117,12 +118,14 @@
     function addItem() {
         const productId = document.getElementById('productId').value;
         const quantity = document.getElementById('quantity').value;
+        const skuId = document.getElementById('skuId').value;
 
         fetch('/cart/items', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 productId: productId,
+                skuId: skuId,
                 quantity: quantity
             })
         }).then(() => {

@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CartItemResponse {
     private String cartItemId;
-    private String productId;
+    private Long productId;
     private String skuId;
     private Long quantity;
 }

@@ -38,6 +38,7 @@ public class CartServiceImpl implements CartService{
         for (CartItem item : items) {
             CartItemResponse dto = new CartItemResponse();
             dto.setCartItemId(item.getCartItemId());
+            dto.setSkuId(item.getSkuId());
             dto.setQuantity(item.getQuantity());
             responses.add(dto);
         }
@@ -63,7 +64,7 @@ public class CartServiceImpl implements CartService{
         }
         
         CartItem item =
-                cartItemMapper.findByCartIdAndProductId(
+                cartItemMapper.findByCartIdAndProductIdAndSkuId(
                         cart.getCartId(),
                         request.getProductId(),
                         request.getSkuId()
@@ -74,6 +75,7 @@ public class CartServiceImpl implements CartService{
             newItem.setCartItemId(UUID.randomUUID().toString());
             newItem.setCartId(cart.getCartId());
             newItem.setProductId(request.getProductId());
+            newItem.setSkuId(request.getSkuId());
             newItem.setQuantity(request.getQuantity());
             cartItemMapper.insert(newItem);
         } else {
