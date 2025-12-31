@@ -23,7 +23,7 @@ public interface ChatService {
 
     List<RoomListDTO> getMyRooms(String userId);
 
-    void markAsRead(Long roomId, String userId);
+    Long markAsRead(Long roomId, String userId);
 
     List<ChatDTO> getChatsForRoomWithReadStatus(Long roomId, String userId);
 
