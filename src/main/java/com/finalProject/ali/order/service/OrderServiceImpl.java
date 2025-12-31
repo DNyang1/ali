@@ -8,6 +8,7 @@ import com.finalProject.ali.order.domain.OrderItem;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
+import com.finalProject.ali.sku.mapper.SkuPriceMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class OrderServiceImpl implements OrderService{
 
     private final CartService cartService;
-//    private final SkuPriceMapper skuPriceMapper;
+    private final SkuPriceMapper skuPriceMapper;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
 
@@ -46,8 +47,6 @@ public class OrderServiceImpl implements OrderService{
         }
 
         orderMapper.updateTotalAmount(order.getOrderId(), total);
-
-        cartService.clearCart(userId);
 
         OrderCreateResponse res = new OrderCreateResponse();
         res.setOrderId(order.getOrderId());

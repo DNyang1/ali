@@ -84,14 +84,4 @@ public class CartServiceImpl implements CartService{
         }
     }
 
-    @Override
-    public void deleteItem(String userId, String cartItemId) {
-
-        Cart cart = cartMapper.findActiveCart(userId);
-        if (cart == null) {
-            return;
-        }
-
-        cartItemMapper.deleteById(cartItemId);
-    }
 }
