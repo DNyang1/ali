@@ -8,16 +8,16 @@
         <div class="header-right">
 
             <!-- 비로그인 -->
-            <div th:if="${loginUser == null}" class="auth">
+            <div th:if="${session.loginUser == null}" class="auth">
                 <a th:href="@{/cart}" class="chip">
                     장바구니 <span th:text="${cartCount} ?: 0">0</span>
                 </a>
-                <a th:href="@{/login}" class="link">로그인</a>
-                <a th:href="@{/join}" class="btn">회원가입</a>
+                <a th:href="@{/user/login}" class="link">로그인</a>
+                <a th:href="@{/user/register}" class="btn">회원가입</a>
             </div>
 
             <!-- 로그인 -->
-            <div th:if="${loginUser != null}" class="auth">
+            <div th:if="${session.loginUser != null}" class="auth">
                 <a th:href="@{/cart}" class="chip">
                     장바구니 <span th:text="${cartCount} ?: 0">0</span>
                 </a>
@@ -27,7 +27,7 @@
                 <a th:href="@{/mypage/user/dashboard}" class="chip">
                     내 마이페이지
                 </a>
-                <a th:href="@{/logout}" class="logout">로그아웃</a>
+                <a th:href="@{/user/logout}" class="logout">로그아웃</a>
             </div>
 
         </div>
