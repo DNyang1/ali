@@ -32,18 +32,29 @@ public class ChatPageController {
         String userId = loginUser.getUserId();
         model.addAttribute("currentUserId", userId);
 
-        // 내 채팅방 리스트
+        // 1) 방 목록 먼저 조회 (검증용)
         List<RoomListDTO> rooms = chatService.getMyRooms(userId);
-        model.addAttribute("rooms", rooms);
 
-        // roomId가 내 방인지 검증
+        // 2) 내 방인지 검증
         Long currentRoomId = getALong(roomId, rooms);
+
+        // 3) 읽음 처리
+        if (currentRoomId != null) {
+            chatService.markAsRead(currentRoomId, userId);
+
+            // 4) 읽음 반영된 unreadCount 다시 조회
+            rooms = chatService.getMyRooms(userId);
+        }
+
+        model.addAttribute("rooms", rooms);
         model.addAttribute("currentRoomId", currentRoomId);
+
 
         // 메시지 조회
         List<ChatDTO> messages = Collections.emptyList();
         if (currentRoomId != null) {
             messages = chatService.getChatsByRoomId(currentRoomId);
+            chatService.markAsRead(currentRoomId, userId);
         }
         model.addAttribute("messages", messages);
 
@@ -55,31 +66,14 @@ public class ChatPageController {
     }
 
     private static @Nullable Long getALong(Long roomId, List<RoomListDTO> rooms) {
-        Long currentRoomId = roomId;
-        if (currentRoomId != null) {
-            boolean isMyRoom = false;
+        if (roomId == null) return null;
 
-            for (RoomListDTO r : rooms) {
-                if (r.getRoomId().equals(currentRoomId)) {
-                    isMyRoom = true;
-                    break;
-                }
-            }
-
-            if (!isMyRoom) {
-                currentRoomId = null;
-            }
-        }
-
-        // roomId 없으면 자동 선택하지 않음
-        if (roomId == null) {
-            return null;
-        }
-
-        // roomId가 내 방인지 검사
         for (RoomListDTO r : rooms) {
-            if (r.getRoomId().equals(roomId)) return roomId;
+            if (r.getRoomId().equals(roomId)) {
+                return roomId; // 내 방이면 OK
+            }
         }
-        return null;
+        return null; // 내 방 아니면 null
     }
+
 }

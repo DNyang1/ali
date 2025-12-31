@@ -6,8 +6,8 @@
 <mapper namespace="com.finalProject.ali.chat.dao.ChatDAO">
     <insert id="insertChat" parameterType="com.finalProject.ali.chat.dto.ChatDTO"
             useGeneratedKeys="true" keyProperty="chatId">
-        INSERT INTO chat (room_id, sender_id, message, chat_at, is_read)
-        VALUES (#{roomId}, #{senderId}, #{message}, NOW(), 0)
+        INSERT INTO chat (room_id, sender_id, message, chat_at)
+        VALUES (#{roomId}, #{senderId}, #{message}, NOW())
     </insert>
 
     <select id="findChatsByRoomId" resultType="com.finalProject.ali.chat.dto.ChatDTO">
@@ -16,10 +16,16 @@
         room_id AS roomId,
         sender_id AS senderId,
         message,
-        chat_at AS chatAt,
-        is_read AS isRead
+        chat_at AS chatAt
         FROM chat
         WHERE room_id = #{roomId}
         ORDER BY chat_id ASC
     </select>
+
+    <select id="findLastChatIdByRoomId" resultType="long">
+        SELECT COALESCE(MAX(chat_id), 0)
+        FROM chat
+        WHERE room_id = #{roomId}
+    </select>
+
 </mapper>

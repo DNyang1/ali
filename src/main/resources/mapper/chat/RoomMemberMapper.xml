@@ -5,31 +5,35 @@
 
 <mapper namespace="com.finalProject.ali.chat.dao.RoomMemberDAO">
 
-    <!-- 1) 내 채팅방 리스트 -->
-    <select id="getMyRooms"
-            resultType="com.finalProject.ali.chat.dto.RoomListDTO">
+    <!-- 내 채팅방 리스트 + 안읽은 개수 -->
+    <select id="getMyRooms" resultType="com.finalProject.ali.chat.dto.RoomListDTO">
         SELECT
         rm.room_id AS roomId,
-        (
-        SELECT c.message
+
+        (SELECT c.message
         FROM chat c
         WHERE c.room_id = rm.room_id
         ORDER BY c.chat_id DESC
-        LIMIT 1
-        ) AS lastMessage,
-        (
-        SELECT c.chat_at
+        LIMIT 1) AS lastMessage,
+
+        (SELECT c.chat_at
         FROM chat c
         WHERE c.room_id = rm.room_id
         ORDER BY c.chat_id DESC
-        LIMIT 1
-        ) AS lastChatAt
+        LIMIT 1) AS lastChatAt,
+
+        (SELECT COUNT(*)
+        FROM chat c
+        WHERE c.room_id = rm.room_id
+        AND c.chat_id > COALESCE(rm.last_read_chat_id, 0)
+        AND c.sender_id != #{userId}) AS unreadCount
+
         FROM room_members rm
         WHERE rm.user_id = #{userId}
         ORDER BY COALESCE(lastChatAt, '1970-01-01') DESC
     </select>
 
-    <!-- 2) 그룹 가능: 여러 user_id를 한 번에 insert -->
+    <!-- 그룹 가능: 여러 user_id를 한 번에 insert -->
     <insert id="insertMembers">
         INSERT INTO room_members (room_id, user_id)
         VALUES
@@ -40,7 +44,7 @@
 
     <select id="findMemberIds" resultType="string">
         SELECT user_id
-        FROM room_members rm
+        FROM room_members
         WHERE room_id = #{roomId}
         ORDER BY user_id
     </select>
@@ -49,4 +53,21 @@
         DELETE FROM room_members
         WHERE room_id = #{roomId}
     </delete>
+
+    <update id="updateLastReadChatId">
+        UPDATE room_members
+        SET last_read_chat_id = #{chatId}
+        WHERE room_id = #{roomId}
+        AND user_id = #{userId}
+    </update>
+
+    <select id="findOpponentLastReadChatId" resultType="long">
+        SELECT COALESCE(rm.last_read_chat_id, 0)
+        FROM room_members rm
+        WHERE rm.room_id = #{roomId}
+        AND rm.user_id != #{userId}
+        LIMIT 1
+    </select>
+
+
 </mapper>

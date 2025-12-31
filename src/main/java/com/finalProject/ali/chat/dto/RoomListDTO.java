@@ -10,5 +10,6 @@ public class RoomListDTO {
     private String lastMessage;
     private String lastSenderId;
     private LocalDateTime lastChatAt;
+    private Long unreadCount;
 }
 

@@ -28,7 +28,15 @@
            th:each="r : ${rooms}"
            th:classappend="${r.roomId} == ${currentRoomId} ? ' active' : ''"
            th:attr="data-room-id=${r.roomId}">
-        <div class="room-title" th:text="'Room #' + ${r.roomId}">Room</div>
+        <div class="room-title">
+          <span th:text="'Room #' + ${r.roomId}">Room</span>
+
+          <!-- unread badge -->
+          <span class="badge"
+                th:if="${r.unreadCount != null and r.unreadCount > 0}"
+                th:text="${r.unreadCount}">0</span>
+        </div>
+
         <div class="room-sub" th:text="${r.lastMessage} ?: '메시지가 없습니다.'">last</div>
       </div>
     </div>
@@ -61,6 +69,7 @@
           <span th:text="${m.senderId}">sender</span>
           ·
           <span th:text="${#temporals.format(m.chatAt, 'MM-dd HH:mm')}">time</span>
+          <span class="read">읽음</span>
         </div>
       </div>
     </main>

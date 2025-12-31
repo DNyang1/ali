@@ -12,4 +12,7 @@ public interface ChatDAO {
     int insertChat(ChatDTO chat);
 
     List<ChatDTO> findChatsByRoomId(@Param("roomId") Long roomId);
+
+    Long findLastChatIdByRoomId(@Param("roomId") Long roomId);
+
 }

@@ -98,4 +98,32 @@ public class ChatServiceImpl implements ChatService {
         return roomMemberDAO.getMyRooms(userId);
     }
 
+    @Transactional
+    public void markAsRead(Long roomId, String userId) {
+        Long lastChatId = chatDAO.findLastChatIdByRoomId(roomId);
+        if (lastChatId != null && lastChatId > 0) {
+            roomMemberDAO.updateLastReadChatId(roomId, userId, lastChatId);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatDTO> getChatsForRoomWithReadStatus(Long roomId, String userId) {
+
+        // 1) 채팅 목록
+        List<ChatDTO> list = chatDAO.findChatsByRoomId(roomId);
+
+        // 2) 상대방 last_read_chat_id (1:1)
+        Long opponentLastRead = roomMemberDAO.findOpponentLastReadChatId(roomId, userId);
+        if (opponentLastRead == null) opponentLastRead = 0L;
+
+        // 3) readByOpponent 계산해서 넣기
+        for (ChatDTO c : list) {
+            boolean isMine = userId.equals(c.getSenderId());
+            boolean readByOpponent = isMine && c.getChatId() != null && c.getChatId() <= opponentLastRead;
+            c.setReadByOpponent(readByOpponent);
+        }
+
+        return list;
+    }
+
 }
