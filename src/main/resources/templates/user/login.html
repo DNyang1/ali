@@ -3,13 +3,21 @@
 <html lang="ko">
 <body>
 <h2>로그인</h2>
-<input type="text" id="userId" placeholder="아이디"><br>
-<input type="password" id="password" placeholder="비밀번호"><br>
-<button onclick="login()">로그인</button>
-
-<a href="/oauth2/authorization/kakao" style="background:#FEE500;">카카오 로그인</a>
-<a href="/oauth2/authorization/google" style="background:#FFFFFF;">구글 로그인</a>
-<a href="/oauth2/authorization/naver" style="background:#03C75A; color:white;">네이버 로그인</a>
+<form onsubmit="login(); return false;">
+    <input type="text" id="userId" placeholder="아이디"><br>
+    <input type="password" id="password" placeholder="비밀번호"><br>
+    <button type="submit">로그인</button>
+</form>
+<div style="margin-top: 10px;">
+    <a href="/user/find_id" style="font-size: 0.9em; color: #666; text-decoration: none;">아이디 찾기</a> |
+    <a href="/user/reset_pw" style="font-size: 0.9em; color: #666; text-decoration: none;">비밀번호를 잊으셨나요?</a>
+</div>
+<hr>
+<div class="social-login">
+    <a href="/oauth2/authorization/kakao" style="background:#FEE500; padding: 5px 10px; display: inline-block; text-decoration: none; color: black; margin-bottom: 5px;">카카오 로그인</a><br>
+    <a href="/oauth2/authorization/google" style="background:#FFFFFF; border: 1px solid #ccc; padding: 5px 10px; display: inline-block; text-decoration: none; color: black; margin-bottom: 5px;">구글 로그인</a><br>
+    <a href="/oauth2/authorization/naver" style="background:#03C75A; color:white; padding: 5px 10px; display: inline-block; text-decoration: none;">네이버 로그인</a>
+</div>
 <br>
 <a href="/user/index">취소</a>
 <p>계정이 없으신가요? <a href="/user/register">회원가입 하러가기</a></p>

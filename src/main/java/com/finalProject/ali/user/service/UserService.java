@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class UserService {
     @Autowired
@@ -58,15 +61,37 @@ public class UserService {
 
         // 2. 현재 비밀번호 일치 여부 확인
         if (passwordEncoder.matches(currentPassword, user.getPassword())) {
-            // 3. 일치하면 새 비밀번호 암호화 후 업데이트
-            String encryptedPassword = passwordEncoder.encode(newPassword);
-            userDAO.updatePassword(userId, encryptedPassword);
-            return true;
+            return updatePassword(userId, newPassword); // 아래 공통 메서드 호출
         }
         return false; // 비밀번호 불일치
     }
+    // 새 비밀번호 암호화 및 업데이트
+    public boolean updatePassword(String userId, String newPassword) {
+        // 새 비밀번호 암호화
+        String password = passwordEncoder.encode(newPassword);
 
+        // DAO에 전달 (Map이나 DTO 활용)
+        Map<String, String> params = new HashMap<>();
+        params.put("userId", userId);
+        params.put("password", password);
 
+        return userDAO.updatePassword(params) > 0;
+    }
+
+    public String findId(String name, String type, String value) {
+        if ("phone".equals(type)) {
+            return userDAO.findIdByPhone(name, value);
+        } else if ("email".equals(type)) {
+            return userDAO.findIdByEmail(name, value);
+        }
+        return null;
+    }
+
+    // 2. 비밀번호 재설정 전 사용자 확인 (ID와 이메일이 일치하는지)
+    public boolean checkUserForReset(String userId, String email) {
+        UserDTO user = userDAO.findByUserId(userId);
+        return user != null && user.getEmail().equals(email);
+    }
 
 
 

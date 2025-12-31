@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,9 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SessionRegistry sessionRegistry;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     // 루트(/) 경로 접속 시 index.html 반환(나중에 홈화면으로 변경)
     @GetMapping("/index")
@@ -200,6 +204,49 @@ public class UserController {
 
         return "user/mypage"; // templates/user/mypage.html 반환
     }
+
+
+    @GetMapping("/find_id")
+    public String findIdPage() {
+        return "user/find_id"; // templates/user/find_id.html 호출
+    }
+
+    @PostMapping("/find_id")
+    @ResponseBody
+    public ResponseEntity<String> findId(@RequestBody Map<String, String> data) {
+        String name = data.get("name");
+        String type = data.get("type"); // "phone" 또는 "email"
+        String value = data.get("value");
+
+        String userId = userService.findId(name, type, value);
+
+        if (userId != null) {
+            int length = userId.length();
+            String maskedId = (length > 4)
+                    ? userId.substring(0, 4) + "*".repeat(length - 4)
+                    : userId.substring(0, 1) + "*".repeat(length - 1);
+            return ResponseEntity.ok(maskedId);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("not_found");
+    }
+
+    @GetMapping("/reset_pw")
+    public String resetPwPage() {
+        return "user/reset_pw"; // templates/user/reset_pw.html 호출
+    }
+    @PostMapping("/reset_pw")
+    @ResponseBody
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> data) {
+        String userId = data.get("userId");
+        String newPassword = data.get("newPassword");
+
+        boolean success = userService.updatePassword(userId, newPassword);
+
+        return success ? ResponseEntity.ok("success") : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
+    }
+
+
+
 
 
 }
