@@ -6,30 +6,50 @@
 <mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.SkuDAO">
 
     <insert id="insert">
-        INSERT INTO sku(sku_id, stock_quantity, price_at_sku, created_at)
-        VALUES (#{skuId}, #{stockQuantity}, #{priceAtSku}, #{createdAt})
+        INSERT INTO sku (sku_id, product_id, stock_quantity, created_at)
+        VALUES (#{skuId}, #{productId}, #{stockQuantity}, #{createdAt})
     </insert>
+
+    <select id="countByProductId" resultType="int">
+        SELECT COUNT(*)
+        FROM sku
+        WHERE product_id = #{productId}
+    </select>
 
     <select id="findByProductId"
             resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuDTO">
         SELECT
             s.sku_id         AS skuId,
+            s.product_id     AS productId,
             s.stock_quantity AS stockQuantity,
-            s.price_at_sku   AS priceAtSku,
             s.created_at     AS createdAt,
-            GROUP_CONCAT(CONCAT(po.option_name, ':', pov.option_value)
-                ORDER BY po.option_name SEPARATOR ', ') AS optionSummary
+
+            bp.basePrice     AS basePrice,
+
+            COALESCE(
+                    GROUP_CONCAT(CONCAT(po.option_name, ':', pov.option_value)
+                        ORDER BY po.option_name SEPARATOR ', '),
+                    ''
+            ) AS optionSummary
         FROM sku s
-                 JOIN option_value_sku ovs ON ovs.sku_id = s.sku_id
-                 JOIN product_option_value pov ON pov.option_value_id = ovs.option_value_id
-                 JOIN product_option po ON po.option_id = pov.option_id
-        WHERE po.product_id = #{productId}
-        GROUP BY s.sku_id, s.stock_quantity, s.price_at_sku, s.created_at
+                 LEFT JOIN option_value_sku ovs ON ovs.sku_id = s.sku_id
+                 LEFT JOIN product_option_value pov ON pov.option_value_id = ovs.option_value_id
+                 LEFT JOIN product_option po ON po.option_id = pov.option_id
+
+                 LEFT JOIN (
+            SELECT sku_id, MAX(price) AS basePrice
+            FROM sku_price
+            WHERE min_qty = 1 AND max_qty IS NULL
+            GROUP BY sku_id
+        ) bp ON bp.sku_id = s.sku_id
+
+        WHERE s.product_id = #{productId}
+        GROUP BY s.sku_id, s.product_id, s.stock_quantity, s.created_at, bp.basePrice
         ORDER BY s.created_at DESC
     </select>
 
     <insert id="linkOption">
-        INSERT INTO option_value_sku(option_value_id, sku_id)
+        INSERT INTO option_value_sku (option_value_id, sku_id)
         VALUES (#{optionId}, #{skuId})
     </insert>
 
@@ -51,11 +71,6 @@
         DELETE FROM option_value_sku
         WHERE sku_id = #{skuId}
     </delete>
-
-    <insert id="insertLink">
-        INSERT INTO option_value_sku(option_value_id, sku_id)
-        VALUES (#{optionId}, #{skuId})
-    </insert>
 
     <select id="countOrderItemsBySkuId" resultType="int">
         SELECT COUNT(*)

@@ -7,7 +7,8 @@
 
     <select id="findBySupplierId"
             resultType="com.finalProject.ali.mypage.supplier.product.dto.ProductDTO">
-        SELECT product_id      AS productId,
+        SELECT
+            product_id      AS productId,
             category_id     AS categoryId,
             supplier_id     AS supplierId,
             product_name    AS productName,
@@ -16,7 +17,7 @@
             moq,
             created_at      AS createdAt,
             updated_at      AS updatedAt,
-            status AS status
+            status          AS status
         FROM products
         WHERE supplier_id = #{supplierId}
         ORDER BY product_id DESC
@@ -44,7 +45,6 @@
                  )
     </insert>
 
-
     <select id="findById"
             resultType="com.finalProject.ali.mypage.supplier.product.dto.ProductDTO">
         SELECT
@@ -57,29 +57,32 @@
             moq,
             created_at      AS createdAt,
             updated_at      AS updatedAt,
-            status AS status
+            status          AS status
         FROM products
         WHERE product_id = #{productId}
+          AND supplier_id = #{supplierId}
     </select>
 
     <update id="update">
         UPDATE products
         SET
-            category_id = #{categoryId},
-            product_name = #{productName},
-            description = #{description},
-            is_customizable = #{isCustomizable},
-            moq = #{moq},
-            updated_at = #{updatedAt}
-        WHERE product_id = #{productId}
+            category_id      = #{product.categoryId},
+            product_name     = #{product.productName},
+            description      = #{product.description},
+            is_customizable  = #{product.isCustomizable},
+            moq              = #{product.moq},
+            updated_at       = #{product.updatedAt}
+        WHERE product_id  = #{product.productId}
+          AND supplier_id = #{supplierId}
     </update>
 
     <update id="updateStatus">
         UPDATE products
         SET
-            status = #{status},
+            status     = #{status},
             updated_at = #{updatedAt}
-        WHERE product_id = #{productId}
+        WHERE product_id  = #{productId}
+          AND supplier_id = #{supplierId}
     </update>
 
 </mapper>
