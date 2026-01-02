@@ -16,8 +16,13 @@ function login() {
         .then(msg => {
             if (msg === "success") {
                 alert("로그인 성공!");
-                // 이 코드가 핵심입니다. 루트(/) 즉, index 페이지로 이동시킵니다.
-                location.href = "/user/index";
+                const prevPage = document.referrer;
+
+                if (prevPage && !prevPage.includes('/user/login') && !prevPage.includes('/user/find_id')) {
+                    location.href = prevPage;
+                } else {
+                    location.href = "/";
+                }
             }
         })
         .catch(err => {

@@ -60,7 +60,7 @@ public class UserSecurity {
 
                 .logout(logout -> logout
                         .logoutUrl("/user/logout") // 로그아웃을 처리할 URL
-                        .logoutSuccessUrl("/user/index") // 로그아웃 성공 후 이동할 페이지
+                        .logoutSuccessUrl("/") // 로그아웃 성공 후 이동할 페이지
                         .invalidateHttpSession(true) // 세션 삭제 필수
                         .deleteCookies("JSESSIONID") // 쿠키 삭제로 세션 꼬임 방지
                         .permitAll()

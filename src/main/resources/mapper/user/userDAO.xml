@@ -67,5 +67,20 @@
     </select>
 
 
+    <insert id="insertResetToken">
+        INSERT INTO pw_reset_token (token, user_id, expiry_date)
+        VALUES (#{token}, #{userId}, #{expiryDate})
+    </insert>
+
+    <select id="getUserIdByToken" resultType="string">
+        SELECT user_id FROM pw_reset_token
+        WHERE token = #{token} AND expiry_date > #{now}
+    </select>
+
+    <delete id="deleteResetToken">
+        DELETE FROM pw_reset_token WHERE token = #{token}
+    </delete>
+
+
 
 </mapper>

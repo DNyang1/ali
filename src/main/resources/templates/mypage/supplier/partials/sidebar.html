@@ -31,7 +31,7 @@
         정산
     </a>
 
-    <a th:href="@{/mypage/supplier/company}"
+    <a th:href="@{/supplier/s_setting}"
        th:classappend="${activeMenu=='company'} ? ' active' : ''">
         회사정보
     </a>
@@ -43,5 +43,5 @@
         유저로 전환
     </a>
 
-    <a th:href="@{/user/index}" class="sidebar-sub">메인으로</a>
+    <a th:href="@{/}" class="sidebar-sub">메인으로</a>
 </nav>

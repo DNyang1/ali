@@ -16,7 +16,7 @@ public class SupplierChatController extends BaseSupplierController {
 
         addCommonAttributes(model);
 
-        return "mypage/supplier/chat/index";
+        return "/mypage/supplier/chat/index";
     }
 
 }

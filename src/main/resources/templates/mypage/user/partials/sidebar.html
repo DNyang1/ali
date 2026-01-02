@@ -1,10 +1,11 @@
+<meta charset="UTF-8">
 <nav th:fragment="sidebar" class="sidebar">
     <div class="sidebar-title">마이페이지</div>
 
     <a th:href="@{/mypage/user/dashboard}"
        th:classappend="${activeMenu=='dashboard'} ? ' active' : ''">대시보드</a>
 
-    <a th:href="@{/mypage/user/chat}"
+    <a th:href="@{/chat/messages}"
        th:classappend="${activeMenu=='chat'} ? ' active' : ''">채팅</a>
 
     <!-- ✅ 장바구니 -->
@@ -20,11 +21,11 @@
     <a th:href="@{/mypage/user/payment}"
        th:classappend="${activeMenu=='payment'} ? ' active' : ''">결제내역</a>
 
-    <a th:href="@{/mypage/user/setting}"
+    <a th:href="@{/user/setting}"
        th:classappend="${activeMenu=='setting'} ? ' active' : ''">계정설정</a>
 
     <hr class="sidebar-sep"/>
 
     <a th:href="@{/user/switch-role}" class="sidebar-sub">공급자로 전환</a>
-    <a th:href="@{/user/index}" class="sidebar-sub">메인으로</a>
+    <a th:href="@{/}" class="sidebar-sub">메인으로</a>
 </nav>

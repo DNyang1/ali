@@ -10,12 +10,26 @@
 <input type="text" id="userId" placeholder="아이디 (user_id)"><br>
 <input type="password" id="password" placeholder="비밀번호 (password)"><br>
 <input type="text" id="name" placeholder="이름 (name)"><br>
-<input type="email" id="email" placeholder="이메일 (email)"><br>
+
+<div style="display: flex; gap: 5px; margin-bottom: 5px;">
+  <input type="email" id="email" placeholder="이메일 (email)" style="flex: 1;">
+  <button type="button" onclick="sendAuthCode()">인증번호 받기</button>
+</div>
+
+<div id="authCodeSection" style="display: none; margin-bottom: 10px;">
+  <div style="display: flex; gap: 5px;">
+    <input type="text" id="authCode" placeholder="인증번호 6자리">
+    <button type="button" onclick="verifyAuthCode()">인증확인</button>
+  </div>
+  <small id="authTimer" style="color: red;"></small>
+</div>
+
 <input type="text" id="phone" placeholder="전화번호 (phone)"><br>
 <input type="text" id="birth" placeholder="생년월일 (birth: YYYYMMDD)"><br>
 <input type="text" id="address" placeholder="주소 (address)"><br>
-<button onclick="signup()" type="submit">가입하기</button>
-<a href="/user/index">취소</a>
+
+<button id="signupBtn" onclick="signup()" type="submit" disabled>가입하기</button>
+<a href="#" onclick="history.back(); return false;">취소</a>
 
 <script src="/user/js/register.js"></script>
 </body>
