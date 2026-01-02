@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>정보 수정</title>
+    <style>
+        .profile-container { margin-bottom: 20px; }
+        #profilePreview {
+            border-radius: 50%;
+            object-fit: cover;
+            background: #eee;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
 <body>
 <h2>회원 정보 수정</h2>
+
+<div class="profile-container">
+    <p>프로필 사진</p>
+    <img id="profilePreview"
+         th:src="${session.loginUser.profileImg != null ? session.loginUser.profileImg : '/images/default.png'}"
+         width="120" height="120">
+    <br>
+    <input type="file" id="profileFile" accept="image/*" onchange="previewImage(this)">
+</div>
+
+<hr>
+
 <input type="text" id="userId" th:value="${session.loginUser.userId}" readonly><br>
 <input type="text" id="name" th:value="${session.loginUser.name}" placeholder="이름"><br>
 <input type="email" id="email" th:value="${session.loginUser.email}" placeholder="이메일"><br>
@@ -15,5 +36,17 @@
 <a href="#" onclick="history.back(); return false;">취소</a>
 
 <script src="/user/js/update.js"></script>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profilePreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 </body>
 </html>

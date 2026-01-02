@@ -17,4 +17,6 @@ public class UserDTO {
     private int loginFailCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    //image
+    private String profileImg;
 }

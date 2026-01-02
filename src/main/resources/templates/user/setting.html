@@ -6,6 +6,17 @@
     <style>
         .menu-box { border: 1px solid #ddd; padding: 20px; margin: 10px 0; border-radius: 8px; }
         .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+
+        /* 프로필 이미지 스타일 추가 */
+        .profile-img-setting {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #eee;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -14,13 +25,21 @@
 
 <div class="menu-box">
     <h3>나의 기본 정보</h3>
+
+    <div class="profile-section">
+        <img th:src="${user.profileImg != null ? user.profileImg : '/images/default.png'}"
+             alt="프로필 사진" class="profile-img-setting">
+    </div>
+
     <p>아이디: <span th:text="${user.userId}"></span></p>
     <p>이름: <span th:text="${user.name}"></span></p>
     <p>이메일: <span th:text="${user.email}"></span></p>
-    <a th:href="@{/user/update}" class="btn">회원정보 수정</a>
-    <a th:href="@{/user/update_password}" class="btn" style="background: #28a745;">비밀번호 변경</a>
-</div>
 
+    <div style="margin-top: 20px;">
+        <a th:href="@{/user/update}" class="btn">회원정보 수정</a>
+        <a th:href="@{/user/update_password}" class="btn" style="background: #28a745;">비밀번호 변경</a>
+    </div>
+</div>
 
 <a href="/mypage/user/dashboard">마이페이지로 돌아가기</a>
 </body>
