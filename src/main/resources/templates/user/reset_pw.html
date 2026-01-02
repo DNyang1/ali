@@ -18,7 +18,7 @@
 <a href="/user/login">로그인 화면으로 돌아가기</a>
 
 <script>
-  async function sendResetLink() {
+  function sendResetLink() {
     const userId = document.getElementById('userId').value;
     const email = document.getElementById('email').value;
 
@@ -27,19 +27,22 @@
       return;
     }
 
-    // UserController의 @PostMapping("/send_reset_link") 호출
-    const response = await fetch('/user/send_reset_link', {
+    // 1. 사용자에게 즉시 알림을 보여줌 (기업용 방식)
+    alert("입력하신 이메일로 재설정 링크가 전송되었습니다. 메일함을 확인해주세요.");
+
+    // 2. 대기 없이 즉시 로그인 페이지로 이동
+    location.href = "/user/login";
+
+    // 3. 서버 호출은 뒤에서 따로 수행 (백엔드가 @Async라면 0.1초 만에 요청 접수 완료)
+    fetch('/user/send_reset_link', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: userId, email: email })
+    }).then(response => {
+      if (!response.ok) {
+        console.error("발송 요청 중 서버 오류 발생");
+      }
     });
-
-    if (response.ok) {
-      alert("입력하신 이메일로 재설정 링크가 전송되었습니다. 메일함을 확인해주세요.");
-      location.href = "/user/login";
-    } else {
-      alert("일치하는 사용자 정보가 없거나 발송에 실패했습니다.");
-    }
   }
 </script>
 </body>

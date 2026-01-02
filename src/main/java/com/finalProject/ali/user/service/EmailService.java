@@ -4,6 +4,7 @@ import com.finalProject.ali.user.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,7 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     // 이메일 발송 공통 메서드
+    @Async
     public void sendSimpleEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("hjin112255@gmail.com"); // application.properties에 설정한 계정
