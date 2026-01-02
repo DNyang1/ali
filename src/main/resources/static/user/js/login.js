@@ -18,7 +18,9 @@ function login() {
                 alert("로그인 성공!");
                 const prevPage = document.referrer;
 
-                if (prevPage && !prevPage.includes('/user/login') && !prevPage.includes('/user/find_id')) {
+                if (prevPage && !prevPage.includes('/user/login')
+                    && !prevPage.includes('/user/find_id')
+                    && !prevPage.includes('/user/reset_pw')) {
                     location.href = prevPage;
                 } else {
                     location.href = "/";

@@ -87,6 +87,7 @@ public class UserController {
                             Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
             SecurityContextHolder.getContext().setAuthentication(token);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
             // 세션 레지스트리에 아이디(String) 등록
             sessionRegistry.registerNewSession(session.getId(), token.getPrincipal());
