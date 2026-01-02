@@ -2,9 +2,12 @@ package com.finalProject.ali.mypage.supplier.product.controller;
 
 import com.finalProject.ali.mypage.supplier.category.dao.SupplierCategoryDAO;
 import com.finalProject.ali.mypage.supplier.common.controller.BaseSupplierController;
+import com.finalProject.ali.mypage.supplier.product.dao.SupplierDAO;
 import com.finalProject.ali.mypage.supplier.product.dto.ProductDTO;
 import com.finalProject.ali.mypage.supplier.product.service.SupplierProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +18,19 @@ public class SupplierProductController extends BaseSupplierController {
 
     private final SupplierProductService supplierProductService;
     private final SupplierCategoryDAO categoryDAO;
-    // 임시 supplier_id (로그인 붙이면 여기만 교체)
+    private final SupplierDAO supplierDAO;
+
     private String supplierId() {
-        return "TEST_SUPPLIER";
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+        System.out.println("LOGIN userId = " + userId);
+
+        String supplierId = supplierDAO.findSupplierIdByUserId(userId);
+        System.out.println("MAPPED supplierId = " + supplierId);
+
+        return supplierId;
     }
+
 
 
     @GetMapping("/mypage/supplier/product")
@@ -56,7 +68,12 @@ public class SupplierProductController extends BaseSupplierController {
         model.addAttribute("activeMenu", "product");
         addCommonAttributes(model);
 
-        model.addAttribute("product", supplierProductService.get(id));
+        ProductDTO product = supplierProductService.get(id, supplierId());
+        if (product == null) {
+            return "redirect:/mypage/supplier/product?error=notfound";
+            }
+
+        model.addAttribute("product", product);
         return "mypage/supplier/product/detail";
     }
 
@@ -66,7 +83,7 @@ public class SupplierProductController extends BaseSupplierController {
         model.addAttribute("activeMenu", "product");
         addCommonAttributes(model);
 
-        ProductDTO form = supplierProductService.get(id);
+        ProductDTO form = supplierProductService.get(id, supplierId());
         model.addAttribute("form", form);
 
         model.addAttribute("rootCategories", categoryDAO.findRoot());
@@ -98,13 +115,13 @@ public class SupplierProductController extends BaseSupplierController {
     public String edit(@PathVariable("id") Long id,
                        @ModelAttribute("form") ProductDTO form) {
         form.setProductId(id);
-        supplierProductService.update(form);
+        supplierProductService.update(form, supplierId());
         return "redirect:/mypage/supplier/product/" + id;
     }
 
     @PostMapping("/mypage/supplier/product/{id}/toggle")
     public String toggle(@PathVariable("id") Long id) {
-        supplierProductService.toggleStatus(id);
+        supplierProductService.toggleStatus(id, supplierId());
         return "redirect:/mypage/supplier/product";
     }
 }

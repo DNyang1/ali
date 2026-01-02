@@ -6,112 +6,150 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title th:text="${pageTitle} ?: 'SKU 관리'">SKU 관리</title>
   <link rel="stylesheet" href="/mypage/supplier/css/product.css">
-
-
 </head>
 
 <body>
 
+<section class="panel">
+  <header class="panel-head">
+    <h2 class="panel-title">SKU 관리</h2>
+    <a class="panel-link"
+       th:href="@{/mypage/supplier/product/{id}(id=${productId})}">
+      상품 상세
+    </a>
+  </header>
 
-  <section class="panel">
-    <header class="panel-head">
-      <h2 class="panel-title">SKU 관리</h2>
-      <a class="panel-link"
-         th:href="@{/mypage/supplier/product/{id}(id=${productId})}">
-        상품 상세
-      </a>
-    </header>
+  <div class="panel-body">
 
-    <div class="panel-body">
+    <div th:if="${param.error != null}">
+      <p th:if="${param.error[0] == 'sold'}">
+        이미 주문된 SKU는 옵션을 수정할 수 없습니다.
+      </p>
+    </div>
 
-      <div th:if="${param.error != null}">
-        <p th:if="${param.error[0] == 'sold'}">
-          이미 주문된 SKU는 옵션을 수정할 수 없습니다.
+    <div th:if="${param.updated != null}">
+      <p>옵션이 저장되었습니다.</p>
+    </div>
+
+    <form th:action="@{/mypage/supplier/product/{id}/sku(id=${productId})}"
+          method="post" th:object="${skuForm}">
+
+      <div style="display:flex; gap:30px; flex-wrap:wrap;">
+        <div>
+          <label>재고</label>
+          <input type="number" min="0" th:field="*{stock}" />
+        </div>
+
+        <div>
+          <label>기본 단가(디폴트)</label>
+          <input type="number" min="0" step="1" th:field="*{basePrice}" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>구간별 단가</label>
+
+        <div id="rangeWrap" style="margin-top:8px;">
+          <div class="range-row" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+            <input type="number" name="ranges[0].min" placeholder="최소" min="1" style="width:90px;">
+            <span>~</span>
+            <input type="number" name="ranges[0].max" placeholder="최대(비우면 무한)" min="1" style="width:120px;">
+            <input type="number" name="ranges[0].price" placeholder="가격" min="0" style="width:140px;">
+            <button type="button" class="danger" onclick="removeRangeRow(this)">삭제</button>
+          </div>
+        </div>
+
+        <button type="button" style="margin-top:6px;" onclick="addRangeRow()">+ 구간 추가</button>
+        <p style="margin-top:6px; font-size:12px; opacity:.8;">
+          * 기본 단가는 항상 저장되고, 구간가는 필요할 때만 추가하세요.
         </p>
       </div>
 
-      <div th:if="${param.updated != null}">
-        <p>옵션이 저장되었습니다.</p>
+      <div style="margin-top:12px;">
+        <label>연결할 옵션 (선택)</label><br/>
+        <div th:if="${#lists.isEmpty(options)}">
+          옵션을 먼저 등록하세요.
+        </div>
+
+        <div class="sku-options-group">
+
+          <div class="opt-group" th:each="group : ${optionGroups}">
+            <div class="opt-title" th:text="${group.key}">색상</div>
+
+            <div class="opt-items">
+              <label th:each="o : ${group.value}">
+                <input type="checkbox" name="optionValueIds" th:value="${o.optionId}">
+                <span th:text="${o.optionValue}"></span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <p style="margin-top:6px; font-size:12px; opacity:.8;">
+          * 모든 옵션을 선택할 필요 없습니다.
+        </p>
       </div>
 
-      <form th:action="@{/mypage/supplier/product/{id}/sku(id=${productId})}"
-            method="post" th:object="${skuForm}">
+      <div style="margin-top:12px;">
+        <button type="submit">SKU 추가</button>
+      </div>
+    </form>
 
-        <div>
-          <label>재고</label>
-          <input type="number" th:field="*{stockQuantity}" min="0"/>
-        </div>
+    <hr/>
 
-        <div>
-          <label>가격</label>
-          <input type="number" step="0.01" th:field="*{priceAtSku}"/>
-        </div>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>skuId</th>
+        <th>옵션 조합</th>
+        <th>재고</th>
+        <th>기본단가</th>
+        <th>생성일</th>
+        <th>구간단가</th>
+        <th>액션</th>
+      </tr>
+      </thead>
 
-        <div style="margin-top:10px;">
-          <label>연결할 옵션(체크)</label><br/>
-          <div th:if="${#lists.isEmpty(options)}">
-            옵션을 먼저 등록하세요.
-          </div>
+      <tbody>
+      <tr th:if="${#lists.isEmpty(skus)}">
+        <td colspan="7">SKU가 없습니다.</td>
+      </tr>
 
-          <div class="sku-options">
-            <label th:each="o : ${options}">
-              <input type="checkbox" name="optionIds" th:value="${o.optionId}">
-              <span th:text="${o.optionName + ':' + o.optionValue}"></span>
-            </label>
-          </div>
-        </div>
+      <tr th:each="s : ${skus}">
+        <td title="전체 skuId"
+            th:text="${#strings.length(s.skuId) > 12 ? (#strings.substring(s.skuId,0,12) + '...') : s.skuId}">
+        </td>
 
-        <div style="margin-top:10px;">
-          <button type="submit">SKU 추가</button>
-        </div>
-      </form>
+        <td th:text="${s.optionSummary}">사이즈:95, 색상:빨강</td>
+        <td th:text="${s.stockQuantity}">0</td>
+        <td th:text="${s.basePrice}">0</td>
+        <td th:text="${s.createdAt}">2025-12-28</td>
+        <td>
+          <button type="button"
+                  class="tier-btn"
+                  th:attr="data-sku-id=${s.skuId}">
+            구간단가 보기
+          </button>
+        </td>
+        <td>
+          <a th:if="${s.editable}"
+             th:href="@{/mypage/supplier/product/{pid}/sku/{sid}/edit-options(pid=${productId}, sid=${s.skuId})}">
+            옵션 수정
+          </a>
+          <span th:if="${!s.editable}">
+            수정 불가(주문됨)
+          </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
 
-      <hr/>
 
-      <table class="table">
-        <thead>
-        <tr>
-          <th>skuId</th>
-          <th>옵션 조합</th>
-          <th>재고</th>
-          <th>가격</th>
-          <th>생성일</th>
-          <th>액션</th>
-        </tr>
-        </thead>
 
-        <tbody>
-        <tr th:if="${#lists.isEmpty(skus)}">
-          <td colspan="6">
-            SKU가 없습니다. (옵션과 연결된 SKU만 목록에 나타납니다)
-          </td>
-        </tr>
-
-        <tr th:each="s : ${skus}">
-          <td title="전체 skuId"
-              th:text="${#strings.substring(s.skuId,0,8)} + '...'">
-          </td>
-          <td th:text="${s.optionSummary}">
-            사이즈:95, 색상:빨강
-          </td>
-          <td th:text="${s.stockQuantity}">0</td>
-          <td th:text="${s.priceAtSku}">0</td>
-          <td th:text="${s.createdAt}">2025-12-28</td>
-          <td>
-            <a th:if="${s.editable}"
-               th:href="@{/mypage/supplier/product/{pid}/sku/{sid}/edit-options(pid=${productId}, sid=${s.skuId})}">
-              옵션 수정
-            </a>
-            <span th:if="${!s.editable}">
-              수정 불가(주문됨)
-            </span>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-
-    </div>
-  </section>
+  </div>
+</section>
+<script src="/mypage/supplier/js/sku.js"></script>
 
 </body>
 </html>

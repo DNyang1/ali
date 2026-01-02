@@ -6,12 +6,15 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter @Setter
+@Getter
+@Setter
 public class SkuDTO {
     private String skuId;
+    private Long productId;
     private Long stockQuantity;
-    private BigDecimal priceAtSku;
     private LocalDate createdAt;
+
     private String optionSummary;
+    private BigDecimal basePrice;
     private boolean editable;
 }
