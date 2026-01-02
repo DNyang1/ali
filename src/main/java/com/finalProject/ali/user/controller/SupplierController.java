@@ -18,14 +18,14 @@ public class SupplierController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/index")
-    public String supplierIndex(HttpSession session, Model model) {
+    @GetMapping("/s_setting")
+    public String supplierSetting(HttpSession session, Model model) {
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
 
         SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
         model.addAttribute("supplier", supplier);
-        return "supplier/index";
+        return "/supplier/s_setting";
     }
 
     @GetMapping("/update")

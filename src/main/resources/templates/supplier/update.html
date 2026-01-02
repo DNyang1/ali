@@ -9,6 +9,7 @@
     전화번호: <input type="text" id="cpPhone" th:value="${supplier.cpPhone}"><br>
     주소: <input type="text" id="cpAddress" th:value="${supplier.cpAddress}"><br>
     <button type="button" onclick="updateInfo()">수정 완료</button>
+    <a href="#" onclick="history.back(); return false;">취소</a>
 </form>
 
 <script>
@@ -27,7 +28,7 @@
         }).then(res => {
             if(res.ok) {
                 alert("수정되었습니다.");
-                location.href = "/supplier/index";
+                location.href = "/supplier/s_setting";
             }
         });
     }

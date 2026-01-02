@@ -4,8 +4,11 @@
   <link rel="stylesheet" href="/user/css/index.css"/>
   <meta charset="UTF-8">
   <title>메인 페이지</title>
+  <link rel="stylesheet" href="/main/css/main-header.css">
+  <link rel="stylesheet" href="/main/css/common.css">
 </head>
 <body>
+<div th:replace="layout/mainHeader :: mainHeader"></div>
 <div class="container">
   <h1>메인 페이지</h1>
   <hr>
@@ -21,13 +24,15 @@
 
     <a th:href="@{/chat/messages}" class="btn" style="background-color: #ff8a00;">채팅</a>
 
-    <a th:href="@{/user/mypage}" class="btn" style="background-color: #4A90E2;">마이페이지</a>
+    <a th:href="@{/mypage/user/dashboard}" class="btn" style="background-color: #4A90E2;">마이페이지</a>
 
     <a th:href="@{/user/switch-role}" class="btn" style="background-color: #6c757d;">판매자 모드 전환</a>
 
     <a th:href="@{/user/logout}" class="btn logout-btn">로그아웃</a>
     <a th:href="@{/cart/cart.html}" class="btn">장바구니 테스트</a>
   </div>
+  <footer th:replace="layout/footer :: footer"></footer>
 </div>
+<script src="/user/js/index.js"></script>
 </body>
 </html>

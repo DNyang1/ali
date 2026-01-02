@@ -13,7 +13,7 @@ function registerSupplier() {
     }).then(res => {
         if (res.ok) {
             alert("판매자 등록이 완료되었습니다!");
-            location.href = "/supplier/index";
+            location.href = "/mypage/supplier/dashboard";
         }
     });
 }

@@ -2,6 +2,7 @@ package com.finalProject.ali.user.controller;
 
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
+import com.finalProject.ali.user.service.EmailService;
 import com.finalProject.ali.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -12,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,14 +26,13 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SessionRegistry sessionRegistry;
-
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private EmailService emailService;
 
-    // 루트(/) 경로 접속 시 index.html 반환(나중에 홈화면으로 변경)
-    @GetMapping("/index")
+
+    @GetMapping("/")
     public String indexPage(HttpSession session) {
-        return "user/index";
+        return "/index/index";
     }
 
 
@@ -50,8 +49,22 @@ public class UserController {
 
     @PostMapping("/signup")
     @ResponseBody
-    public ResponseEntity<String> signup(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<String> signup(@RequestBody UserDTO userDTO, HttpSession session) {
+        // 세션에서 인증 여부 확인
+        Boolean isVerified = (Boolean) session.getAttribute("isEmailVerified");
+        String authEmail = (String) session.getAttribute("authEmail");
+
+        if (isVerified == null || !isVerified || !userDTO.getEmail().equals(authEmail)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이메일 인증이 필요합니다.");
+        }
+
         userService.register(userDTO);
+
+        // 가입 성공 후 세션 정보 정리
+        session.removeAttribute("emailAuthCode");
+        session.removeAttribute("isEmailVerified");
+        session.removeAttribute("authEmail");
+
         return ResponseEntity.ok("회원가입 성공");
     }
     @PostMapping("/login")
@@ -89,7 +102,7 @@ public class UserController {
     @GetMapping("/logout")
     public String logout(jakarta.servlet.http.HttpSession session) {
         session.invalidate(); // 세션 무효화
-        return "redirect:/user/index"; // 메인 페이지로 이동
+        return "redirect:/"; // 메인 페이지로 이동
     }
 
 
@@ -144,7 +157,7 @@ public class UserController {
 
         // 4. 이미 판매자라면 판매자 전용 메인 페이지로 이동
         session.setAttribute("supplierInfo", supplier);
-        return "redirect:/supplier/index";
+        return "redirect:/mypage/supplier/dashboard";
     }
 
     @PostMapping("/supplier-signup")
@@ -190,8 +203,8 @@ public class UserController {
     }
 
     // 마이페이지
-    @GetMapping("/mypage")
-    public String myPage(HttpSession session, org.springframework.ui.Model model) {
+    @GetMapping("/setting")
+    public String setting(HttpSession session, org.springframework.ui.Model model) {
         // 1. 세션에서 로그인된 유저 정보 확인
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
 
@@ -202,7 +215,7 @@ public class UserController {
         // 2. 화면에 유저 정보를 뿌려주기 위해 모델에 담기
         model.addAttribute("user", loginUser);
 
-        return "user/mypage"; // templates/user/mypage.html 반환
+        return "user/setting";
     }
 
 
@@ -245,6 +258,83 @@ public class UserController {
         return success ? ResponseEntity.ok("success") : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
     }
 
+
+
+
+
+
+
+    @PostMapping("/send_reset_link")
+    @ResponseBody
+    public ResponseEntity<String> sendResetLink(@RequestBody Map<String, String> data) {
+        String userId = data.get("userId");
+        String email = data.get("email");
+
+        // 아이디와 이메일이 일치하는 유저가 있는지 확인
+        if (userService.checkUserForReset(userId, email)) {
+            userService.processForgotPassword(userId, email);
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("not_found");
+        }
+    }
+
+    @GetMapping("/reset_pw_confirm")
+    public String confirmResetToken(@RequestParam String token, HttpSession session, org.springframework.ui.Model model) {
+        // 토큰 검증
+        String userId = userService.verifyResetToken(token);
+
+        if (userId != null) {
+            // 유효한 토큰이면 세션에 인증 정보를 담거나 모델에 userId를 전달
+            model.addAttribute("userId", userId);
+            model.addAttribute("token", token);
+            return "user/reset_pw_form"; // 새 비밀번호를 입력할 새로운 HTML 페이지
+        } else {
+            return "redirect:/user/login?error=invalid_token";
+        }
+
+    }
+    // 새 비밀번호 실제 반영 API
+    @PostMapping("/reset_pw_final")
+    @ResponseBody
+    public ResponseEntity<String> resetPwFinal(@RequestParam String token,
+                                               @RequestParam String userId,
+                                               @RequestParam String newPassword) {
+        boolean success = userService.resetPasswordWithToken(token, userId, newPassword);
+        return success ? ResponseEntity.ok("success") : ResponseEntity.badRequest().body("fail");
+    }
+
+    // 1. 이메일 인증번호 발송 요청
+    @PostMapping("/send-auth-code")
+    @ResponseBody
+    public ResponseEntity<String> sendAuthCode(@RequestParam String email, HttpSession session) {
+        try {
+            String authCode = emailService.sendVerificationEmail(email);
+
+            // 세션에 인증번호 저장 (유효기간 설정을 위해 생성 시간도 함께 저장 가능)
+            session.setAttribute("emailAuthCode", authCode);
+            session.setAttribute("authEmail", email); // 인증 시도한 이메일 고정
+
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
+        }
+    }
+
+    // 2. 인증번호 검증 요청
+    @PostMapping("/verify-auth-code")
+    @ResponseBody
+    public ResponseEntity<String> verifyAuthCode(@RequestParam String code, HttpSession session) {
+        String savedCode = (String) session.getAttribute("emailAuthCode");
+
+        if (savedCode != null && savedCode.equals(code)) {
+            // 인증 성공 시 세션에 마킹 (최종 회원가입 단계에서 체크)
+            session.setAttribute("isEmailVerified", true);
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
+        }
+    }
 
 
 
