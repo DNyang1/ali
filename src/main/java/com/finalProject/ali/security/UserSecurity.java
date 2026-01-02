@@ -55,6 +55,7 @@ public class UserSecurity {
 //                                "/user/switch-role","/user/supplier-signup",
 //                                "/supplier/**").permitAll()
 //                        .anyRequest().authenticated()
+                        .requestMatchers("/mypage/supplier/**").authenticated()
                         .anyRequest().permitAll()
                 )
 
