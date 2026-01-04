@@ -10,17 +10,18 @@
         WHERE cart_id = #{cartId}
     </select>
     
-    <select id="findByCartIdAndProductId" resultType="com.finalProject.ali.cart.domain.CartItem">
+    <select id="findByCartIdAndProductIdAndSkuId" resultType="com.finalProject.ali.cart.domain.CartItem">
         SELECT *
         FROM cart_item
         WHERE cart_id = #{cartId}
             AND product_id = #{productId}
+            AND sku_id = #{skuId}
         LIMIT 1
     </select>
     
     <insert id="insert">
-        INSERT INTO cart_item (cart_item_id, cart_id, product_id, quantity)
-        VALUES (#{cartItemId}, #{cartId}, #{productId}, #{quantity})
+        INSERT INTO cart_item (cart_item_id, cart_id, product_id, sku_id, quantity)
+        VALUES (#{cartItemId}, #{cartId}, #{productId}, #{skuId}, #{quantity})
     </insert>
 
     <update id="updateQuantity">
