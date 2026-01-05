@@ -15,5 +15,5 @@ public class ProductsDTO {
     private Long isCustomizable;
     private Long moq;
     private Date createdAt;
-    private Date updateAt;
+    private Date updatedAt;
 }

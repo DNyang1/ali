@@ -1,7 +1,14 @@
-* { box-sizing: border-box; font-family: 'Noto Sans KR', sans-serif; }
-body { margin: 0; background: #f5f5f5; }
+* {
+    box-sizing: border-box;
+    font-family: 'Noto Sans KR', sans-serif;
+}
 
-/* HEADER */
+body {
+    margin: 0;
+    background: #f5f5f5;
+}
+
+
 .header {
     background: linear-gradient(135deg, #ff6a00, #ff8a00);
     color: white;
@@ -14,7 +21,10 @@ body { margin: 0; background: #f5f5f5; }
     font-size: 14px;
 }
 
-.top span { margin-left: 16px; cursor: pointer; }
+.top span {
+    margin-left: 16px;
+    cursor: pointer;
+}
 
 .hero {
     text-align: center;
@@ -38,127 +48,7 @@ body { margin: 0; background: #f5f5f5; }
     padding-bottom: 6px;
 }
 
-/* 가로형 전체 카테고리 */
-.all-category-overlay {
-    position: absolute;
-    top: 56px;              /* 헤더 바로 아래 */
-    left: 0;
-    width: 100%;
-    background: white;
-    z-index: 2000;
-    border-top: 1px solid #eee;
-}
 
-/* 패널 */
-.all-category-panel {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 32px;
-}
-
-/* 제목 */
-.all-category-panel h3 {
-    margin: 0 0 16px;
-    font-size: 18px;
-}
-
-/* 🔥 가로 배치 핵심 */
-#allCategoryList {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4열 */
-    gap: 12px 32px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-/* 카테고리 아이템 */
-#allCategoryList .category-item {
-    height: auto;
-    padding: 10px 0;
-    border-radius: 0;
-}
-
-/* hover */
-#allCategoryList .category-item:hover {
-    background: none;
-}
-
-.hidden {
-    display: none;
-}
-
-/* ===============================
-   카테고리 팝업 모달 스타일 (추가)
-   =============================== */
-
-/* 오버레이 → 화면 전체 덮고 배경 어둡게 */
-.all-category-overlay {
-    position: fixed;          /* absolute ❌ → fixed ⭕ */
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    z-index: 5000;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* 팝업 패널 (중앙) */
-.all-category-panel {
-    width: 90vw;
-    max-width: 1400px;
-    height: 80vh;
-
-    background: #fff;
-    border-radius: 18px;
-    padding: 32px;
-
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    overflow: hidden;
-    position: relative;
-}
-
-/* 내부 좌우 레이아웃 */
-.all-category-wrap {
-    display: flex;
-    height: 100%;
-}
-
-/* LEFT : 카테고리 리스트 */
-.all-category-left {
-    width: 280px;
-    border-right: 1px solid #eee;
-    padding-right: 20px;
-    overflow-y: auto;
-}
-
-/* RIGHT : 아이콘 그리드 */
-.all-category-right {
-    flex: 1;
-    padding-left: 32px;
-    overflow-y: auto;
-}
-
-/* 닫기 버튼 (우상단 X) */
-.category-close {
-    position: absolute;
-    top: 18px;
-    right: 18px;
-
-    background: none;
-    border: none;
-    font-size: 26px;
-    cursor: pointer;
-    color: #333;
-}
-
-/* 숨김 유지 */
-.hidden {
-    display: none;
-}
-
-/* SEARCH */
 .search-box {
     background: white;
     width: 900px;
@@ -187,39 +77,158 @@ body { margin: 0; background: #f5f5f5; }
     cursor: pointer;
 }
 
-/* TOGGLE */
-.toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #ff6a00; }
-.toggle input { display: none; }
 
-.slider {
-    width: 34px;
-    height: 18px;
-    background: #ddd;
-    border-radius: 999px;
+.main {
+    padding: 30px;
+}
+
+.category-box {
+    width: 260px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.category-box h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
+}
+
+#categoryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+
+.category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px 10px;
+    height: 52px;
+
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.category-item .left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.category-item .icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.category-item .text {
+    font-size: 15px;
+    color: #222;
+    white-space: nowrap;
+}
+
+.category-item .arrow {
+    font-size: 20px;
+    color: #aaa;
+}
+
+.category-item:hover {
+    background: #f5f5f5;
+}
+
+.category-item:hover .arrow {
+    color: #ff6a00;
+}
+
+
+.all-category-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 5000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.all-category-panel {
+    width: 90vw;
+    max-width: 1400px;
+    height: 80vh;
+
+    background: #fff;
+    border-radius: 18px;
+    padding: 32px;
+
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    overflow: hidden;
     position: relative;
 }
-.slider::before {
-    content: "";
-    width: 14px;
-    height: 14px;
-    background: white;
-    border-radius: 50%;
+
+.all-category-panel h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+}
+
+.all-category-wrap {
+    display: flex;
+    height: 100%;
+}
+
+
+.all-category-left {
+    width: 340px;
+    padding-right: 12px;
+    border-right: 1px solid #eee;
+}
+
+#allCategoryList {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px 16px;
+
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    max-height: 100%;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+#allCategoryList .category-item:hover {
+    background: #f7f7f7;
+}
+
+.all-category-right {
+    flex: 1;
+    padding-left: 32px;
+    overflow-y: auto;
+}
+
+
+.category-close {
     position: absolute;
-    top: 2px; left: 2px;
-}
+    top: 18px;
+    right: 18px;
 
-.img-search {
-    background: #f2f2f2;
+    background: none;
     border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
+    font-size: 26px;
+    cursor: pointer;
+    color: #333;
 }
 
-/* KEYWORDS */
-.keywords { margin-top: 14px; font-size: 14px; }
-.keywords a { margin-left: 10px; text-decoration: underline; cursor: pointer; }
 
-/* BUSINESS */
 .biz {
     display: flex;
     gap: 24px;
@@ -236,11 +245,14 @@ body { margin: 0; background: #f5f5f5; }
 .banner.left {
     background: linear-gradient(135deg, #6a2c2c, #8b3a3a);
 }
+
 .banner.right {
     background: linear-gradient(135deg, #4b2b7f, #5c3a9d);
 }
 
-.banner h2 span { color: #ff6a00; }
+.banner h2 span {
+    color: #ff6a00;
+}
 
 .banner button {
     background: rgba(255,255,255,.25);
@@ -273,85 +285,11 @@ body { margin: 0; background: #f5f5f5; }
     border-radius: 8px;
 }
 
-.ship { color: red; font-size: 12px; }
-
-/* category */
-body {
-    margin: 0;
-    background: #f5f5f5;
-    font-family: 'Noto Sans KR', sans-serif;
+.ship {
+    color: red;
+    font-size: 12px;
 }
 
-.main {
-    padding: 30px;
+.hidden {
+    display: none;
 }
-
-.category-box {
-    width: 260px;
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-}
-
-.category-box h3 {
-    margin: 0 0 12px;
-    font-size: 16px;
-}
-
-.category-box ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.category-item {
-    padding: 12px 10px;
-    cursor: pointer;
-    border-radius: 8px;
-}
-
-.category-item:hover {
-    background: #f2f2f2;
-}
-
-.category-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 14px 10px;
-    cursor: pointer;
-    border-radius: 8px;
-    height: 52px;
-}
-
-.category-item .left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.category-item .icon {
-    font-size: 20px;
-    width: 24px;
-    text-align: center;
-}
-
-.category-item .text {
-    font-size: 15px;
-    color: #222;
-}
-
-.category-item .arrow {
-    font-size: 20px;
-    color: #aaa;
-}
-
-.category-item:hover {
-    background: #f5f5f5;
-}
-
-.category-item:hover .arrow {
-    color: #ff6a00;
-}
-
