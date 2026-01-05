@@ -227,7 +227,13 @@ public class ProductOptionSkuService {
             s.setDisplayStatus(s.getStatus());
         }
     }
-
+    @Transactional
+    public void updateStock(String skuId, long stock){
+        if(stock < 0){
+            throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
+        }
+        skuDAO.updateStock(skuId, stock);
+    }
 
 
 

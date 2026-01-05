@@ -178,6 +178,15 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
         skuPriceService.replacePricesAndMoq(skuId, req);
         return "OK";
     }
+    @PostMapping("/mypage/supplier/sku/{skuId}/stock")
+    public String updateStock(@PathVariable String skuId,
+                              @RequestParam long stock,
+                              @RequestParam long productId) {
 
+        if (stock < 0) throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
+        service.updateStock(skuId, stock);
+
+        return "redirect:/mypage/supplier/product/" + productId + "/sku?updated=1";
+    }
 
 }
