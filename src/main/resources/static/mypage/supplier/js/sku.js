@@ -31,22 +31,19 @@
 
         const row = document.createElement("div");
         row.className = "range-row";
-        row.style.cssText = "display:flex; gap:8px; align-items:center; margin:6px 0;";
+
 
         row.innerHTML = `
     <input type="number" class="js-range-min"
            name="ranges[${rangeIndex}].min"
-           placeholder="최소" min="${moq}" value="${nextMin}"
-           style="width:90px;">
+           placeholder="최소" min="${moq}" value="${nextMin}">
     <span>~</span>
     <input type="number" class="js-range-max"
            name="ranges[${rangeIndex}].max"
-           placeholder="최대(비우면 무한)" min="${moq}"
-           style="width:120px;">
+           placeholder="최대(비우면 무한)" min="${moq}">
     <input type="number" class="js-range-price"
            name="ranges[${rangeIndex}].price"
-           placeholder="가격" min="0"
-           style="width:140px;">
+           placeholder="가격" min="0">
     <button type="button" class="danger" onclick="removeRangeRow(this)">삭제</button>
   `;
 
@@ -105,10 +102,10 @@
 
           <div class="tier-center">
             MOQ:
-            <input type="number" min="1" step="1" class="js-moq-input" style="width:90px; margin-right:12px;">
+            <input type="number" min="1" step="1" class="js-moq-input tier-input" >
             기본가:
-            <input type="number" min="0" step="1" class="js-base-input" style="width:120px;">
-            <span class="js-min-amount" style="margin-left:12px; opacity:.7;"></span>
+            <input type="number" min="0" step="1" class="js-base-input tier-input">
+            <span class="js-min-amount tier-min-amount"></span>
           </div>
 
           <div class="tier-right">
@@ -126,7 +123,7 @@
           </tbody>
         </table>
 
-        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+        <div class="tier-foot">
           <button type="button" class="primary js-add-tier">+ 구간 추가</button>
           <small class="hint">* 구간은 겹치면 안 됩니다. (예: 10~49, 50~99)</small>
         </div>
@@ -298,28 +295,25 @@
     <tr class="js-tier-row">
       <td>
         <input type="number"
-               class="js-min"
+               class="js-min tier-num"
                min="${minLimit}"
                step="1"
-               style="width:90px;"
                value="${minQty ?? ''}">
       </td>
       <td>
         <input type="number"
-               class="js-max"
+               class="js-max tier-num"
                min="${minLimit}"
                step="1"
-               style="width:110px;"
                value="${maxQty ?? ''}">
       </td>
       <td>
         <input type="number"
-               class="js-price"
+               class="js-price tier-price"
                min="0"
                step="1"
-               style="width:130px;"
                value="${price ?? ''}">
-        <div style="font-size:11px; opacity:.65; margin-top:4px;">
+        <div class="tier-amount">
           최소금액: ${amountText}원
         </div>
       </td>
@@ -363,5 +357,35 @@
         bodyEl.insertAdjacentHTML("beforeend", tierRowHtml(nextMin, "", "", safeMoq));
     }
 
+    (function(){
+        const bar = document.getElementById("optToggleBar");
+        const btn = document.getElementById("optToggleBtn");
+        const sec = document.getElementById("optSection");
+        if (!bar || !btn || !sec) return;
+
+        const groups = sec.querySelectorAll(".opt-group").length;
+
+        if (groups <= 2){
+            bar.style.display = "none";
+            sec.classList.remove("is-collapsed");
+            return;
+        }
+
+        const KEY = "supplier_opt_open";
+
+        const apply = (open) => {
+            sec.classList.toggle("is-collapsed", !open);
+            btn.textContent = open ? "옵션 접기" : "옵션 펼치기";
+            btn.setAttribute("aria-expanded", String(open));
+            localStorage.setItem(KEY, open ? "1" : "0");
+        };
+
+        apply(localStorage.getItem(KEY) === "1");
+
+        btn.addEventListener("click", () => {
+            const isOpen = !sec.classList.contains("is-collapsed");
+            apply(!isOpen);
+        });
+    })();
 
 
