@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|${keyword} 검색 결과|">검색 결과</title>
+    <link rel="stylesheet" href="/products/css/products_search.css">
+    <link rel="stylesheet" href="/main/css/main-header.css">
+    <link rel="stylesheet" href="/main/css/common.css">
+</head>
+<body>
+<div th:replace="layout/mainHeader :: mainHeader"></div>
+<div class="search-top-tabs">
+    <span class="active">제품</span>
+    <span>공급자</span>
+    <span>전 세계</span>
+    <span>인사이트</span>
+</div>
+
+<h2 class="result-title">
+    "<span th:text="${keyword}"></span>" 검색 결과
+</h2>
+
+<div class="search-result-grid">
+
+    <div class="product-card"
+         th:each="p : ${products}"
+         th:onclick="|location.href='/products/' + ${p.productId}|">
+
+        <div class="img-wrap">
+            <img th:src="@{|https://picsum.photos/300?random=${p.productId}|}">
+            <span class="badge" th:if="${p.isCustomizable == 1}">
+                CUSTOM
+            </span>
+        </div>
+
+        <div class="info">
+            <p class="name" th:text="${p.productName}"></p>
+
+            <p class="price" th:if="${p.minPrice != null}">
+                ₩
+                <span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
+                ~
+                ₩
+                <span th:text="${#numbers.formatInteger(p.maxPrice, 3, 'COMMA')}"></span>
+            </p>
+
+            <p class="price" th:if="${p.minPrice == null}">
+                가격 문의
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="empty"
+     th:if="${#lists.isEmpty(products)}">
+    검색 결과가 없습니다.
+</div>
+
+</body>
+</html>

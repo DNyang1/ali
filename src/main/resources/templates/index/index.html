@@ -23,11 +23,13 @@
             <span>제조업체</span>
         </div>
 
-        <div class="search-box">
-            <input type="text" placeholder="여성 의류">
-
-            <button class="search-btn">검색</button>
-        </div>
+        <form action="/products/search" method="get" class="search-box">
+            <input type="text"
+                   name="keyword"
+                   placeholder="여성 의류"
+                   th:value="${keyword}">
+            <button type="submit" class="search-btn">검색</button>
+        </form>
     </div>
 </header>
 
