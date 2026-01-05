@@ -13,7 +13,8 @@ public class SkuDTO {
     private Long productId;
     private Long stockQuantity;
     private LocalDate createdAt;
-
+    private String status;
+    private String displayStatus;
     private String optionSummary;
     private BigDecimal basePrice;
     private boolean editable;

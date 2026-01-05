@@ -6,7 +6,9 @@ import com.finalProject.ali.mypage.supplier.product.dao.SupplierDAO;
 import com.finalProject.ali.mypage.supplier.product.dto.OptionDTO;
 import com.finalProject.ali.mypage.supplier.product.dto.SkuForm;
 import com.finalProject.ali.mypage.supplier.product.dto.SkuPriceDTO;
+import com.finalProject.ali.mypage.supplier.product.dto.SkuPriceRequestDTO;
 import com.finalProject.ali.mypage.supplier.product.service.ProductOptionSkuService;
+import com.finalProject.ali.mypage.supplier.product.service.SkuPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,7 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
     private final ProductOptionSkuService service;
     private final SkuPriceDAO skuPriceDAO;
     private final SupplierDAO supplierDAO;
+    private final SkuPriceService skuPriceService;
 
     private String supplierId() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -158,5 +161,23 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
     public List<SkuPriceDTO> getSkuPrices(@PathVariable String skuId) {
         return skuPriceDAO.findBySkuId(skuId);
     }
+
+    @PostMapping("/mypage/supplier/sku/{skuId}/status")
+    public String updateSkuStatus(@PathVariable String skuId,
+                                  @RequestParam String status,
+                                  @RequestParam Long productId){
+        service.updateStatus(skuId,status);
+        return "redirect:/mypage/supplier/product/" + productId + "/sku";
+
+    }
+    @PostMapping("/mypage/supplier/sku/{skuId}/prices")
+    @ResponseBody
+    public String saveSkuPrices(@PathVariable String skuId,
+                                @RequestBody SkuPriceRequestDTO req) {
+
+        skuPriceService.replacePrices(skuId, req);
+        return "OK";
+    }
+
 
 }

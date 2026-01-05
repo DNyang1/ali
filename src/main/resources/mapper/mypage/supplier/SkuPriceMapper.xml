@@ -5,23 +5,25 @@
 
 <mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.SkuPriceDAO">
 
+    <delete id="deleteAllBySkuId">
+        DELETE FROM sku_price
+        WHERE sku_id = #{skuId}
+    </delete>
+
     <insert id="insertPrice">
-        INSERT INTO sku_price (sku_id, min_qty, max_qty, price, created_at)
-        VALUES (#{skuId}, #{minQty}, #{maxQty}, #{price}, NOW())
+        INSERT INTO sku_price (sku_id, min_qty, max_qty, price)
+        VALUES (#{skuId}, #{minQty}, #{maxQty}, #{price})
     </insert>
 
-    <select id="findBySkuId"
-            resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuPriceDTO">
+    <select id="findBySkuId" resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuPriceDTO">
         SELECT
-            sku_price_id AS skuPriceId,
-            sku_id       AS skuId,
-            min_qty      AS minQty,
-            max_qty      AS maxQty,
-            price        AS price,
-            created_at   AS createdAt
+            sku_id   AS skuId,
+            min_qty  AS minQty,
+            max_qty  AS maxQty,
+            price    AS price
         FROM sku_price
         WHERE sku_id = #{skuId}
-        ORDER BY min_qty ASC
+        ORDER BY min_qty
     </select>
 
 </mapper>
