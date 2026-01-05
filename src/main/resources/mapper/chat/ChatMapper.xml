@@ -22,7 +22,7 @@
         ORDER BY chat_id ASC
     </select>
 
-    <select id="findLastChatIdByRoomId" resultType="Long">
+    <select id="findLastChatIdByRoomId" resultType="long">
         SELECT COALESCE(MAX(chat_id), 0)
         FROM chat
         WHERE room_id = #{roomId}
