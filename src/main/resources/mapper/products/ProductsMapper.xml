@@ -11,7 +11,6 @@
             product_name,
             description,
             is_customizable,
-            moq,
             created_at,
             updated_at
         FROM products
@@ -27,10 +26,75 @@
             product_name,
             description,
             is_customizable,
-            moq,
             created_at,
             updated_at
         FROM products
         WHERE product_id = #{productId}
     </select>
+
+    <select id="selectByCustom"
+            resultType="com.finalProject.ali.products.dto.ProductsDTO">
+        SELECT
+            product_id,
+            category_id,
+            product_name,
+            description,
+            is_customizable,
+            created_at,
+            updated_at
+        FROM products
+        WHERE is_customizable = #{isCustomizable}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectByRootCategory"
+            resultType="com.finalProject.ali.products.dto.ProductsDTO">
+        SELECT p.*
+        FROM products p
+        WHERE p.category_id IN (
+        SELECT c1.category_id
+        FROM category c1
+        WHERE c1.category_id = #{categoryId}
+            OR c1.parent_id = #{categoryId}
+            OR c1.parent_id IN (
+        SELECT c2.category_id
+        FROM category c2
+        WHERE c2.parent_id = #{categoryId}
+        )
+        )
+        ORDER BY p.created_at DESC
+    </select>
+
+
+    <select id="selectByCategoryAndCustom"
+            resultType="com.finalProject.ali.products.dto.ProductsDTO">
+        WITH RECURSIVE cat_tree AS (
+        SELECT category_id
+        FROM category
+        WHERE category_id = #{categoryId}
+
+        UNION ALL
+
+        SELECT c.category_id
+        FROM category c
+        JOIN cat_tree ct ON c.parent_id = ct.category_id
+        )
+        SELECT p.*
+        FROM products p
+        JOIN cat_tree ct ON p.category_id = ct.category_id
+        WHERE p.is_customizable = #{isCustomizable}
+        ORDER BY p.created_at DESC
+    </select>
+
+
+    <select id="selectRootCategories"
+            resultType="com.finalProject.ali.products.dto.CategoryDTO">
+        SELECT
+        category_id,
+        category_name
+        FROM category
+        WHERE parent_id IS NULL
+        ORDER BY category_id
+    </select>
+
 </mapper>

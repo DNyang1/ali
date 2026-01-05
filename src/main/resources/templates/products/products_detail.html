@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <title th:text="${product.productName}">상품 상세</title>
     <link rel="stylesheet" th:href="@{/products/css/products_detail.css}">
+    <link rel="stylesheet" href="/main/css/main-header.css">
+    <link rel="stylesheet" href="/main/css/common.css">
 </head>
 <body>
+<div th:replace="layout/mainHeader :: mainHeader"></div>
 
 <nav class="breadcrumb">
     <a href="/">홈</a> &gt;

@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -32,11 +33,38 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public String productsList(Model model) {
-        List<ProductsDTO> products = productService.productList();
+    public String productsList(
+            @RequestParam(required = false) Boolean custom,
+            @RequestParam(required = false) String category,
+            Model model) {
+
+        List<ProductsDTO> products;
+
+        if (category != null && custom != null) {
+            products = productService.getProductsByCategoryAndCustom(category, custom);
+
+        } else if (category != null) {
+            products = productService.getProductsByRootCategory(category);
+
+        } else if (custom != null) {
+            products = productService.getProductsByCustom(custom);
+
+        } else {
+            products = productService.productList();
+        }
+
+        List<CategoryDTO> categories = productService.getRootCategories();
+
+
         model.addAttribute("products", products);
+        model.addAttribute("categories", categories);
+        model.addAttribute("custom", custom);
+        model.addAttribute("category", category);
+
         return "products/products_list";
     }
+
+
 
     @GetMapping("/{productId}")
     public String productsDetail(@PathVariable Long productId, Model model) throws Exception {
