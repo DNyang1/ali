@@ -18,8 +18,17 @@
             <input type="text" id="cpName" placeholder="상호명 (Company Name)" required>
         </div>
 
-        <div class="input-group">
-            <input type="text" id="cpNumber" placeholder="사업자 등록번호 (숫자만 입력)" required>
+        <div class="input-group" style="display: flex; gap: 10px;">
+            <input type="text" id="cpNumber" placeholder="사업자 등록번호 (숫자만 입력)" required style="flex: 1;">
+            <button type="button" onclick="requestBizVerify()" style="width: 100px; padding: 10px; font-size: 13px; background-color: #555;">번호인증</button>
+        </div>
+
+        <div id="bizAuthSection" class="input-group" style="display: none; margin-top: 10px; border: 1px dashed #ddd; padding: 10px;">
+            <p style="font-size: 12px; color: #333; margin-bottom: 5px;">인증번호 입력</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="bizAuthCode" placeholder="6자리 숫자" style="flex: 1;">
+                <button type="button" onclick="confirmBizCode()" style="width: 80px; padding: 8px; font-size: 12px; background-color: #28a745;">확인</button>
+            </div>
         </div>
 
         <div class="input-group">
