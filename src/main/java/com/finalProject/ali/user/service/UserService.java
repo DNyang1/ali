@@ -6,6 +6,7 @@ import com.finalProject.ali.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class UserService {
+public class UserService implements org.springframework.security.core.userdetails.UserDetailsService {
     @Autowired
     private UserDAO userDAO;
 
@@ -32,6 +33,26 @@ public class UserService {
         userDAO.insertUser(userDTO);
     }
 
+    public UserDTO findByUserId(String userId) {
+        return userDAO.findByUserId(userId);
+    }
+    @Override
+    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String userId)
+            throws org.springframework.security.core.userdetails.UsernameNotFoundException {
+
+        UserDTO user = userDAO.findByUserId(userId);
+
+        if (user == null) {
+            throw new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found: " + userId);
+        }
+
+        // Security가 이해할 수 있는 UserDetails 객체로 변환하여 반환
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUserId())
+                .password(user.getPassword()) // 암호화된 비밀번호
+                .roles("USER") // 권한 설정
+                .build();
+    }
     // 로그인 확인
     public UserDTO login(String userId, String rawPassword) {
         UserDTO user = userDAO.findByUserId(userId);
@@ -131,5 +152,7 @@ public class UserService {
         }
         return isUpdated;
     }
+
+
 
 }

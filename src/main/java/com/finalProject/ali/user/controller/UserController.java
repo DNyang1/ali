@@ -10,7 +10,10 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
@@ -30,6 +33,10 @@ public class UserController {
     private SessionRegistry sessionRegistry;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private ImageService imageService; // 새로 만든 서비스 주입
 
 
     @GetMapping("/")
@@ -71,32 +78,32 @@ public class UserController {
     }
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session, HttpServletRequest request) {
+    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session) {
         String userId = loginData.get("userId");
         String password = loginData.get("password");
 
-        // 서비스에서 유저 정보 가져오기
-        UserDTO user = userService.login(userId, password);
+        try {
+            // 1. Spring Security 표준 인증 토큰 생성
+            UsernamePasswordAuthenticationToken authRequest =
+                    new UsernamePasswordAuthenticationToken(userId, password);
 
-        // UserController.java의 login 메서드 수정 부분
-        if (user != null) {
-            session.setAttribute("loginUser", user);
+            // 2. AuthenticationManager를 통한 인증 시도 (이때 DB 비교가 내부적으로 일어남)
+            Authentication authentication = authenticationManager.authenticate(authRequest);
 
-            String principal = user.getUserId();
-
-            UsernamePasswordAuthenticationToken token =
-                    new UsernamePasswordAuthenticationToken(principal, null,
-                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-
-            SecurityContextHolder.getContext().setAuthentication(token);
+            // 3. 인증 성공 시 SecurityContextHolder에 저장
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-            // 세션 레지스트리에 아이디(String) 등록
-            sessionRegistry.registerNewSession(session.getId(), token.getPrincipal());
+            // 4. 세션 레지스트리에 등록
+            sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
+
+            // 5. DB에서 유저 정보를 가져와 세션에 저장 (UI 표시용)
+            UserDTO user = userService.findByUserId(userId);
+            session.setAttribute("loginUser", user);
 
             return ResponseEntity.ok("success");
-
-        } else {
+        } catch (AuthenticationException e) {
+            // 인증 실패 시 (아이디 없음, 비밀번호 틀림 등)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
         }
     }
@@ -113,20 +120,19 @@ public class UserController {
     public String updatePage() {
         return "user/update"; // s_update.html 반환
     }
-    @Autowired
-    private ImageService imageService; // 새로 만든 서비스 주입
+
 
     @PostMapping("/update")
     @ResponseBody
     public ResponseEntity<String> update(
-            @RequestPart("userData") UserDTO userDTO, // JSON 데이터를 DTO로 받음
-            @RequestPart(value = "profileFile", required = false) MultipartFile profileFile, // 파일 받음
+            @RequestPart("userData") UserDTO userDTO,
+            @RequestPart(value = "profileFile", required = false) MultipartFile profileFile,
             HttpSession session) {
 
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
         if (loginUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
 
-        // 1. 파일이 넘어왔다면 ImageService를 통해 저장
+        // 1. 프로필 이미지 처리 (ImageService 활용)
         if (profileFile != null && !profileFile.isEmpty()) {
             if (loginUser.getProfileImg() != null) {
                 imageService.deleteActualFile(loginUser.getProfileImg());
@@ -134,21 +140,16 @@ public class UserController {
             String uploadedPath = imageService.uploadImage(profileFile, "profiles");
             userDTO.setProfileImg(uploadedPath);
         } else {
-            // 파일을 새로 선택 안 했으면 기존 이미지 경로 유지
             userDTO.setProfileImg(loginUser.getProfileImg());
         }
 
-        // 2. 정보 업데이트 (ID 강제 세팅 포함)
+        // 2. 정보 업데이트 수행
         userDTO.setUserId(loginUser.getUserId());
         userService.updateUserInfo(userDTO);
 
-        // 3. 세션 정보 최신화 (이미지 경로 포함)
-        loginUser.setName(userDTO.getName());
-        loginUser.setEmail(userDTO.getEmail());
-        loginUser.setPhone(userDTO.getPhone());
-        loginUser.setAddress(userDTO.getAddress());
-        loginUser.setProfileImg(userDTO.getProfileImg());
-        session.setAttribute("loginUser", loginUser);
+        // 3. DB에서 최신 정보를 다시 조회하여 세션 갱신
+        UserDTO updatedUser = userService.findByUserId(loginUser.getUserId());
+        session.setAttribute("loginUser", updatedUser);
 
         return ResponseEntity.ok("success");
     }
@@ -304,11 +305,6 @@ public class UserController {
     }
 
 
-
-
-
-
-
     @PostMapping("/send_reset_link")
     @ResponseBody
     public ResponseEntity<String> sendResetLink(@RequestBody Map<String, String> data) {
@@ -347,38 +343,6 @@ public class UserController {
                                                @RequestParam String newPassword) {
         boolean success = userService.resetPasswordWithToken(token, userId, newPassword);
         return success ? ResponseEntity.ok("success") : ResponseEntity.badRequest().body("fail");
-    }
-
-    // 1. 이메일 인증번호 발송 요청
-    @PostMapping("/send-auth-code")
-    @ResponseBody
-    public ResponseEntity<String> sendAuthCode(@RequestParam String email, HttpSession session) {
-        try {
-            String authCode = emailService.sendVerificationEmail(email);
-
-            // 세션에 인증번호 저장 (유효기간 설정을 위해 생성 시간도 함께 저장 가능)
-            session.setAttribute("emailAuthCode", authCode);
-            session.setAttribute("authEmail", email); // 인증 시도한 이메일 고정
-
-            return ResponseEntity.ok("success");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
-        }
-    }
-
-    // 2. 인증번호 검증 요청
-    @PostMapping("/verify-auth-code")
-    @ResponseBody
-    public ResponseEntity<String> verifyAuthCode(@RequestParam String code, HttpSession session) {
-        String savedCode = (String) session.getAttribute("emailAuthCode");
-
-        if (savedCode != null && savedCode.equals(code)) {
-            // 인증 성공 시 세션에 마킹 (최종 회원가입 단계에서 체크)
-            session.setAttribute("isEmailVerified", true);
-            return ResponseEntity.ok("success");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
-        }
     }
 
 

@@ -38,7 +38,17 @@
             <p class="title" th:text="${p.productName}"></p>
 
             <div class="meta">
-                <span class="moq" th:text="|MOQ ${p.moq}|"></span>
+                <p class="price" th:if="${p.minPrice != null}">
+                    ₩
+                    <span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
+                    ~
+                    ₩
+                    <span th:text="${#numbers.formatInteger(p.maxPrice, 3, 'COMMA')}"></span>
+                </p>
+
+                <p class="price" th:if="${p.minPrice == null}">
+                    가격 문의
+                </p>
 
                 <span class="custom"
                       th:if="${p.isCustomizable == 1}">

@@ -101,4 +101,18 @@ public class ProductController {
 
         return "products/products_detail";
     }
+
+    @GetMapping("/search")
+    public String search(
+            @RequestParam String keyword,
+            Model model
+    ) {
+        List<ProductsDTO> products = productService.searchProducts(keyword);
+
+        model.addAttribute("products", products);
+        model.addAttribute("keyword", keyword);
+
+        return "products/products_search";
+    }
+
 }

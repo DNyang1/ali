@@ -41,4 +41,8 @@ public class ProductService {
         return productDAO.selectRootCategories();
     }
 
+    public List<ProductsDTO> searchProducts(String keyword) {
+        return productDAO.searchByKeyword(keyword);
+    }
+
 }
