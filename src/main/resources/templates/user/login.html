@@ -1,27 +1,55 @@
 <!DOCTYPE html>
-<meta charset="UTF-8">
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - ALI</title>
+    <link rel="stylesheet" href="/user/css/register.css"/>
+    <link rel="stylesheet" href="/user/css/login.css"/>
+</head>
 <body>
-<h2>로그인</h2>
-<form onsubmit="login(); return false;">
-    <input type="text" id="userId" placeholder="아이디"><br>
-    <input type="password" id="password" placeholder="비밀번호"><br>
-    <button type="submit">로그인</button>
-</form>
-<div style="margin-top: 10px;">
-    <a href="/user/find_id" style="font-size: 0.9em; color: #666; text-decoration: none;">아이디 찾기</a> |
-    <a href="/user/reset_pw" style="font-size: 0.9em; color: #666; text-decoration: none;">비밀번호를 잊으셨나요?</a>
-</div>
-<hr>
-<div class="social-login">
-    <a href="/oauth2/authorization/kakao" style="background:#FEE500; padding: 5px 10px; display: inline-block; text-decoration: none; color: black; margin-bottom: 5px;">카카오 로그인</a><br>
-    <a href="/oauth2/authorization/google" style="background:#FFFFFF; border: 1px solid #ccc; padding: 5px 10px; display: inline-block; text-decoration: none; color: black; margin-bottom: 5px;">구글 로그인</a><br>
-    <a href="/oauth2/authorization/naver" style="background:#03C75A; color:white; padding: 5px 10px; display: inline-block; text-decoration: none;">네이버 로그인</a>
-</div>
-<br>
-<a href="/">홈으로 가기</a>
-<p>계정이 없으신가요? <a href="/user/register">회원가입 하러가기</a></p>
+<div class="container login-container">
+    <h2>ALI</h2>
 
+    <form onsubmit="login(); return false;">
+        <div class="input-group">
+            <input type="text" id="userId" placeholder="아이디" required>
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="비밀번호" required>
+        </div>
+
+        <button type="submit" class="login-btn">로그인</button>
+    </form>
+
+    <div class="link-group">
+        <a href="/user/find_id">아이디 찾기</a>
+        <span class="bar">|</span>
+        <a href="/user/reset_pw">비밀번호를 잊으셨나요?</a>
+        <span class="bar">|</span>
+        <a href="/user/register">회원가입</a>
+    </div>
+
+    <div class="divider">
+        <span>간편 로그인</span>
+    </div>
+
+    <div class="social-login">
+        <a href="/oauth2/authorization/naver" class="naver-btn">
+            <span class="icon"></span> 네이버로 시작하기
+        </a>
+        <a href="/oauth2/authorization/kakao" class="kakao-btn">
+            <span class="icon"></span> 카카오로 시작하기
+        </a>
+        <a href="/oauth2/authorization/google" class="google-btn">
+            <span class="icon"></span> 구글로 시작하기
+        </a>
+    </div>
+
+    <div class="bottom-home">
+        <a href="/">홈으로 가기</a>
+    </div>
+</div>
 
 <script src="/user/js/login.js"></script>
 </body>
