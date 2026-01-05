@@ -1,46 +1,46 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/user/layout/base :: layout(~{::body}, ~{::head/link})">
 <head>
     <meta charset="UTF-8">
-    <title>마이페이지</title>
-    <style>
-        .menu-box { border: 1px solid #ddd; padding: 20px; margin: 10px 0; border-radius: 8px; }
-        .btn { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
-
-        /* 프로필 이미지 스타일 추가 */
-        .profile-img-setting {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #eee;
-            border: 1px solid #ddd;
-            margin-bottom: 15px;
-        }
-    </style>
+    <title>계정설정</title>
+    <link rel="stylesheet" href="/user/css/setting.css"/>
 </head>
 <body>
-<h1>계정설정</h1>
-<hr>
+<div class="setting-container">
+    <h1 class="page-title">계정설정</h1>
 
-<div class="menu-box">
-    <h3>나의 기본 정보</h3>
+    <div class="menu-box">
+        <h3 class="box-title">나의 기본 정보</h3>
 
-    <div class="profile-section">
-        <img th:src="${user.profileImg != null ? user.profileImg : '/images/default.png'}"
-             alt="프로필 사진" class="profile-img-setting">
-    </div>
+        <div class="info-content">
+            <div class="profile-section">
+                <img th:src="${user.profileImg != null ? user.profileImg : '/images/default.png'}"
+                     alt="프로필 사진" class="profile-img-setting">
+                <p class="profile-label">프로필 이미지</p>
+            </div>
 
-    <p>아이디: <span th:text="${user.userId}"></span></p>
-    <p>이름: <span th:text="${user.name}"></span></p>
-    <p>이메일: <span th:text="${user.email}"></span></p>
+            <div class="text-info-section">
+                <div class="info-row">
+                    <span class="label">아이디</span>
+                    <span class="value" th:text="${user.userId}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">이름</span>
+                    <span class="value" th:text="${user.name}"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">이메일</span>
+                    <span class="value" th:text="${user.email}"></span>
+                </div>
+            </div>
+        </div>
 
-    <div style="margin-top: 20px;">
-        <a th:href="@{/user/update}" class="btn">회원정보 수정</a>
-        <a th:href="@{/user/update_password}" class="btn" style="background: #28a745;">비밀번호 변경</a>
+        <div class="action-buttons">
+            <a th:href="@{/user/update}" class="btn btn-primary">회원정보 수정</a>
+            <a th:href="@{/user/update_password}" class="btn btn-outline">비밀번호 변경</a>
+        </div>
     </div>
 </div>
-
-<a href="/mypage/user/dashboard">마이페이지로 돌아가기</a>
 </body>
 </html>
