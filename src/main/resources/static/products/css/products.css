@@ -23,6 +23,12 @@
     object-fit: cover;
 }
 
+.product-card {
+    text-decoration: none;
+    color: inherit;
+}
+
+
 .info {
     padding: 12px;
 }

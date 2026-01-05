@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class AddCartItemRequest {
-    private String productId;
+    private Long productId;
     private Long quantity;
+    private String skuId;
 }

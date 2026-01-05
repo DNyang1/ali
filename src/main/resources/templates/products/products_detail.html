@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.productName}">상품 상세</title>
+    <link rel="stylesheet" th:href="@{/products/css/products_detail.css}">
+</head>
+<body>
+
+<nav class="breadcrumb">
+    <a href="/">홈</a> &gt;
+    <a href="/products/list">상품</a> &gt;
+    <span th:text="${product.productName}"></span>
+</nav>
+
+<h1 class="product-title" th:text="${product.productName}"></h1>
+
+<div class="product-detail-container">
+
+    <div class="product-images">
+        <img class="main-image" th:src="@{|https://picsum.photos/300?random=${product.productId}|}" alt="상품 이미지">
+    </div>
+
+    <div class="product-info">
+
+        <div class="price-box">
+            <div id="mainPriceTiers" class="main-price-tiers"></div>
+            <p class="moq">MOQ: <span th:text="${product.moq}"></span> 개</p>
+        </div>
+
+        <div class="option-box" th:each="entry : ${options}">
+            <div class="option-header">
+                <span class="option-title" th:text="${entry.key}">옵션</span>
+            </div>
+
+            <div class="options">
+                <button type="button"
+                        class="option-btn"
+                        th:each="opt : ${entry.value}"
+                        th:text="${opt.optionValue}"
+                        th:data-option-value-id="${opt.optionValueId}">
+                </button>
+            </div>
+        </div>
+
+        <div class="custom">
+            <span th:if="${product.isCustomizable == 1}" class="custom-yes">
+            </span>
+            <span th:if="${product.isCustomizable == 0}" class="custom-no">
+            </span>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn order" id="openOrderModal">주문 시작</button>
+            <button class="btn cart">장바구니</button>
+            <button class="btn chat">채팅하기</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay" id="orderModalOverlay"></div>
+
+<div class="order-modal" id="orderModal">
+
+    <button class="modal-close" id="closeOrderModal">✕</button>
+    <h3 class="modal-title">주문 옵션 선택</h3>
+
+    <div class="modal-content">
+        <div class="price-tier-box">
+            <h4 class="price-tier-title">가격 구간</h4>
+            <ul id="priceTiers" class="price-tier-list"></ul>
+        </div>
+    </div>
+
+
+    <div id="modalOptions">
+        <div class="option-box" th:each="entry : ${options}">
+            <div class="option-header">
+                <span class="option-title" th:text="${entry.key}">옵션</span>
+            </div>
+
+            <div class="options">
+                <button type="button"
+                        class="option-btn"
+                        th:each="opt : ${entry.value}"
+                        th:text="${opt.optionValue}"
+                        th:data-option-value-id="${opt.optionValueId}">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:20px">
+        <label>수량</label>
+        <input type="number" id="orderQty" value="1" min="1">
+    </div>
+
+    <div style="margin-top:10px;font-weight:bold">
+        총 금액 :
+        <span id="orderPrice" data-unit-price="10000">10,000원</span>
+    </div>
+
+    <button class="modal-submit" id="submitOrder">주문하기</button>
+</div>
+
+<script th:inline="javascript">
+    const REQUIRED_OPTION_COUNT = /*[[${requiredOptionCount}]]*/ 0;
+    const MOQ = /*[[${product.moq}]]*/ 1;
+
+    const SKUS = /*[[${skusJson}]]*/ [];
+    const DEFAULT_PRICE_RULES = [[${defaultPriceRulesJson}]];
+    console.log('DEFAULT PRICE RULES 👉', /*[[${defaultPriceRulesJson}]]*/ []);
+</script>
+
+<script th:src="@{/products/js/products_detail.js}"></script>
+</body>
+</html>

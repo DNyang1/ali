@@ -2,14 +2,14 @@ function sendAuthCode() {
     const email = document.getElementById('email').value;
     if(!email) { alert("이메일을 입력해주세요."); return; }
 
+    // 서버 응답을 기다리지 않고 바로 알림을 띄워 사용자 안심시키기
+    alert("인증번호를 발송했습니다. 메일함을 확인해주세요.");
+    document.getElementById('authCodeSection').style.display = 'block';
+
+    // 뒷단에서 서버 호출 (Async 덕분에 매우 빠르게 완료됨)
     fetch('/user/send-auth-code?email=' + encodeURIComponent(email), { method: 'POST' })
         .then(res => {
-            if(res.ok) {
-                alert("인증번호가 발송되었습니다.");
-                document.getElementById('authCodeSection').style.display = 'block';
-            } else {
-                alert("발송 실패");
-            }
+            if(!res.ok) alert("발송 중 오류가 발생했습니다.");
         });
 }
 
