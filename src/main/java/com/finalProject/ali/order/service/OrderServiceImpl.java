@@ -10,7 +10,7 @@ import com.finalProject.ali.order.domain.OrderPreviewResponse;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
-import com.finalProject.ali.sku.mapper.SkuPriceMapper;
+import com.finalProject.ali.products.dao.SkusPriceDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService{
 
     private final CartService cartService;
-    private final SkuPriceMapper skuPriceMapper;
+    private final SkusPriceDAO skuPriceDAO;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
 
@@ -39,9 +39,7 @@ public class OrderServiceImpl implements OrderService{
         long total = 0L;
 
         for (CartItemResponse ci : cart.getItems()) {
-            Long unitPrice = skuPriceMapper.findUnitPriceByQty(
-                    ci.getSkuId(), ci.getQuantity()
-            );
+            Long unitPrice = skuPriceDAO.findUnitPriceByQty(ci.getSkuId(), ci.getQuantity());
             OrderItem oi = new OrderItem();
             oi.setOrderId(order.getOrderId());
             oi.setSkuId(ci.getSkuId());
@@ -73,9 +71,7 @@ public class OrderServiceImpl implements OrderService{
         List<OrderPreviewItem> result = new ArrayList<>();
 
         for (CartItemResponse ci : cart.getItems()) {
-            Long unitPrice = skuPriceMapper.findUnitPriceByQty(
-                    ci.getSkuId(), ci.getQuantity()
-            );
+            Long unitPrice = skuPriceDAO.findUnitPriceByQty(ci.getSkuId(), ci.getQuantity());
             String productName = "test";
             long lineAmount = unitPrice * ci.getQuantity();
 
