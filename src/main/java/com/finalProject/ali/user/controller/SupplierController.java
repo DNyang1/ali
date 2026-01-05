@@ -28,17 +28,17 @@ public class SupplierController {
         return "/supplier/s_setting";
     }
 
-    @GetMapping("/update")
+    @GetMapping("/s_update")
     public String updatePage(HttpSession session, Model model) {
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
 
         SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
         model.addAttribute("supplier", supplier);
-        return "supplier/update";
+        return "/supplier/s_update";
     }
 
-    @PostMapping("/update")
+    @PostMapping("/s_update")
     @ResponseBody
     public ResponseEntity<String> updateSupplier(@RequestBody SupplierDTO supplierDTO, HttpSession session) {
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");

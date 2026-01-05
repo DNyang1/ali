@@ -2,30 +2,60 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>아이디 찾기</title>
+  <title>아이디 찾기 - ALI</title>
+  <link rel="stylesheet" href="/user/css/auth_find.css"/>
 </head>
 <body>
-<h2>아이디 찾기</h2>
-<p>이름과 등록된 정보를 입력하세요.</p>
+<div class="auth-container">
+  <h2 class="auth-title">아이디 찾기</h2>
+  <p class="auth-desc">본인확인 정보를 입력해 주세요.</p>
 
-<input type="text" id="findIdName" placeholder="이름 입력"><br>
-<select id="findIdType">
-  <option value="phone">전화번호</option>
-  <option value="email">이메일</option>
-</select>
-<input type="text" id="findIdValue" placeholder="정보 입력">
-<button onclick="handleFindId()">아이디 찾기</button>
+  <div class="auth-tab-container">
+    <div id="tab-phone" class="auth-tab active" onclick="selectTab('phone')">전화번호로 찾기</div>
+    <div id="tab-email" class="auth-tab" onclick="selectTab('email')">이메일로 찾기</div>
+  </div>
 
-<div id="findIdResult" style="margin-top: 15px; color: blue; font-weight: bold;"></div>
+  <input type="hidden" id="findIdType" value="phone">
 
-<br>
-<a href="/user/login">로그인으로 돌아가기</a>
+  <div class="form-section">
+    <div class="input-group">
+      <input type="text" id="findIdName" placeholder="이름 입력" required>
+    </div>
+    <div class="input-group">
+      <input type="text" id="findIdValue" placeholder="전화번호 입력 (- 제외)" required>
+    </div>
+  </div>
+
+  <button type="button" class="auth-btn" onclick="handleFindId()">아이디 찾기</button>
+
+  <div id="findIdResult"></div>
+
+  <div class="link-group">
+    <a href="/user/login">로그인으로 돌아가기</a>
+  </div>
+</div>
 
 <script>
+  function selectTab(type) {
+    document.getElementById('findIdType').value = type;
+    document.getElementById('tab-phone').classList.toggle('active', type === 'phone');
+    document.getElementById('tab-email').classList.toggle('active', type === 'email');
+
+    const valInput = document.getElementById('findIdValue');
+    valInput.placeholder = (type === 'phone') ? "전화번호 입력 (- 제외)" : "가입 시 등록한 이메일 입력";
+    valInput.value = "";
+  }
+
   async function handleFindId() {
     const name = document.getElementById('findIdName').value;
     const type = document.getElementById('findIdType').value;
     const value = document.getElementById('findIdValue').value;
+    const resultDiv = document.getElementById('findIdResult');
+
+    if(!name || !value) {
+      alert("정보를 모두 입력해주세요.");
+      return;
+    }
 
     const response = await fetch('/user/find_id', {
       method: 'POST',
@@ -33,12 +63,12 @@
       body: JSON.stringify({ name, type, value })
     });
 
-    const resultDiv = document.getElementById('findIdResult');
+    resultDiv.style.display = "block";
     if (response.ok) {
       const maskedId = await response.text();
-      resultDiv.innerText = "찾으신 아이디는 [" + maskedId + "] 입니다.";
+      resultDiv.innerHTML = `정보와 일치하는 아이디를 찾았습니다:<br><strong style="color:#03c75a; font-size:20px; display:block; margin-top:10px;">${maskedId}</strong>`;
     } else {
-      resultDiv.innerText = "일치하는 정보가 없습니다.";
+      resultDiv.innerHTML = `<span style="color:#ff4d4f;">일치하는 사용자 정보를 찾을 수 없습니다.</span>`;
     }
   }
 </script>

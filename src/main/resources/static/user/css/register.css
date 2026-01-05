@@ -1,2 +1,100 @@
-input { margin-bottom: 5px; width: 250px; padding: 5px; }
-button { width: 264px; padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+
+body {
+    background-color: #f5f6f7; /* 네이버 배경색 */
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 460px; /* 중고나라/네이버 표준 너비 */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h2 {
+    text-align: center;
+    font-size: 32px;
+    color: #03c75a; /* 네이버 메인 컬러 */
+    margin-bottom: 30px;
+}
+
+/* 입력창 레이아웃 */
+.input-group {
+    background: #fff;
+    border: 1px solid #dadada;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.input-group:focus-within {
+    border-color: #03c75a; /* 포커스 시 색상 변경 */
+}
+
+input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 15px;
+    padding: 5px 0;
+}
+
+/* 버튼 디자인 */
+button {
+    width: 100%;
+    padding: 15px;
+    background-color: #03c75a;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* 소셜 로그인 디자인 (중고나라 스타일) */
+.social-login a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.kakao-btn { background: #fee500; color: #3c1e1e; }
+.naver-btn { background: #03c75a; color: #fff; }
+.google-btn { background: #fff; color: #757575; border: 1px solid #dadada; }
+
+.link-group {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #8e8e8e;
+}
+
+.link-group a {
+    color: #8e8e8e;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+
+
+
