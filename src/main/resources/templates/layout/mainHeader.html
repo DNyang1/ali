@@ -9,7 +9,7 @@
 
             <!-- 비로그인 -->
             <div th:if="${session.loginUser == null}" class="auth">
-                <a th:href="@{/cart}" class="chip">
+                <a th:href="@{/cart/cart.html}" class="chip">
                     장바구니 <span th:text="${cartCount} ?: 0">0</span>
                 </a>
                 <a th:href="@{/user/login}" class="link">로그인</a>
@@ -18,7 +18,7 @@
 
             <!-- 로그인 -->
             <div th:if="${session.loginUser != null}" class="auth">
-                <a th:href="@{/cart}" class="chip">
+                <a th:href="@{/cart/cart.html}" class="chip">
                     장바구니 <span th:text="${cartCount} ?: 0">0</span>
                 </a>
                 <a th:href="@{/chat/messages-user}" class="chip">
