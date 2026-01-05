@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,7 +17,7 @@
 <div class="layout">
 
   <!-- LEFT: 방 리스트 -->
-  <aside class="sidebar">
+  <aside class="chat-sidebar">
     <div class="sidebar-top">
       <div class="title">Messages</div>
       <input class="search" type="text" placeholder="Search rooms..." />

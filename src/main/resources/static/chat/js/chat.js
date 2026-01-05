@@ -150,7 +150,7 @@ function bindRoomClicks() {
             setBadge(rid, 0);
 
             // URL만 변경
-            history.replaceState(null, "", `/chat/messages?roomId=${rid}`);
+            history.replaceState(null, "", `${window.location.pathname}?roomId=${rid}`);
         });
     });
 }
