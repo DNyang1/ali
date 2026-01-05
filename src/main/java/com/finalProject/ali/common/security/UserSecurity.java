@@ -1,4 +1,4 @@
-package com.finalProject.ali.security;
+package com.finalProject.ali.common.security;
 
 import com.finalProject.ali.user.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class UserSecurity {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/user/login") // 로그인 페이지 지정
-                        .defaultSuccessUrl("/user/index") // 성공 시 이동할 곳
+                        .defaultSuccessUrl("/") // 성공 시 이동할 곳
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 )
 
