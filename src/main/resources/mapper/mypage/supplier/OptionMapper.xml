@@ -60,4 +60,9 @@
         WHERE option_id = #{optionId}
           AND option_value = #{optionValue}
     </select>
+    <update id="updateOptionValue">
+        UPDATE product_option_value
+        SET option_value = #{optionValue}
+        WHERE option_value_id = #{optionId}
+    </update>
 </mapper>
