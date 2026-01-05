@@ -25,11 +25,13 @@ public interface SkuDAO {
     SkuRow findBySkuId(@Param("skuId") String skuId);
     int updateStatus(@Param("skuId") String skuId, @Param("status") String status);
     List<SkuPriceDTO> findPricesBySkuId(@Param("skuId") String skuId);
+    int updateMoq(@Param("skuId") String skuId, @Param("moq") Long moq);
     @Getter@Setter
     class SkuRow {
         private String skuId;
         private String status;
         private Long stockQuantity;
+        private Long moq;
     }
 
 }

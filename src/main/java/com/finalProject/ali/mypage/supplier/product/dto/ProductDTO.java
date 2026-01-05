@@ -13,7 +13,6 @@ public class ProductDTO {
     private String productName;
     private String description;
     private Long isCustomizable;
-    private Long moq;
     private LocalDate createdAt;
     private LocalDate updatedAt;
     private String status;

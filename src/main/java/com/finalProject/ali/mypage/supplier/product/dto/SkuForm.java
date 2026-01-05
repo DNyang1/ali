@@ -7,6 +7,7 @@ import java.util.List;
 public class SkuForm {
     private Long stock;
     private Long basePrice;
+    private Long moq =1L;
     private List<Range> ranges;
     private List<String> optionValueIds;
 }

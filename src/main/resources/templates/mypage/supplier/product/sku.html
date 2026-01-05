@@ -41,6 +41,11 @@
         </div>
 
         <div>
+          <label>MOQ</label>
+          <input type="number" min="1" step="1" th:field="*{moq}" />
+        </div>
+
+        <div>
           <label>기본 단가(디폴트)</label>
           <input type="number" min="0" step="1" th:field="*{basePrice}" />
         </div>
@@ -49,17 +54,9 @@
       <div style="margin-top:12px;">
         <label>구간별 단가</label>
 
-        <div id="rangeWrap" style="margin-top:8px;">
-          <div class="range-row" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
-            <input type="number" name="ranges[0].min" placeholder="최소" min="1" style="width:90px;">
-            <span>~</span>
-            <input type="number" name="ranges[0].max" placeholder="최대(비우면 무한)" min="1" style="width:120px;">
-            <input type="number" name="ranges[0].price" placeholder="가격" min="0" style="width:140px;">
-            <button type="button" class="danger" onclick="removeRangeRow(this)">삭제</button>
-          </div>
-        </div>
-
+        <div id="rangeWrap" style="margin-top:8px;"></div>
         <button type="button" style="margin-top:6px;" onclick="addRangeRow()">+ 구간 추가</button>
+
         <p style="margin-top:6px; font-size:12px; opacity:.8;">
           * 기본 단가는 항상 저장되고, 구간가는 필요할 때만 추가하세요.
         </p>
@@ -104,6 +101,7 @@
         <th>skuId</th>
         <th>옵션 조합</th>
         <th>재고</th>
+        <th>MOQ</th>
         <th>기본단가</th>
         <th>생성일</th>
         <th>구간단가</th>
@@ -115,7 +113,7 @@
 
       <tbody>
       <tr th:if="${#lists.isEmpty(skus)}">
-        <td colspan="9">SKU가 없습니다.</td>
+        <td colspan="10">SKU가 없습니다.</td>
       </tr>
 
       <tr th:each="s : ${skus}">
@@ -125,13 +123,14 @@
 
         <td th:text="${#strings.isEmpty(s.optionSummary) ? '-' : s.optionSummary}"></td>
         <td th:text="${s.stockQuantity}">0</td>
+        <td th:text="${s.moq}">1</td>
         <td th:text="${s.basePrice}">0</td>
         <td th:text="${s.createdAt}">2025-12-28</td>
 
         <td>
           <button type="button"
                   class="tier-btn"
-                  th:attr="data-sku-id=${s.skuId}">
+                  th:attr="data-sku-id=${s.skuId}, data-moq=${s.moq}">
             구간단가 보기
           </button>
         </td>

@@ -6,8 +6,8 @@
 <mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.SkuDAO">
 
     <insert id="insert">
-        INSERT INTO sku (sku_id, product_id, stock_quantity, status, created_at)
-        VALUES (#{skuId}, #{productId}, #{stockQuantity}, #{status}, #{createdAt})
+        INSERT INTO sku (sku_id, product_id, stock_quantity, moq, status, created_at)
+        VALUES (#{skuId}, #{productId}, #{stockQuantity}, #{moq}, #{status}, #{createdAt})
     </insert>
 
 
@@ -25,7 +25,7 @@
         s.stock_quantity AS stockQuantity,
         s.created_at     AS createdAt,
         s.status         AS status,
-
+        s.moq            AS moq,
         bp.basePrice     AS basePrice,
 
         COALESCE(
@@ -85,6 +85,7 @@
             sku_id         AS skuId,
             status         AS status,
             stock_quantity AS stockQuantity
+            moq            AS moq
         FROM sku
         WHERE sku_id = #{skuId}
     </select>
@@ -102,8 +103,7 @@
             sp.min_qty      AS minQty,
             sp.max_qty      AS maxQty,
             sp.price        AS price,
-            sp.created_at   AS createdAt,
-            p.moq           AS moq
+            sp.created_at   AS createdAt
         FROM sku_price sp
                  JOIN sku s ON s.sku_id = sp.sku_id
                  JOIN product p ON p.product_id = s.product_id
@@ -116,5 +116,10 @@
         FROM sku
         WHERE sku_id = #{skuId}
     </select>
+    <update id="updateMoq">
+        UPDATE sku
+        SET moq = #{moq}
+        WHERE sku_id = #{skuId}
+    </update>
 
 </mapper>
