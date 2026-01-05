@@ -18,4 +18,5 @@ public class SkuDTO {
     private String optionSummary;
     private BigDecimal basePrice;
     private boolean editable;
+    private Long moq;
 }

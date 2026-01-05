@@ -14,7 +14,6 @@
             product_name    AS productName,
             description,
             is_customizable AS isCustomizable,
-            moq,
             created_at      AS createdAt,
             updated_at      AS updatedAt,
             status          AS status
@@ -30,7 +29,6 @@
             product_name,
             description,
             is_customizable,
-            moq,
             created_at,
             updated_at
         ) VALUES (
@@ -39,7 +37,6 @@
                      #{productName},
                      #{description},
                      #{isCustomizable},
-                     #{moq},
                      #{createdAt},
                      #{updatedAt}
                  )
@@ -54,7 +51,6 @@
             product_name    AS productName,
             description,
             is_customizable AS isCustomizable,
-            moq,
             created_at      AS createdAt,
             updated_at      AS updatedAt,
             status          AS status
@@ -70,7 +66,6 @@
             product_name     = #{product.productName},
             description      = #{product.description},
             is_customizable  = #{product.isCustomizable},
-            moq              = #{product.moq},
             updated_at       = #{product.updatedAt}
         WHERE product_id  = #{product.productId}
           AND supplier_id = #{supplierId}

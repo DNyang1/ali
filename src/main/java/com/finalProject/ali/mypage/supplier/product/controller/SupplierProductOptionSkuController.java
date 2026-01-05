@@ -175,7 +175,7 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
     public String saveSkuPrices(@PathVariable String skuId,
                                 @RequestBody SkuPriceRequestDTO req) {
 
-        skuPriceService.replacePrices(skuId, req);
+        skuPriceService.replacePricesAndMoq(skuId, req);
         return "OK";
     }
 
