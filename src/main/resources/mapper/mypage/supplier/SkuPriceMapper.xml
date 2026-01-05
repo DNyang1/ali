@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.SkuPriceDAO">
+
+    <insert id="insertPrice">
+        INSERT INTO sku_price (sku_id, min_qty, max_qty, price, created_at)
+        VALUES (#{skuId}, #{minQty}, #{maxQty}, #{price}, NOW())
+    </insert>
+
+    <select id="findBySkuId"
+            resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuPriceDTO">
+        SELECT
+            sku_price_id AS skuPriceId,
+            sku_id       AS skuId,
+            min_qty      AS minQty,
+            max_qty      AS maxQty,
+            price        AS price,
+            created_at   AS createdAt
+        FROM sku_price
+        WHERE sku_id = #{skuId}
+        ORDER BY min_qty ASC
+    </select>
+
+</mapper>

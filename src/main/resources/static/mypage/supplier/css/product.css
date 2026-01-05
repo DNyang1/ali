@@ -38,7 +38,7 @@
     padding: 14px 16px;
     border-bottom: 1px solid var(--line);
     background: linear-gradient(180deg, #fff, #fbfbfc);
-    flex-wrap: wrap; /* 헤더 링크 많아도 줄바꿈되게 */
+    flex-wrap: wrap;
 }
 
 .panel-title{
@@ -251,7 +251,7 @@ form > div{
     font-size: 13px;
     color: var(--text);
     cursor: pointer;
-    margin: 0; /* label 기본 margin 제거 */
+    margin: 0;
 }
 
 .sku-options input[type="checkbox"]{
@@ -265,6 +265,142 @@ form > div{
     border: 1px solid var(--line);
     background: #fff;
 }
+
+.tier-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:12px;
+}
+
+.tier-left{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:220px;
+}
+
+.tier-sku{
+    opacity:.7;
+    font-weight: normal;
+}
+
+.tier-center{
+    flex:1;
+    text-align:center;
+}
+
+.tier-right{
+    min-width:80px;
+    display:flex;
+    justify-content:flex-end;
+}
+.tier-panel{
+    padding:14px;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    background:#fff;
+}
+
+.tier-panel .table{
+    margin-top: 8px;
+}
+.tier-center b { vertical-align: middle; }
+.tier-panel .tier-table{ margin-top: 0; }
+.tier-table th,
+.tier-table td{
+    text-align: center !important;
+}
+.sku-options-group{
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.opt-group{
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 14px;
+    padding: 12px 12px 10px;
+}
+
+.opt-title{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 900;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.opt-title::before{
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.25);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.opt-items{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.opt-items label{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    transition: all .15s ease;
+}
+
+.opt-items label input[type="checkbox"]{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.opt-items label span::before{
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 2px solid rgba(148,163,184,0.65);
+    background: #fff;
+    margin-right: 6px;
+    vertical-align: -1px;
+}
+
+.opt-items label:hover{
+    border-color: rgba(37,99,235,0.35);
+    background: rgba(37,99,235,0.06);
+}
+
+.opt-items label:has(input[type="checkbox"]:checked){
+    border-color: rgba(37,99,235,0.55);
+    background: rgba(37,99,235,0.10);
+    color: #1d4ed8;
+}
+
+.opt-items label:has(input[type="checkbox"]:checked) span::before{
+    border-color: rgba(37,99,235,0.65);
+    background: rgba(37,99,235,0.65);
+}
+
+
 
 @media (max-width: 520px){
     .content{ padding: 14px; }
@@ -288,3 +424,4 @@ form > div{
         align-items: flex-start;
     }
 }
+

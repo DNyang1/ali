@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 정보 확인</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .summary {
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 10px 16px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+
+    <!-- 💳 결제 정보 -->
+    <section class="card">
+        <h2>💳 결제 정보 확인</h2>
+
+        <div id="preview-items"></div>
+
+        <div class="summary">
+            총 결제 금액: <span id="total-amount">0</span> 원
+        </div>
+
+        <div class="actions">
+            <button onclick="history.back()">장바구니로</button>
+            <button onclick="order()">결제하기</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    function loadPreview() {
+        fetch('/orders/preview')
+            .then(res => res.json())
+            .then(renderPreview);
+    }
+
+    function renderPreview(data) {
+        const container = document.getElementById('preview-items');
+        container.innerHTML = '';
+
+        if (!data.items || data.items.length === 0) {
+            container.innerHTML = '<p>결제할 상품이 없습니다.</p>';
+            return;
+        }
+
+        data.items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'item';
+
+            div.innerHTML = `
+                <span>
+                    ${item.productName}
+                    (SKU: ${item.skuId}) × ${item.quantity}
+                </span>
+                <span>${item.lineAmount} 원</span>
+            `;
+            container.appendChild(div);
+        });
+
+        document.getElementById('total-amount').innerText = data.totalAmount;
+    }
+
+    function order() {
+        fetch('/orders', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                alert('주문 생성 완료! 주문ID: ' + data.orderId);
+            });
+    }
+
+    loadPreview();
+</script>
+
+</body>
+</html>

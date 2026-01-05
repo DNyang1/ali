@@ -12,39 +12,46 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SupplierProductService {
 
-    private final ProductDAO productDao;
+    private final ProductDAO productDAO;
 
     public List<ProductDTO> list(String supplierId) {
-        return productDao.findBySupplierId(supplierId);
+        return productDAO.findBySupplierId(supplierId);
     }
 
-    public Long  create(ProductDTO product, String supplierId) {
+    public ProductDTO get(Long productId, String supplierId) {
+        return productDAO.findById(productId, supplierId);
+    }
+
+    public Long create(ProductDTO product, String supplierId) {
         product.setSupplierId(supplierId);
         product.setCreatedAt(LocalDate.now());
         product.setUpdatedAt(LocalDate.now());
-        productDao.insert(product);
-
+        productDAO.insert(product);
         return product.getProductId();
     }
 
-    public ProductDTO get(Long productId) {
-        return productDao.findById(productId);
-    }
-
-    public void update(ProductDTO product) {
+    public void update(ProductDTO product, String supplierId) {
         product.setUpdatedAt(LocalDate.now());
-        productDao.update(product);
+        int updated = productDAO.update(product, supplierId);
+        if (updated == 0) {
+            throw new IllegalArgumentException("권한 없음 또는 상품이 존재하지 않습니다.");
+        }
     }
 
-    public void toggleStatus(Long productId) {
-        ProductDTO p = productDao.findById(productId);
-        if (p == null) return;
+    public void toggleStatus(Long productId, String supplierId) {
+        ProductDTO p = productDAO.findById(productId, supplierId);
+        if (p == null) {
+            throw new IllegalArgumentException("권한 없음 또는 상품이 존재하지 않습니다.");
+        }
 
         String next = "ACTIVE";
         if ("ACTIVE".equalsIgnoreCase(p.getStatus())) {
             next = "INACTIVE";
         }
 
-        productDao.updateStatus(productId, next, LocalDate.now());
+        int updated = productDAO.updateStatus(productId, supplierId, next, LocalDate.now());
+        if (updated == 0) {
+            throw new IllegalStateException("상태 변경 실패");
+        }
     }
 }

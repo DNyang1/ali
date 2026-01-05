@@ -8,6 +8,7 @@ import lombok.Setter;
 public class CartItem {
     private String cartItemId;
     private String cartId;
-    private String productId;
+    private Long productId;
+    private String skuId;
     private Long quantity;
 }
