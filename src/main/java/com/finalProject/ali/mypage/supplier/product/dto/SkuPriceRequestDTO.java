@@ -11,7 +11,7 @@ public class SkuPriceRequestDTO {
 
     private Integer basePrice;
     private List<RangeDTO> ranges;
-
+    private Long moq;
     @Getter @Setter
     public static class RangeDTO {
         private Integer minQty;

@@ -36,25 +36,6 @@ public class ProductOptionSkuService {
         return optionDAO.findByProductId(productId);
     }
 
-    @Transactional
-    public void addOption(Long productId, String supplierId, OptionDTO form) {
-        ProductDTO product = loadMyProductOrThrow(productId, supplierId);
-
-        String categoryId = product.getCategoryId();
-        String optionName = form.getOptionName();
-        String optionValue = form.getOptionValue();
-
-        String optionId;
-        if (optionDAO.existsProductOption(productId, optionName) > 0) {
-            optionId = optionDAO.findProductOptionId(productId, optionName);
-        } else {
-            optionId = productId + "-" + categoryId + "@" + optionName;
-            optionDAO.insertProductOption(optionId, productId, categoryId, optionName);
-        }
-
-        String optionValueId = optionId + "@" + optionValue;
-        optionDAO.insertProductOptionValue(optionValueId, optionId, optionValue, 0);
-    }
 
     public List<SkuDTO> skus(Long productId, String supplierId) {
         loadMyProductOrThrow(productId, supplierId);
@@ -161,13 +142,25 @@ public class ProductOptionSkuService {
         sku.setSkuId(skuId);
         sku.setProductId(productId);
         sku.setStockQuantity(form.getStock() == null ? 0L : form.getStock());
+        Long moq = (form.getMoq() == null ? 1L : form.getMoq());
+        if (moq < 1) throw new IllegalArgumentException("MOQ는 1 이상이어야 합니다.");
+        sku.setMoq(moq);
         sku.setStatus("ACTIVE");
         sku.setCreatedAt(LocalDate.now());
+        if (form.getBasePrice() == null || form.getBasePrice() <= 0) {
+            throw new IllegalArgumentException("기본 단가는 0보다 커야 합니다.");
+        }
         skuDAO.insert(sku);
         skuPriceDAO.insertPrice(skuId, 1, null, Math.toIntExact(form.getBasePrice()));
 
         if (form.getRanges() != null) {
             for (Range r : form.getRanges()) {
+                if (r.getMin() == null || r.getPrice() == null) continue;
+
+                if (r.getMin() <= 1) throw new IllegalArgumentException("구간 최소수량은 2 이상이어야 합니다.");
+                if (r.getMax() != null && r.getMin() > r.getMax()) throw new IllegalArgumentException("구간 범위 오류");
+                if (r.getPrice() <= 0) throw new IllegalArgumentException("구간 가격은 0보다 커야 합니다.");
+
                 skuPriceDAO.insertPrice(
                         skuId,
                         Math.toIntExact(r.getMin()),
@@ -176,7 +169,6 @@ public class ProductOptionSkuService {
                 );
             }
         }
-
         if (form.getOptionValueIds() != null) {
             for (String optionValueId : form.getOptionValueIds()) {
                 skuDAO.insertLink(skuId, optionValueId);
@@ -216,9 +208,18 @@ public class ProductOptionSkuService {
             s.setDisplayStatus(s.getStatus());
         }
     }
+    @Transactional
+    public void updateStock(String skuId, long stock){
+        if(stock < 0){
+            throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
+        }
+        skuDAO.updateStock(skuId, stock);
+    }
 
-
-
+    @Transactional
+    public void updateOptionValue(String optionId, String optionValue){
+        optionDAO.updateOptionValue(optionId, optionValue);
+    }
 
 
 }

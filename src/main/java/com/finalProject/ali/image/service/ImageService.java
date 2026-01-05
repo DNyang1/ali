@@ -1,9 +1,8 @@
 package com.finalProject.ali.image.service;
 
-
+import org.springframework.beans.factory.annotation.Value; // lombok.Value가 아닌 이 패키지여야 합니다!
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -11,33 +10,29 @@ import java.util.UUID;
 @Service
 public class ImageService {
 
-    // 실제 파일이 물리적으로 저장될 루트 경로
-    private final String rootPath = "D:/upload/ali_uploads/";
+    // 1. properties에서 경로 주입 (하드코딩 제거)
+    @Value("${file.upload.path}")
+    private String uploadPath;
 
-    /**
-     * @param file 업로드된 파일 객체
-     * @param category 폴더 구분 (profiles, products 등)
-     * @return DB에 저장할 웹 경로 문자열
-     */
-    public String uploadImage(MultipartFile file, String category) {
+    public String uploadImage(MultipartFile file, String folderName) {
         if (file == null || file.isEmpty()) return null;
 
-        // 1. 저장할 폴더 생성 (C:/upload/ali_uploads/profiles/)
-        String saveDir = rootPath + category + "/";
-        File folder = new File(saveDir);
+        // 2. 물리적 저장 경로 생성 (예: D:/upload/ali_uploads/profiles/)
+        String fullPath = uploadPath + folderName + "/";
+        File folder = new File(fullPath);
         if (!folder.exists()) folder.mkdirs();
 
-        // 2. 파일명 중복 방지 (UUID 사용)
+        // 3. 파일명 중복 방지
         String originalName = file.getOriginalFilename();
         String extension = originalName.substring(originalName.lastIndexOf("."));
         String savedName = UUID.randomUUID().toString() + extension;
 
-        // 3. 실제 하드디스크에 파일 저장
         try {
-            file.transferTo(new File(saveDir + savedName));
+            // 4. 실제 파일 저장
+            file.transferTo(new File(fullPath + savedName));
 
-            // 4. 브라우저에서 접근 가능한 웹 경로 반환 (/upload/profiles/uuid.jpg)
-            return "/upload/" + category + "/" + savedName;
+            // 5. DB에 저장할 웹 경로 반환 (예: /upload/profiles/uuid.jpg)
+            return "/upload/" + folderName + "/" + savedName;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -46,18 +41,13 @@ public class ImageService {
 
     public void deleteActualFile(String webPath) {
         if (webPath == null || webPath.isEmpty()) return;
-        // 1. 웹 경로(/upload/...)를 물리적 경로(C:/upload/ali_uploads/...)로 변환
-        // "/upload/" 문자열을 제거하고 rootPath와 합침
-        String relativePath = webPath.replace("/upload/", "");
-        File file = new File(rootPath + relativePath);
 
-        // 2. 파일이 존재하면 삭제
+        // 6. 웹 경로를 물리 경로로 변환하여 삭제
+        String relativePath = webPath.replace("/upload/", "");
+        File file = new File(uploadPath + relativePath);
+
         if (file.exists()) {
-            if (file.delete()) {
-                System.out.println("파일 삭제 성공: " + file.getPath());
-            } else {
-                System.out.println("파일 삭제 실패: " + file.getPath());
-            }
+            file.delete();
         }
     }
 }

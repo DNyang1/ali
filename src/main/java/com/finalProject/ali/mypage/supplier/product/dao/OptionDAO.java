@@ -26,8 +26,8 @@ public interface OptionDAO {
                                   @Param("optionValue") String optionValue,
                                   @Param("sortOrder") Integer sortOrder);
 
-    int existsProductOptionValue(@Param("optionId") String optionId,
-                                 @Param("optionValue") String optionValue);
+    void updateOptionValue(@Param("optionId") String optionId,
+                           @Param("optionValue") String optionValue);
 
 }
 
