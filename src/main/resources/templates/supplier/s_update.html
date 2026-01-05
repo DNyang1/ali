@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
+<head>
+    <meta charset="UTF-8">
+    <title>공급자 정보 수정 - ALI</title>
+    <link rel="stylesheet" href="/supplier/css/s_update.css"/>
+</head>
+<body>
+<div class="update-container">
+    <h1 class="page-title">공급자 정보 수정</h1>
+
+    <div class="update-box">
+        <h3 class="box-title">사업자 정보를 최신 상태로 관리해 주세요.</h3>
+
+        <form id="supplierUpdateForm" class="form-section">
+            <div class="input-row">
+                <label for="cpName">상호명</label>
+                <div class="input-group">
+                    <input type="text" id="cpName" th:value="${supplier.cpName}" placeholder="상호명 입력">
+                </div>
+            </div>
+
+            <div class="input-row">
+                <label for="cpNumber">사업자 등록번호</label>
+                <div class="input-group disabled">
+                    <input type="text" id="cpNumber" th:value="${supplier.cpNumber}" readonly>
+                </div>
+                <small class="input-help">* 사업자번호는 직접 수정이 불가능합니다. 고객센터에 문의하세요.</small>
+            </div>
+
+            <div class="input-row">
+                <label for="cpPhone">업체 전화번호</label>
+                <div class="input-group">
+                    <input type="text" id="cpPhone" th:value="${supplier.cpPhone}" placeholder="전화번호 입력">
+                </div>
+            </div>
+
+            <div class="input-row">
+                <label for="cpAddress">업체 주소</label>
+                <div class="input-group">
+                    <input type="text" id="cpAddress" th:value="${supplier.cpAddress}" placeholder="사업장 주소 입력">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" onclick="updateSupplierInfo()" class="btn btn-supplier">수정 완료</button>
+                <button type="button" onclick="history.back()" class="btn btn-outline">취소</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/supplier/js/s_update.js"></script>
+</body>
+</html>

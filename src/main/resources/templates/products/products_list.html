@@ -4,10 +4,29 @@
     <meta charset="UTF-8">
     <title>상품 리스트</title>
     <link rel="stylesheet" href="/products/css/products.css">
+    <link rel="stylesheet" href="/main/css/main-header.css">
+    <link rel="stylesheet" href="/main/css/common.css">
 </head>
 <body>
+<div th:replace="layout/mainHeader :: mainHeader"></div>
 
 <h2 class="page-title">전체 상품</h2>
+
+<div class="category-tabs">
+
+    <a th:href="@{/products/list(custom=${custom})}"
+       th:classappend="${category == null} ? 'active' : ''">
+        전체
+    </a>
+
+    <a th:each="c : ${categories}"
+       th:href="@{/products/list(category=${c.categoryId}, custom=${custom})}"
+       th:text="${c.categoryName}"
+       th:classappend="${category == c.categoryId} ? 'active' : ''">
+        카테고리명
+    </a>
+
+</div>
 
 <div class="product-grid" id="productGrid">
     <a class="product-card" th:each="p : ${products}" th:href="@{/products/{id}(id=${p.productId})}">

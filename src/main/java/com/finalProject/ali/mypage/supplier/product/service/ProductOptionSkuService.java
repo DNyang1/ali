@@ -58,7 +58,12 @@ public class ProductOptionSkuService {
 
     public List<SkuDTO> skus(Long productId, String supplierId) {
         loadMyProductOrThrow(productId, supplierId);
-        return skuDAO.findByProductId(productId);
+        List<SkuDTO> list = skuDAO.findByProductId(productId);
+
+        for (SkuDTO s : list) {
+            applyDisplayStatus(s);
+        }
+        return list;
     }
 
     public boolean canEditSkuOptions(String skuId) {
@@ -96,8 +101,10 @@ public class ProductOptionSkuService {
     public List<SkuDTO> getSkusWithEditable(Long productId, String supplierId) {
         loadMyProductOrThrow(productId, supplierId);
         List<SkuDTO> skus = skuDAO.findByProductId(productId);
+
         for (SkuDTO s : skus) {
             s.setEditable(skuDAO.countOrderItemsBySkuId(s.getSkuId()) == 0);
+            applyDisplayStatus(s);
         }
         return skus;
     }
@@ -153,15 +160,20 @@ public class ProductOptionSkuService {
         SkuDTO sku = new SkuDTO();
         sku.setSkuId(skuId);
         sku.setProductId(productId);
-        sku.setStockQuantity(form.getStock());
+        sku.setStockQuantity(form.getStock() == null ? 0L : form.getStock());
+        sku.setStatus("ACTIVE");
         sku.setCreatedAt(LocalDate.now());
         skuDAO.insert(sku);
-
-        skuPriceDAO.insertPrice(skuId, 1L, null, form.getBasePrice());
+        skuPriceDAO.insertPrice(skuId, 1, null, Math.toIntExact(form.getBasePrice()));
 
         if (form.getRanges() != null) {
             for (Range r : form.getRanges()) {
-                skuPriceDAO.insertPrice(skuId, r.getMin(), r.getMax(), r.getPrice());
+                skuPriceDAO.insertPrice(
+                        skuId,
+                        Math.toIntExact(r.getMin()),
+                        (r.getMax() == null ? null : Math.toIntExact(r.getMax())),
+                        Math.toIntExact(r.getPrice())
+                );
             }
         }
 
@@ -178,5 +190,36 @@ public class ProductOptionSkuService {
         int next = skuDAO.countByProductId(productId) + 1;
         return "P" + productId + "-SKU" + String.format("%03d", next);
     }
+
+    @Transactional
+    public void updateStatus(String skuId, String status) {
+        if (!List.of("ACTIVE", "INACTIVE", "ENDED").contains(status)) {
+            throw new IllegalArgumentException("허용되지 않은 상태");
+        }
+
+        var sku = skuDAO.findBySkuId(skuId);
+        if (sku == null) throw new IllegalArgumentException("SKU 없음");
+
+        if ("ACTIVE".equals(status) && sku.getStockQuantity() != null && sku.getStockQuantity() <= 0) {
+            throw new IllegalStateException("재고가 0이라 판매중(ACTIVE)으로 변경 불가");
+        }
+
+        skuDAO.updateStatus(skuId, status);
+    }
+
+    private void applyDisplayStatus(SkuDTO s) {
+        if ("ACTIVE".equals(s.getStatus())
+                && s.getStockQuantity() != null
+                && s.getStockQuantity() <= 0) {
+            s.setDisplayStatus("SOLD_OUT");
+        } else {
+            s.setDisplayStatus(s.getStatus());
+        }
+    }
+
+
+
+
+
 }
 

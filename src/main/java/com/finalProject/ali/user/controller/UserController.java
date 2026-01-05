@@ -1,5 +1,6 @@
 package com.finalProject.ali.user.controller;
 
+import com.finalProject.ali.image.service.ImageService;
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import com.finalProject.ali.user.service.EmailService;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.Map;
@@ -109,33 +111,75 @@ public class UserController {
 
     @GetMapping("/update")
     public String updatePage() {
-        return "user/update"; // update.html 반환
+        return "user/update"; // s_update.html 반환
     }
+    @Autowired
+    private ImageService imageService; // 새로 만든 서비스 주입
+
     @PostMapping("/update")
     @ResponseBody
-    public ResponseEntity<String> update(@RequestBody UserDTO userDTO, HttpSession session) {
-        // 1. 현재 로그인된 세션 정보 가져오기
+    public ResponseEntity<String> update(
+            @RequestPart("userData") UserDTO userDTO, // JSON 데이터를 DTO로 받음
+            @RequestPart(value = "profileFile", required = false) MultipartFile profileFile, // 파일 받음
+            HttpSession session) {
+
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        if (loginUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
 
-        if (loginUser != null) {
-            // 2. 보안을 위해 세션의 아이디를 DTO에 강제 세팅 (남의 정보 수정 방지)
-            userDTO.setUserId(loginUser.getUserId());
+        // 1. 파일이 넘어왔다면 ImageService를 통해 저장
+        if (profileFile != null && !profileFile.isEmpty()) {
+            if (loginUser.getProfileImg() != null) {
+                imageService.deleteActualFile(loginUser.getProfileImg());
+            }
+            String uploadedPath = imageService.uploadImage(profileFile, "profiles");
+            userDTO.setProfileImg(uploadedPath);
+        } else {
+            // 파일을 새로 선택 안 했으면 기존 이미지 경로 유지
+            userDTO.setProfileImg(loginUser.getProfileImg());
+        }
 
-            // 3. DB 업데이트
-            userService.updateUserInfo(userDTO);
+        // 2. 정보 업데이트 (ID 강제 세팅 포함)
+        userDTO.setUserId(loginUser.getUserId());
+        userService.updateUserInfo(userDTO);
 
-            // 4. 세션 정보 최신화 (이름 등이 바뀌었을 수 있으므로)
-            // 주의: 비밀번호 등은 보안상 세션에 유지하지 않는 것이 좋지만,
-            // 현재 구조상 index.html에서 이름을 보여주기 위해 세션 갱신이 필요합니다.
-            loginUser.setName(userDTO.getName());
-            loginUser.setEmail(userDTO.getEmail());
-            loginUser.setPhone(userDTO.getPhone());
-            loginUser.setAddress(userDTO.getAddress());
+        // 3. 세션 정보 최신화 (이미지 경로 포함)
+        loginUser.setName(userDTO.getName());
+        loginUser.setEmail(userDTO.getEmail());
+        loginUser.setPhone(userDTO.getPhone());
+        loginUser.setAddress(userDTO.getAddress());
+        loginUser.setProfileImg(userDTO.getProfileImg());
+        session.setAttribute("loginUser", loginUser);
+
+        return ResponseEntity.ok("success");
+    }
+
+    @PostMapping("/delete_profile_img")
+    @ResponseBody
+    public ResponseEntity<String> deleteProfileImg(HttpSession session) {
+        // 1. 세션에서 현재 로그인된 유저 가져오기
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        // 로그인 안 되어 있으면 실패 응답
+        if (loginUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+        }
+
+        try {
+
+            if (loginUser.getProfileImg() != null) {
+                imageService.deleteActualFile(loginUser.getProfileImg());
+            }
+            // 2. DTO와 세션에서 이미지 경로 제거
+            loginUser.setProfileImg(null);
+            // 3. DB 업데이트 (수정된 DTO를 서비스로 전달)
+            userService.updateUserInfo(loginUser);
+            // 4. 세션 최신화
             session.setAttribute("loginUser", loginUser);
 
             return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
     }
 
     // 판매자와 구매자 전환

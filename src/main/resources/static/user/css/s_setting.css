@@ -1,0 +1,89 @@
+/* s_setting.css - 공급자 전용 스타일 */
+
+.setting-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a3a6c; /* 공급자 테마 딥블루 */
+    margin-bottom: 20px;
+}
+
+.menu-box {
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 12px;
+    padding: 35px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.box-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+/* 텍스트 정보 정렬 */
+.info-row {
+    display: flex;
+    margin-bottom: 20px;
+    font-size: 15px;
+    align-items: center;
+}
+
+.info-row .label {
+    width: 120px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.info-row .value {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* 버튼 디자인 - 공급자 블루 테마 적용 */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 25px;
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.btn-supplier {
+    background-color: #2563eb; /* 공급자 포인트 블루 */
+    color: white;
+}
+
+.btn-supplier:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background-color: #fff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-outline:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+}

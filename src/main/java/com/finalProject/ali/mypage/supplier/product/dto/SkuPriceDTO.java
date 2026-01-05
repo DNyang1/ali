@@ -14,4 +14,5 @@ public class SkuPriceDTO {
     private Long maxQty;
     private Long price;
     private LocalDateTime createdAt;
+    private Integer moq;
 }

@@ -98,7 +98,7 @@
 
     <hr/>
 
-    <table class="table">
+    <table class="table tier-table">
       <thead>
       <tr>
         <th>skuId</th>
@@ -107,13 +107,15 @@
         <th>기본단가</th>
         <th>생성일</th>
         <th>구간단가</th>
-        <th>액션</th>
+        <th>상태</th>
+        <th>상태 변경</th>
+        <th>옵션</th>
       </tr>
       </thead>
 
       <tbody>
       <tr th:if="${#lists.isEmpty(skus)}">
-        <td colspan="7">SKU가 없습니다.</td>
+        <td colspan="9">SKU가 없습니다.</td>
       </tr>
 
       <tr th:each="s : ${skus}">
@@ -121,10 +123,11 @@
             th:text="${#strings.length(s.skuId) > 12 ? (#strings.substring(s.skuId,0,12) + '...') : s.skuId}">
         </td>
 
-        <td th:text="${s.optionSummary}">사이즈:95, 색상:빨강</td>
+        <td th:text="${#strings.isEmpty(s.optionSummary) ? '-' : s.optionSummary}"></td>
         <td th:text="${s.stockQuantity}">0</td>
         <td th:text="${s.basePrice}">0</td>
         <td th:text="${s.createdAt}">2025-12-28</td>
+
         <td>
           <button type="button"
                   class="tier-btn"
@@ -132,16 +135,47 @@
             구간단가 보기
           </button>
         </td>
+
+        <td>
+    <span class="status-badge"
+          th:classappend="${s.displayStatus}"
+          th:text="${s.displayStatus == 'ACTIVE' ? '판매중'
+             : (s.displayStatus == 'INACTIVE' ? '판매중지'
+             : (s.displayStatus == 'ENDED' ? '판매종료'
+             : (s.displayStatus == 'SOLD_OUT' ? '재고없음' : s.displayStatus)))}">
+</span>
+        </td>
+
+        <td>
+          <form th:action="@{/mypage/supplier/sku/{skuId}/status(skuId=${s.skuId})}"
+                method="post" class="inline-form">
+            <input type="hidden" name="productId" th:value="${productId}">
+
+            <select name="status" th:disabled="${s.displayStatus == 'SOLD_OUT'}">
+            <option value="ACTIVE" th:selected="${s.status == 'ACTIVE'}">판매중</option>
+              <option value="INACTIVE" th:selected="${s.status == 'INACTIVE'}">판매중지</option>
+              <option value="ENDED" th:selected="${s.status == 'ENDED'}">판매종료</option>
+            </select>
+
+            <button type="submit" class="primary">저장</button>
+          </form>
+
+          <small th:if="${s.displayStatus == 'SOLD_OUT'}" class="hint">
+            재고가 0이라 ‘재고없음’으로 표시됩니다. 재고를 올린 뒤 판매중으로 변경하세요.
+          </small>
+        </td>
+
         <td>
           <a th:if="${s.editable}"
              th:href="@{/mypage/supplier/product/{pid}/sku/{sid}/edit-options(pid=${productId}, sid=${s.skuId})}">
             옵션 수정
           </a>
           <span th:if="${!s.editable}">
-            수정 불가(주문됨)
-          </span>
+      수정 불가(주문됨)
+    </span>
         </td>
       </tr>
+
       </tbody>
     </table>
 

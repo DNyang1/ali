@@ -200,11 +200,16 @@ form > div{
 }
 .table a:hover{ text-decoration: underline; }
 
-/* "등록된 상품이 없습니다" 같은 colspan row */
 .table td[colspan]{
     text-align: center;
     color: var(--muted);
     padding: 18px 12px;
+}
+.table td input,
+.table td select,
+.table td button {
+    margin: 0 auto;
+    display: block;
 }
 
 .status{
@@ -400,6 +405,33 @@ form > div{
     background: rgba(37,99,235,0.65);
 }
 
+.inline-form{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.status-badge{
+    display:inline-flex;
+    align-items:center;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    border:1px solid #ddd;
+    background:#fff;
+}
+
+.status-badge.ACTIVE{ border-color:#2ecc71; }
+.status-badge.INACTIVE{ border-color:#f39c12; }
+.status-badge.ENDED{ border-color:#e74c3c; }
+.status-badge.SOLD_OUT{ border-color:#7f8c8d; }
+
+.hint{
+    margin-left:8px;
+    font-size:12px;
+    color:#666;
+}
 
 
 @media (max-width: 520px){

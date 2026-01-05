@@ -19,6 +19,7 @@ function login() {
                 const prevPage = document.referrer;
 
                 if (prevPage && !prevPage.includes('/user/login')
+                    && !prevPage.includes('/user/register')
                     && !prevPage.includes('/user/find_id')
                     && !prevPage.includes('/user/reset_pw')) {
                     location.href = prevPage;
