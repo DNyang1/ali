@@ -1,0 +1,110 @@
+/* setting.css 리팩토링 */
+
+.setting-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+
+.menu-box {
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* 은은한 그림자 */
+}
+
+.box-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* 정보 배치 레이아웃 */
+.info-content {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-section {
+    text-align: center;
+}
+
+.profile-img-setting {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #03c75a; /* 네이버 상징색 포인트 */
+    padding: 3px;
+    background: #fff;
+}
+
+.profile-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+}
+
+/* 텍스트 정보 열 정렬 */
+.text-info-section {
+    flex: 1;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+.info-row .label {
+    width: 80px;
+    color: #888;
+    font-weight: 500;
+}
+
+.info-row .value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* 버튼 디자인 리팩토링 */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 25px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background-color: #03c75a; /* 네이버 그린 */
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #02a94d;
+}
+
+.btn-outline {
+    background-color: #fff;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.btn-outline:hover {
+    background-color: #f8f9fa;
+    border-color: #ccc;
+}
