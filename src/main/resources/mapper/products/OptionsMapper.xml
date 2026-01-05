@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.products.dao.OptionsDAO">
+
+    <select id="optionByProduct"
+            parameterType="long"
+            resultType="com.finalProject.ali.products.dto.OptionValueDTO">
+
+        SELECT DISTINCT
+            SUBSTRING_INDEX(
+            SUBSTRING_INDEX(ovs.option_value_id, '@', 2),
+            '@',
+            -1
+            ) AS optionName,
+            ovs.option_value_id AS optionValueId,
+            SUBSTRING_INDEX(ovs.option_value_id, '@', -1) AS optionValue
+        FROM sku s
+        JOIN option_value_sku ovs
+        ON s.sku_id = ovs.sku_id
+        WHERE s.product_id = #{productId}
+        ORDER BY optionName, optionValue
+
+    </select>
+
+</mapper>

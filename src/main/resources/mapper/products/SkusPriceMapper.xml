@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.products.dao.SkusPriceDAO">
+
+    <!-- 상품의 모든 SKU에 대한 구간 가격(한 번에) -->
+    <select id="findPriceRulesByProductId"
+            parameterType="long"
+            resultType="com.finalProject.ali.products.dto.SkusPriceDTO">
+        SELECT
+            sp.sku_price_id AS skuPriceId,
+            sp.sku_id       AS skuId,
+            sp.min_qty      AS minQty,
+            sp.max_qty      AS maxQty,
+            sp.price        AS unitPrice
+        FROM sku_price sp
+        JOIN sku s ON s.sku_id = sp.sku_id
+        WHERE s.product_id = #{productId}
+        ORDER BY sp.sku_id, sp.min_qty
+    </select>
+
+    <!-- (옵션) 단일 SKU -->
+    <select id="findPriceRulesBySkuId"
+            parameterType="string"
+            resultType="com.finalProject.ali.products.dto.SkusPriceDTO">
+        SELECT
+            sku_price_id AS skuPriceId,
+            sku_id       AS skuId,
+            min_qty      AS minQty,
+            max_qty      AS maxQty,
+            price        AS unitPrice
+        FROM sku_price
+        WHERE sku_id = #{skuId}
+        ORDER BY min_qty
+    </select>
+
+</mapper>
