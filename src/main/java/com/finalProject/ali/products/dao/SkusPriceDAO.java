@@ -12,4 +12,6 @@ public interface SkusPriceDAO {
     List<SkusPriceDTO> findPriceRulesByProductId(@Param("productId") Long productId);
 
     List<SkusPriceDTO> findPriceRulesBySkuId(@Param("skuId") String skuId);
+
+    Long findUnitPriceByQty(@Param("skuId") String skuId, @Param("qty") Long qty);
 }
