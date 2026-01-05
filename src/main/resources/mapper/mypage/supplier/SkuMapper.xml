@@ -6,9 +6,10 @@
 <mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.SkuDAO">
 
     <insert id="insert">
-        INSERT INTO sku (sku_id, product_id, stock_quantity, created_at)
-        VALUES (#{skuId}, #{productId}, #{stockQuantity}, #{createdAt})
+        INSERT INTO sku (sku_id, product_id, stock_quantity, status, created_at)
+        VALUES (#{skuId}, #{productId}, #{stockQuantity}, #{status}, #{createdAt})
     </insert>
+
 
     <select id="countByProductId" resultType="int">
         SELECT COUNT(*)
@@ -19,36 +20,37 @@
     <select id="findByProductId"
             resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuDTO">
         SELECT
-            s.sku_id         AS skuId,
-            s.product_id     AS productId,
-            s.stock_quantity AS stockQuantity,
-            s.created_at     AS createdAt,
+        s.sku_id         AS skuId,
+        s.product_id     AS productId,
+        s.stock_quantity AS stockQuantity,
+        s.created_at     AS createdAt,
+        s.status         AS status,
 
-            bp.basePrice     AS basePrice,
+        bp.basePrice     AS basePrice,
 
-            COALESCE(
-                    GROUP_CONCAT(CONCAT(po.option_name, ':', pov.option_value)
-                        ORDER BY po.option_name SEPARATOR ', '),
-                    ''
-            ) AS optionSummary
+        COALESCE(
+        GROUP_CONCAT(CONCAT(po.option_name, ':', pov.option_value)
+        ORDER BY po.option_name SEPARATOR ', '),
+        ''
+        ) AS optionSummary
         FROM sku s
-                 LEFT JOIN option_value_sku ovs ON ovs.sku_id = s.sku_id
-                 LEFT JOIN product_option_value pov ON pov.option_value_id = ovs.option_value_id
-                 LEFT JOIN product_option po ON po.option_id = pov.option_id
-
-                 LEFT JOIN (
-            SELECT sku_id, MAX(price) AS basePrice
-            FROM sku_price
-            WHERE min_qty = 1 AND max_qty IS NULL
-            GROUP BY sku_id
+        LEFT JOIN option_value_sku ovs ON ovs.sku_id = s.sku_id
+        LEFT JOIN product_option_value pov ON pov.option_value_id = ovs.option_value_id
+        LEFT JOIN product_option po ON po.option_id = pov.option_id
+        LEFT JOIN (
+        SELECT sku_id, MAX(price) AS basePrice
+        FROM sku_price
+        WHERE min_qty = 1 AND max_qty IS NULL
+        GROUP BY sku_id
         ) bp ON bp.sku_id = s.sku_id
-
         WHERE s.product_id = #{productId}
-        GROUP BY s.sku_id, s.product_id, s.stock_quantity, s.created_at, bp.basePrice
+        GROUP BY
+        s.sku_id, s.product_id, s.stock_quantity, s.created_at, s.status, bp.basePrice <!-- ✅ status 추가 -->
         ORDER BY s.created_at DESC
     </select>
 
-    <insert id="linkOption">
+
+    <insert id="insertLink">
         INSERT INTO option_value_sku (option_value_id, sku_id)
         VALUES (#{optionId}, #{skuId})
     </insert>
@@ -75,6 +77,43 @@
     <select id="countOrderItemsBySkuId" resultType="int">
         SELECT COUNT(*)
         FROM order_item
+        WHERE sku_id = #{skuId}
+    </select>
+
+    <select id="findBySkuId" resultType="com.finalProject.ali.mypage.supplier.product.dao.SkuDAO$SkuRow">
+        SELECT
+            sku_id         AS skuId,
+            status         AS status,
+            stock_quantity AS stockQuantity
+        FROM sku
+        WHERE sku_id = #{skuId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE sku
+        SET status = #{status}
+        WHERE sku_id = #{skuId}
+    </update>
+    <select id="findPricesBySkuId"
+            resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuPriceDTO">
+        SELECT
+            sp.sku_price_id AS skuPriceId,
+            sp.sku_id       AS skuId,
+            sp.min_qty      AS minQty,
+            sp.max_qty      AS maxQty,
+            sp.price        AS price,
+            sp.created_at   AS createdAt,
+            p.moq           AS moq
+        FROM sku_price sp
+                 JOIN sku s ON s.sku_id = sp.sku_id
+                 JOIN product p ON p.product_id = s.product_id
+        WHERE sp.sku_id = #{skuId}
+        ORDER BY sp.min_qty
+    </select>
+
+    <select id="findProductIdBySkuId" resultType="Long">
+        SELECT product_id
+        FROM sku
         WHERE sku_id = #{skuId}
     </select>
 

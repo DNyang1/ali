@@ -9,9 +9,12 @@ import java.util.List;
 @Mapper
 public interface SkuPriceDAO {
 
+    int deleteAllBySkuId(@Param("skuId") String skuId);
+
     void insertPrice(@Param("skuId") String skuId,
-                     @Param("minQty") Long minQty,
-                     @Param("maxQty") Long maxQty,
-                     @Param("price") Long price);
+                     @Param("minQty") Integer minQty,
+                     @Param("maxQty") Integer maxQty,
+                     @Param("price") Integer price);
+
     List<SkuPriceDTO> findBySkuId(@Param("skuId") String skuId);
 }
