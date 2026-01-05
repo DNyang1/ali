@@ -1,6 +1,3 @@
-/* ===============================
-   카테고리 데이터 로드
-================================ */
 fetch('/api/categories/main')
     .then(res => {
         if (!res.ok) {
@@ -16,8 +13,8 @@ fetch('/api/categories/main')
             return;
         }
 
-        const categoryList = document.getElementById('categoryList');       // 좌측 고정
-        const allCategoryList = document.getElementById('allCategoryList'); // 전체 패널
+        const categoryList = document.getElementById('categoryList');
+        const allCategoryList = document.getElementById('allCategoryList');
 
         categoryList.innerHTML = '';
         allCategoryList.innerHTML = '';
@@ -31,13 +28,11 @@ fetch('/api/categories/main')
                 <span class="arrow">›</span>
             `;
 
-            // 좌측 카테고리
             const li1 = document.createElement('li');
             li1.className = 'category-item';
             li1.innerHTML = html;
             categoryList.appendChild(li1);
 
-            // 전체 카테고리 패널
             const li2 = document.createElement('li');
             li2.className = 'category-item';
             li2.innerHTML = html;
@@ -47,9 +42,6 @@ fetch('/api/categories/main')
     .catch(err => console.error(err));
 
 
-/* ===============================
-   모든 카테고리 토글
-================================ */
 const allCategoryBtn = document.getElementById('allCategoryBtn');
 const overlay = document.getElementById('allCategoryOverlay');
 const panel = document.querySelector('.all-category-panel');
@@ -58,23 +50,19 @@ const categoryBox = document.querySelector('.category-box');
 
 if (allCategoryBtn && overlay && panel) {
 
-    // 버튼 클릭 → 토글
     allCategoryBtn.addEventListener('click', e => {
         e.stopPropagation();
         overlay.classList.toggle('hidden');
     });
 
-    // 바깥 클릭 → 닫기
     overlay.addEventListener('click', () => {
         overlay.classList.add('hidden');
     });
 
-    // 패널 클릭 → 닫힘 방지
     panel.addEventListener('click', e => {
         e.stopPropagation();
     });
 
-    // X 버튼 → 닫기
     closeBtn.addEventListener('click', () => {
         overlay.classList.add('hidden');
     });
@@ -87,11 +75,23 @@ if (categoryBox && overlay) {
     });
 }
 
-// 상품리스트 가기
 document.querySelectorAll('.explore-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         window.location.href = '/products';
     });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const exploreBtns = document.querySelectorAll('.explore-btn');
+
+    exploreBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const custom = btn.dataset.custom;
+            location.href = `/products/list?custom=${custom}`;
+        });
+    });
+
 });
 
 

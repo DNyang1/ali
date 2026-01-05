@@ -111,7 +111,7 @@ public class UserController {
 
     @GetMapping("/update")
     public String updatePage() {
-        return "user/update"; // update.html 반환
+        return "user/update"; // s_update.html 반환
     }
     @Autowired
     private ImageService imageService; // 새로 만든 서비스 주입

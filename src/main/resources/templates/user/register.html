@@ -3,33 +3,43 @@
 <head>
   <link rel="stylesheet" href="/user/css/register.css"/>
   <meta charset="UTF-8">
-  <title>회원가입 - 전체 입력</title>
+  <title>회원가입</title>
 </head>
 <body>
-<h2>회원가입</h2>
-<input type="text" id="userId" placeholder="아이디 (user_id)"><br>
-<input type="password" id="password" placeholder="비밀번호 (password)"><br>
-<input type="text" id="name" placeholder="이름 (name)"><br>
+<div class="container">
+  <h2>회원가입</h2>
 
-<div style="display: flex; gap: 5px; margin-bottom: 5px;">
-  <input type="email" id="email" placeholder="이메일 (email)" style="flex: 1;">
-  <button type="button" onclick="sendAuthCode()">인증번호 받기</button>
-</div>
+  <div class="input-group"><input type="text" id="userId" placeholder="아이디"></div>
+  <div class="input-group"><input type="password" id="password" placeholder="비밀번호"></div>
+  <div class="input-group"><input type="text" id="name" placeholder="이름"></div>
 
-<div id="authCodeSection" style="display: none; margin-bottom: 10px;">
-  <div style="display: flex; gap: 5px;">
-    <input type="text" id="authCode" placeholder="인증번호 6자리">
-    <button type="button" onclick="verifyAuthCode()">인증확인</button>
+  <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+    <div class="input-group" style="flex: 1; margin-bottom: 0;">
+      <input type="email" id="email" placeholder="이메일">
+    </div>
+    <button type="button" onclick="sendAuthCode()" style="width: auto; padding: 10px; font-size: 13px; margin-top: 0;">인증받기</button>
   </div>
-  <small id="authTimer" style="color: red;"></small>
+
+  <div id="authCodeSection" style="display: none; margin-bottom: 10px;">
+    <div style="display: flex; gap: 5px;">
+      <div class="input-group" style="flex: 1; margin-bottom: 0;">
+        <input type="text" id="authCode" placeholder="인증번호 6자리">
+      </div>
+      <button type="button" onclick="verifyAuthCode()" style="width: auto; padding: 10px; font-size: 13px; margin-top: 0;">확인</button>
+    </div>
+    <small id="authTimer" style="color: #ff0000; display: block; margin-top: 5px;"></small>
+  </div>
+
+  <div class="input-group"><input type="text" id="phone" placeholder="전화번호 (- 제외)"></div>
+  <div class="input-group"><input type="text" id="birth" placeholder="생년월일 (8자리)"></div>
+  <div class="input-group"><input type="text" id="address" placeholder="주소"></div>
+
+  <button id="signupBtn" onclick="signup()" disabled>가입하기</button>
+
+  <div class="link-group">
+    <a href="#" onclick="history.back();">이전으로 돌아가기</a>
+  </div>
 </div>
-
-<input type="text" id="phone" placeholder="전화번호 (phone)"><br>
-<input type="text" id="birth" placeholder="생년월일 (birth: YYYYMMDD)"><br>
-<input type="text" id="address" placeholder="주소 (address)"><br>
-
-<button id="signupBtn" onclick="signup()" type="submit" disabled>가입하기</button>
-<a href="#" onclick="history.back(); return false;">취소</a>
 
 <script src="/user/js/register.js"></script>
 </body>

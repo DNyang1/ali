@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <title th:text="${product.productName}">상품 상세</title>
     <link rel="stylesheet" th:href="@{/products/css/products_detail.css}">
+    <link rel="stylesheet" href="/main/css/main-header.css">
+    <link rel="stylesheet" href="/main/css/common.css">
 </head>
 <body>
+<div th:replace="layout/mainHeader :: mainHeader"></div>
 
 <nav class="breadcrumb">
     <a href="/">홈</a> &gt;
@@ -52,7 +55,7 @@
 
         <div class="action-buttons">
             <button class="btn order" id="openOrderModal">주문 시작</button>
-            <button class="btn cart">장바구니</button>
+            <button class="btn cart" id="openCartModal">장바구니</button>
             <button class="btn chat">채팅하기</button>
         </div>
 
@@ -101,16 +104,19 @@
         <span id="orderPrice" data-unit-price="10000">10,000원</span>
     </div>
 
-    <button class="modal-submit" id="submitOrder">주문하기</button>
+    <button class="modal-submit" id="submitOrder">바로 주문</button>
+    <button class="modal-submit" id="submitCart">장바구니 담기</button>
 </div>
 
 <script th:inline="javascript">
     const REQUIRED_OPTION_COUNT = /*[[${requiredOptionCount}]]*/ 0;
     const MOQ = /*[[${product.moq}]]*/ 1;
-
+    const PRODUCT_ID = /*[[${product.productId}]]*/ 0;
     const SKUS = /*[[${skusJson}]]*/ [];
     const DEFAULT_PRICE_RULES = [[${defaultPriceRulesJson}]];
     console.log('DEFAULT PRICE RULES 👉', /*[[${defaultPriceRulesJson}]]*/ []);
+    console.log('SKUS 👉', SKUS);
+    console.log('SKUS[0] 👉', SKUS?.[0]);
 </script>
 
 <script th:src="@{/products/js/products_detail.js}"></script>

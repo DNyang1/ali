@@ -1,14 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
+const selectedOptions = {};
+let modalMode = null;
+const PARSED_SKUS = typeof SKUS === 'string' ? JSON.parse(SKUS) : SKUS;
 
+function closeModal() {
+    const modal = document.getElementById('orderModal');
+    const overlay = document.getElementById('orderModalOverlay');
+
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('orderModal');
     const overlay = document.getElementById('orderModalOverlay');
     const openBtn = document.getElementById('openOrderModal');
+    const openCartBtn = document.getElementById('openCartModal');
     const closeBtn = document.getElementById('closeOrderModal');
 
     const qtyInput = document.getElementById('orderQty');
     const priceEl = document.getElementById('orderPrice');
 
-    const selectedOptions = {};
 
     const rules = normalizePriceRules(DEFAULT_PRICE_RULES);
 
@@ -16,38 +27,63 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMainPriceTiers(rules);
 
     openBtn?.addEventListener('click', () => {
+        modalMode = 'ORDER';
+        openModal();
+    });
+
+    openCartBtn?.addEventListener('click', () => {
+        modalMode = 'CART';
+        openModal();
+    });
+    function openModal() {
+        Object.keys(selectedOptions).forEach(key => delete selectedOptions[key]);
+        document.querySelectorAll('.option-btn.active')
+            .forEach(btn => btn.classList.remove('active'));
+
         modal.style.display = 'block';
         overlay.style.display = 'block';
         document.body.style.overflow = 'hidden';
 
         renderPriceTiers(rules);
-
         updatePrice();
-    });
 
+        updateModalButtons();
+    }
+    function updateModalButtons() {
+        const orderBtn = document.getElementById('submitOrder');
+        const cartBtn = document.getElementById('submitCart');
+
+        if (modalMode === 'ORDER') {
+            orderBtn.style.display = 'block';
+            cartBtn.style.display = 'none';
+        } else {
+            orderBtn.style.display = 'none';
+            cartBtn.style.display = 'block';
+        }
+    }
     closeBtn?.addEventListener('click', closeModal);
     overlay?.addEventListener('click', closeModal);
 
-    function closeModal() {
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+
 
     document.addEventListener('click', e => {
-        if (!e.target.classList.contains('option-btn')) return;
+        const btn = e.target.closest('.option-btn');
+        if (!btn) return;
 
-        const box = e.target.closest('.option-box');
+        const box = btn.closest('.option-box');
         if (!box) return;
 
-        const name = box.querySelector('.option-title')?.innerText;
-        const valueId = e.target.dataset.optionValueId;
+        const name = box.querySelector('.option-title')?.innerText?.trim();
+        const valueId = btn.dataset.optionValueId;
 
-        box.querySelectorAll('.option-btn')
-            .forEach(b => b.classList.remove('active'));
+        console.log('[OPTION CLICK]', { name, valueId });
 
-        e.target.classList.add('active');
+        // 기존 active 처리
+        box.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
         selectedOptions[name] = valueId;
+        console.log('[selectedOptions NOW]', JSON.stringify(selectedOptions));
     });
 
     qtyInput?.addEventListener('input', updatePrice);
@@ -61,12 +97,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('submitOrder')?.addEventListener('click', () => {
-        console.log({
-            quantity: qtyInput.value,
-            options: selectedOptions
-        });
-        alert('주문 데이터 콘솔 확인');
+        handleSubmit('ORDER');
     });
+
+    document.getElementById('submitCart')?.addEventListener('click', () => {
+        handleSubmit('CART');
+    });
+    function handleSubmit(type) {
+
+        const skuId = resolveSkuId();
+
+        if (!skuId) {
+            alert('옵션을 모두 선택해주세요.');
+            return;
+        }
+
+        const quantity = Number(qtyInput.value);
+
+        if (quantity < MOQ) {
+            alert(`최소 주문 수량은 ${MOQ}개입니다.`);
+            return;
+        }
+
+        if (type === 'CART') {
+            addToCart(skuId, quantity);
+        }
+
+        if (type === 'ORDER') {
+            alert('주문 플로우는 다음 단계에서 구현');
+        }
+    }
+
 });
 
 
@@ -164,5 +225,40 @@ function findUnitPriceByQty(priceRules, qty) {
 
     return 0;
 }
+function resolveSkuId() {
+    console.log('[DEBUG] SKUS =', SKUS);
+    console.log('[DEBUG] SKUS[0] =', SKUS[0]);
+    console.log('[DEBUG] typeof SKUS[0] =', typeof SKUS[0]);
+    const selectedValueIds = Object.values(selectedOptions);
 
+    for (const sku of PARSED_SKUS) {
+        const skuOptionIds = sku.optionValueIds || [];
 
+        const matched =
+            skuOptionIds.length === selectedValueIds.length &&
+            selectedValueIds.every(id => skuOptionIds.includes(id));
+
+        if (matched) {
+            return sku.skuId;
+        }
+    }
+    return null;
+}
+function addToCart(skuId, quantity) {
+    fetch('/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            productId: PRODUCT_ID,
+            skuId: skuId,
+            quantity: quantity
+        })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error('장바구니 추가 실패');
+        })
+        .then(() => {
+            alert('장바구니에 담겼습니다.');
+            closeModal();
+        });
+}
