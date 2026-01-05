@@ -10,7 +10,7 @@
 <h2 class="page-title">전체 상품</h2>
 
 <div class="product-grid" id="productGrid">
-    <div class="product-card" th:each="p : ${products}">
+    <a class="product-card" th:each="p : ${products}" th:href="@{/products/{id}(id=${p.productId})}">
         <!-- 이미지 (임시) -->
         <img th:src="@{|https://picsum.photos/300?random=${p.productId}|}"
              alt="상품 이미지">
@@ -28,7 +28,7 @@
                 <span class="custom" th:if="${p.isCustomizable == 0}">커스텀 불가</span>
             </div>
         </div>
-    </div>
+    </a>
 </div>
 
 <script src="/products/js/products.js"></script>

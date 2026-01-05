@@ -17,4 +17,20 @@
         FROM products
         ORDER BY created_at DESC
     </select>
+
+    <select id="productDetail"
+            parameterType="long"
+            resultType="com.finalProject.ali.products.dto.ProductsDTO">
+        SELECT
+            product_id,
+            category_id,
+            product_name,
+            description,
+            is_customizable,
+            moq,
+            created_at,
+            updated_at
+        FROM products
+        WHERE product_id = #{productId}
+    </select>
 </mapper>

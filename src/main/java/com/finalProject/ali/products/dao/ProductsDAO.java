@@ -9,4 +9,6 @@ import java.util.List;
 public interface ProductsDAO {
 
     List<ProductsDTO> productList();
+
+    ProductsDTO productDetail(Long productId);
 }

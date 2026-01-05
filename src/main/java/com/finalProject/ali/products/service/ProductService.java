@@ -16,4 +16,9 @@ public class ProductService {
     public List<ProductsDTO> productList(){
         return productDAO.productList();
     }
+
+    public ProductsDTO productDetail(Long productId) {
+        return productDAO.productDetail(productId);
+    }
+
 }
