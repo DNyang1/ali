@@ -43,4 +43,21 @@ public class ImageService {
             return null;
         }
     }
+
+    public void deleteActualFile(String webPath) {
+        if (webPath == null || webPath.isEmpty()) return;
+        // 1. 웹 경로(/upload/...)를 물리적 경로(C:/upload/ali_uploads/...)로 변환
+        // "/upload/" 문자열을 제거하고 rootPath와 합침
+        String relativePath = webPath.replace("/upload/", "");
+        File file = new File(rootPath + relativePath);
+
+        // 2. 파일이 존재하면 삭제
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("파일 삭제 성공: " + file.getPath());
+            } else {
+                System.out.println("파일 삭제 실패: " + file.getPath());
+            }
+        }
+    }
 }

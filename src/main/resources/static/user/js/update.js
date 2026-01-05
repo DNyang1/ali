@@ -32,11 +32,45 @@ function updateInfo() {
 }
 
 function previewImage(input) {
+    const preview = document.getElementById('profilePreview');
+
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById('profilePreview').src = e.target.result;
+            // 1. 이미지 소스를 읽어온 데이터로 교체
+            preview.src = e.target.result;
+            // 2. 숨겨져 있던 이미지 태그를 다시 보이게 설정 (block 또는 inline)
+            preview.style.display = "block";
         }
         reader.readAsDataURL(input.files[0]);
+    } else {
+        // 파일을 선택하려다 취소한 경우 등을 대비해 다시 숨길 수도 있음
+        preview.src = "";
+        preview.style.display = "none";
     }
+}
+
+// 프로필 제거
+function deleteProfileImage() {
+    if (!confirm("프로필 이미지를 삭제하시겠습니까?")) return;
+
+    fetch('/user/delete_profile_img', {
+        method: 'POST'
+    })
+        .then(res => {
+            if (res.ok) {
+                const preview = document.getElementById('profilePreview');
+                // 1. src를 비워서 이미지를 없앰 (회색 배경이 드러남)
+                preview.src = "";
+                // 2. ★ 중요: display: none 부분을 삭제하거나 block으로 유지 ★
+                preview.style.display = "block";
+
+                // 파일 입력칸도 비워줌
+                document.getElementById('profileFile').value = "";
+                alert("이미지가 삭제되었습니다.");
+            } else {
+                alert("이미지 삭제 실패");
+            }
+        })
+        .catch(err => console.error('Error:', err));
 }

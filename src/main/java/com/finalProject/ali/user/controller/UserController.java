@@ -128,6 +128,9 @@ public class UserController {
 
         // 1. 파일이 넘어왔다면 ImageService를 통해 저장
         if (profileFile != null && !profileFile.isEmpty()) {
+            if (loginUser.getProfileImg() != null) {
+                imageService.deleteActualFile(loginUser.getProfileImg());
+            }
             String uploadedPath = imageService.uploadImage(profileFile, "profiles");
             userDTO.setProfileImg(uploadedPath);
         } else {
@@ -148,6 +151,35 @@ public class UserController {
         session.setAttribute("loginUser", loginUser);
 
         return ResponseEntity.ok("success");
+    }
+
+    @PostMapping("/delete_profile_img")
+    @ResponseBody
+    public ResponseEntity<String> deleteProfileImg(HttpSession session) {
+        // 1. 세션에서 현재 로그인된 유저 가져오기
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        // 로그인 안 되어 있으면 실패 응답
+        if (loginUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+        }
+
+        try {
+
+            if (loginUser.getProfileImg() != null) {
+                imageService.deleteActualFile(loginUser.getProfileImg());
+            }
+            // 2. DTO와 세션에서 이미지 경로 제거
+            loginUser.setProfileImg(null);
+            // 3. DB 업데이트 (수정된 DTO를 서비스로 전달)
+            userService.updateUserInfo(loginUser);
+            // 4. 세션 최신화
+            session.setAttribute("loginUser", loginUser);
+
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
+        }
     }
 
     // 판매자와 구매자 전환
