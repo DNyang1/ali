@@ -2,8 +2,6 @@ package com.finalProject.ali.chat.controller;
 
 import com.finalProject.ali.chat.dao.ChatProductSummaryDAO;
 import com.finalProject.ali.chat.dto.ProductSummaryDTO;
-import com.finalProject.ali.products.dto.ProductsDTO;
-import com.finalProject.ali.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

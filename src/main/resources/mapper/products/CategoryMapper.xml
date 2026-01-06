@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.products.dao.CategoryDAO">
+<mapper namespace="com.finalProject.ali.product.category.dao.CategoryDAO">
     <select id="selectMainCategories" resultType="categoryDTO">
         SELECT
             category_id AS categoryId,

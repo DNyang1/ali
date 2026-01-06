@@ -251,17 +251,24 @@
 
         try {
             const res = await fetch(`/mypage/supplier/sku/${encodeURIComponent(skuId)}/prices`);
-            if (!res.ok) throw new Error(res.status);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
             const raw = await res.json();
             if (!Array.isArray(raw)) throw new Error("Not array");
 
-            const list = raw.filter(r => r && r.minQty != null && r.price != null);
+            const list = raw.filter(r => r && r.minQty != null && r.unitPrice != null);
+
             const toNum = (v) => (v == null ? null : Number(v));
+            const moq = getCurrentMoq();
 
-            const baseRow = list.find(r => toNum(r.minQty) === 1 && (r.maxQty == null));
-            const basePrice = baseRow ? toNum(baseRow.price) : null;
+            // 기본가: (maxQty=null) + (minQty=1 또는 minQty=MOQ)
+            const baseRow = list.find(r => {
+                if (r.maxQty != null) return false;
+                const min = toNum(r.minQty);
+                return min === 1 || min === moq;
+            });
 
+            const basePrice = baseRow ? toNum(baseRow.unitPrice) : null;
             baseInput.value = basePrice != null ? basePrice : "";
             renderMinAmount();
 
@@ -270,18 +277,20 @@
                 .sort((a, b) => Number(a.minQty) - Number(b.minQty));
 
             body.innerHTML = "";
-            const moq = getCurrentMoq();
 
             if (tiers.length === 0) {
                 body.innerHTML = `<tr><td colspan="4">구간단가 없음</td></tr>`;
             } else {
                 for (const row of tiers) {
-                    body.insertAdjacentHTML("beforeend", tierRowHtml(row.minQty, row.maxQty, row.price, moq));
+                    body.insertAdjacentHTML(
+                        "beforeend",
+                        tierRowHtml(row.minQty, row.maxQty, row.unitPrice, moq)
+                    );
                 }
             }
         } catch (err) {
             body.innerHTML = `<tr><td colspan="4">불러오기 실패</td></tr>`;
-            console.error(err);
+            console.error("prices fetch fail:", err);
         }
     }
 
