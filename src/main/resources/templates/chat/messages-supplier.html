@@ -60,7 +60,7 @@
       </div>
       <!-- 초기 메시지: 서버에서 렌더링 -->
       <div th:each="m : ${messages}" class="msg" th:classappend="${m.senderId} == ${currentUserId} ? ' me' : ''" th:attr="data-chat-id=${m.chatId}">
-      <div class="text" th:text="${m.message}">hello</div>
+        <div class="text" th:text="${m.message}">hello</div>
         <div class="meta">
           <span th:text="${m.senderId}">sender</span>
           ·
@@ -70,6 +70,20 @@
       </div>
     </main>
 
+    <!-- (추가) 첨부된 상품 드래프트 카드 -->
+    <div id="productDraft" class="product-draft" style="display:none;">
+      <div class="product-draft__left">
+        <div class="product-draft__title">첨부된 상품</div>
+        <div class="product-draft__img"></div>
+        <a id="productDraftLink" class="product-draft__link" href="#" target="_blank" rel="noopener">
+          상품 상세 보기
+        </a>
+      </div>
+
+      <button type="button" id="productDraftRemove" class="product-draft__remove" aria-label="첨부 상품 제거">
+        ✕
+      </button>
+    </div>
     <!-- 입력 영역 -->
     <footer class="chat-input">
       <input id="messageInput" type="text" placeholder="Type your message..." style="flex:1;">
