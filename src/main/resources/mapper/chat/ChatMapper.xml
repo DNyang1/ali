@@ -37,4 +37,13 @@
         HAVING COUNT(DISTINCT rm.user_id) = 2
         LIMIT 1
     </select>
+
+    <select id="findThumbImagePath" resultType="string">
+        SELECT image_path
+        FROM product_image
+        WHERE product_id = #{productId}
+        AND image_type = 'THUMB'
+        ORDER BY sort_order ASC
+        LIMIT 1
+    </select>
 </mapper>

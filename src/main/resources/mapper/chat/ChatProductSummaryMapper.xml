@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.chat.dao.ChatProductSummaryDAO">
+    <select id="findProductSummary"
+            parameterType="long"
+            resultType="com.finalProject.ali.chat.dto.ProductSummaryDTO">
+        SELECT
+        p.product_id   AS productId,
+        p.product_name AS productName,
+        pi.image_path  AS thumbnailUrl
+        FROM products p
+        LEFT JOIN product_image pi
+        ON pi.product_id = p.product_id
+        AND pi.image_type = 'THUMB'
+        WHERE p.product_id = #{productId}
+        ORDER BY pi.sort_order ASC
+        LIMIT 1
+    </select>
+</mapper>
