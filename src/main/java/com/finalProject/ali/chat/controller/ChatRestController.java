@@ -2,6 +2,7 @@ package com.finalProject.ali.chat.controller;
 
 import com.finalProject.ali.chat.dto.*;
 import com.finalProject.ali.chat.service.ChatService;
+import com.finalProject.ali.products.dto.ProductsDTO;
 import com.finalProject.ali.products.service.ProductService;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
@@ -78,30 +79,57 @@ public class ChatRestController {
         messagingTemplate.convertAndSend("/topic/rooms/" + roomId + "/read", evt);
     }
 
+    private String normalizeUserId(String userId) {
+        if (userId == null) return null;
+        if (userId.startsWith("s_")) {
+            return userId.substring(2);
+        }
+        return userId;
+    }
+
     // 상품 상세 → 채팅 시작
-//    @PostMapping("/rooms/start")
-//    public Map<String, Long> startChat(
-//            @RequestBody StartChatRequest req,
-//            HttpSession session
-//    ) {
-//        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
-//        if (loginUser == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-//        }
-//
-//        String buyerId = loginUser.getUserId();
-//
-//        // 상품으로 판매자 조회
-//        String sellerId = productService
-//                .productDetail(req.getProductId())
-//                .getSellerId(); // TODO: ProductsDTO에 sellerId 추가되면 바로 연결
-//
-//
-//        // 방 생성
-//        Long roomId = chatService.createRoom(
-//                List.of(buyerId, sellerId)
-//        );
-//
-//        return Map.of("roomId", roomId);
-//    }
+    @PostMapping("/rooms/start")
+    public Map<String, Long> startChat(@RequestBody StartChatRequest req, HttpSession session) {
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        Long productId = req.getProductId();
+        if (productId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "productId is required");
+        }
+
+        ProductsDTO product = productService.productDetail(productId);
+        if (product == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다.");
+        }
+
+        // 채팅용 ID 정규화
+        String buyerId = normalizeUserId(loginUser.getUserId());
+        String sellerId = normalizeUserId(product.getSupplierId());
+
+        System.out.println("buyerId(normalized) = " + buyerId);
+        System.out.println("sellerId(normalized) = " + sellerId);
+
+        // 자기 자신과 채팅 방지
+        if (buyerId.equals(sellerId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "자기 자신과는 채팅할 수 없습니다."
+            );
+        }
+
+        // 기존 방 재사용
+        Long roomId = chatService.findRoomIdByTwoMembers(buyerId, sellerId);
+        if (roomId == null) {
+            roomId = chatService.createRoom(List.of(buyerId, sellerId));
+        }
+
+        return Map.of(
+                "roomId", roomId,
+                "productId", productId
+        );
+    }
+
 }

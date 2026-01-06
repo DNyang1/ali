@@ -70,6 +70,20 @@
       </div>
     </main>
 
+    <!-- (추가) 첨부된 상품 드래프트 카드 -->
+    <div id="productDraft" class="product-draft" style="display:none;">
+      <div class="product-draft__left">
+        <div class="product-draft__title">첨부된 상품</div>
+        <div class="product-draft__img"></div>
+        <a id="productDraftLink" class="product-draft__link" href="#" target="_blank" rel="noopener">
+          상품 상세 보기
+        </a>
+      </div>
+
+      <button type="button" id="productDraftRemove" class="product-draft__remove" aria-label="첨부 상품 제거">
+        ✕
+      </button>
+    </div>
     <!-- 입력 영역 -->
     <footer class="chat-input">
       <input id="messageInput" type="text" placeholder="Type your message..." style="flex:1;">
