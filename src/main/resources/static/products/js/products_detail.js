@@ -285,21 +285,43 @@ function buyNow(skuId, quantity) {
    🔧 DEV ONLY : SKU 직접 선택 블록 (ORDER / CART 공통)
    ====================================================== */
 (function () {
-    // 로컬에서만 쓰고 싶으면 주석 해제
+    // 필요하면 로컬에서만 활성화
     // if (location.hostname !== 'localhost') return;
 
-    // 🔥 전역에 명시적으로 고정
     window.__DEV_FORCED_SKU_ID__ = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         if (!Array.isArray(PARSED_SKUS) || PARSED_SKUS.length === 0) return;
 
-        const select = document.createElement('select');
-        select.style.cssText =
-            'width:100%;margin-top:12px;padding:6px;font-size:13px;';
+        /* ===== DEV 컨테이너 ===== */
+        const box = document.createElement('div');
+        box.style.cssText = `
+            margin-top:16px;
+            padding:12px;
+            border:1px dashed #999;
+            border-radius:8px;
+            background:#fafafa;
+            font-size:13px;
+        `;
 
-        select.innerHTML = '<option value="">[DEV] SKU 직접 선택 (장바구니/주문 공통)</option>';
+        box.innerHTML = `
+            <div style="margin-bottom:6px;font-weight:bold;">🔧 DEV TEST PANEL</div>
 
+            <select id="devSkuSelect" style="width:100%;padding:6px;margin-bottom:6px;">
+                <option value="">SKU 직접 선택</option>
+            </select>
+
+            <input id="devQtyInput" type="number" min="1" value="1"
+                   style="width:100%;padding:6px;margin-bottom:8px;"/>
+
+            <div style="display:flex;gap:6px;">
+                <button id="devAddCart" style="flex:1;">장바구니 담기</button>
+                <button id="devBuyNow" style="flex:1;">바로 주문</button>
+            </div>
+        `;
+
+        /* ===== SKU 옵션 채우기 ===== */
+        const select = box.querySelector('#devSkuSelect');
         PARSED_SKUS.forEach(sku => {
             const opt = document.createElement('option');
             opt.value = sku.skuId;
@@ -307,50 +329,46 @@ function buyNow(skuId, quantity) {
             select.appendChild(opt);
         });
 
+        /* ===== 이벤트 ===== */
         select.addEventListener('change', e => {
             window.__DEV_FORCED_SKU_ID__ = e.target.value || null;
-            console.log('🔧 [DEV] __DEV_FORCED_SKU_ID__ =', window.__DEV_FORCED_SKU_ID__);
+            console.log('🔧 [DEV] SKU =', window.__DEV_FORCED_SKU_ID__);
         });
 
-        document.body.appendChild(select);
+        box.querySelector('#devAddCart').addEventListener('click', () => {
+            const skuId = window.__DEV_FORCED_SKU_ID__;
+            const qty = Number(box.querySelector('#devQtyInput').value || 1);
+
+            if (!skuId) {
+                alert('SKU를 선택하세요.');
+                return;
+            }
+
+            addToCart(skuId, qty);
+        });
+
+        box.querySelector('#devBuyNow').addEventListener('click', () => {
+            const skuId = window.__DEV_FORCED_SKU_ID__;
+            const qty = Number(box.querySelector('#devQtyInput').value || 1);
+
+            if (!skuId) {
+                alert('SKU를 선택하세요.');
+                return;
+            }
+
+            buyNow(skuId, qty);
+        });
+
+        /* ===== 페이지 하단에 추가 ===== */
+        document.body.appendChild(box);
     });
 
-    // 🔥 resolveSkuId를 안전하게 후킹
+    /* ===== resolveSkuId 후킹 (옵션 로직 무시) ===== */
     const originalResolveSkuId = window.resolveSkuId;
-
     window.resolveSkuId = function () {
-        // ✅ 1순위: DEV 강제 SKU (ORDER / CART 공통)
         if (window.__DEV_FORCED_SKU_ID__) {
             return window.__DEV_FORCED_SKU_ID__;
         }
-
-        // ✅ 2순위: 기존 옵션 기반 로직
         return originalResolveSkuId();
     };
 })();
-
-// 송진영이 추가함
-document.querySelector('.btn.chat')?.addEventListener('click', async (e) => {
-    const productId = e.currentTarget.dataset.productId;
-
-    const res = await fetch('/chat/api/rooms/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId })
-    });
-
-    if (!res.ok) {
-        alert('채팅방 생성 실패');
-        return;
-    }
-
-    const data = await res.json();
-    console.log('startChat response:', data);
-
-    if (!data.roomId) {
-        alert('roomId 없음');
-        return;
-    }
-
-    location.href = `/chat/messages-user?roomId=${data.roomId}&productId=${productId}`;
-});
