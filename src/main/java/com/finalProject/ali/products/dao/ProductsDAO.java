@@ -16,7 +16,8 @@ public interface ProductsDAO {
 
     List<ProductsDTO> selectByCustom(@Param("isCustomizable") Long isCustomizable);
 
-    List<ProductsDTO> selectByRootCategory(String rootCategoryId);
+    List<ProductsDTO> selectByRootCategory(
+            @Param("categoryId") String categoryId);
 
     List<ProductsDTO> selectByCategoryAndCustom(
             String categoryId,
@@ -26,4 +27,6 @@ public interface ProductsDAO {
     List<CategoryDTO> selectRootCategories();
 
     List<ProductsDTO> searchByKeyword(String keyword);
+
+    List<ProductsDTO> findByCategoryId(String categoryId);
 }

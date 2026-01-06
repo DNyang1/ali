@@ -16,4 +16,8 @@ public class CategoryService {
     public List<CategoryDTO> getMainCategories() {
         return categoryDAO.selectMainCategories();
     }
+
+    public List<CategoryDTO> getChildren(String parentId) {
+        return categoryDAO.findByParentId(parentId);
+    }
 }
