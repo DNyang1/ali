@@ -90,4 +90,23 @@ public class OrderServiceImpl implements OrderService{
 
         return new OrderPreviewResponse(result,total);
     }
+
+    @Override
+    public OrderPreviewResponse getDirectOrderPreview(Long productId, String skuId, Long quantity) {
+        Long unitPrice = skuPriceDAO.findUnitPriceByQty(skuId, quantity);
+        String productName = "test";
+        long lineAmount = unitPrice * quantity;
+        OrderPreviewItem item = new OrderPreviewItem();
+        item.setProductId(productId);
+        item.setSkuId(skuId);
+        item.setProductName(productName);
+        item.setQuantity(quantity);
+        item.setUnitPrice(unitPrice);
+        item.setLineAmount(lineAmount);
+
+        return new OrderPreviewResponse(
+                List.of(item),
+                lineAmount
+        );
+    }
 }

@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (type === 'ORDER') {
-            alert('주문 플로우는 다음 단계에서 구현');
+            buyNow(skuId, quantity);
         }
     }
 
@@ -245,7 +245,7 @@ function resolveSkuId() {
     return null;
 }
 function addToCart(skuId, quantity) {
-    fetch('/cart/items', {
+    fetch('/api/cart/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -260,5 +260,22 @@ function addToCart(skuId, quantity) {
         .then(() => {
             alert('장바구니에 담겼습니다.');
             closeModal();
+        });
+}
+function buyNow(skuId, quantity) {
+    fetch('/api/orders/preview/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            productId: PRODUCT_ID,
+            skuId: skuId,
+            quantity: quantity
+        })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error('바로 주문 미리보기 실패');
+        })
+        .then(() => {
+            location.href = '/orders/checkout';
         });
 }

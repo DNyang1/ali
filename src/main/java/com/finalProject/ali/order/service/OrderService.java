@@ -6,5 +6,5 @@ import com.finalProject.ali.order.dto.OrderCreateResponse;
 public interface OrderService {
     OrderCreateResponse createOrder(String userId);
     OrderPreviewResponse getOrderPreview(String userId);
-
+    OrderPreviewResponse getDirectOrderPreview(Long productId, String skuId, Long quantity);
 }
