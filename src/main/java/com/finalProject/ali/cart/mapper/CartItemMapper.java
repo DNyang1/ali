@@ -1,6 +1,7 @@
 package com.finalProject.ali.cart.mapper;
 
 import com.finalProject.ali.cart.domain.CartItem;
+import com.finalProject.ali.cart.dto.CartItemView;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -12,4 +13,5 @@ public interface CartItemMapper {
     void insert(CartItem item);
     void updateQuantity(CartItem item);
     void deleteById(String cartItemId);
+    List<CartItemView> findCartItemViews(String cartId);
 }

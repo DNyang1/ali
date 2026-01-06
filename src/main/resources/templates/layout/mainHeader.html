@@ -21,7 +21,7 @@
                 <a th:href="@{/cart}" class="chip">
                     장바구니 <span th:text="${cartCount} ?: 0">0</span>
                 </a>
-                <a th:href="@{/chat}" class="chip">
+                <a th:href="@{/chat/messages-user}" class="chip">
                     메시지 <span th:text="${unreadChatCount} ?: 0">0</span>
                 </a>
                 <a th:href="@{/user/switch-role}" class="chip">

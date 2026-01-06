@@ -8,6 +8,7 @@ import com.finalProject.ali.chat.dto.RoomDTO;
 import com.finalProject.ali.chat.dto.RoomListDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatServiceImpl implements ChatService {
 
     private final RoomDAO roomDAO;
@@ -47,7 +49,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public Long saveChat(Long roomId, String senderId, String message) {
+    public Long saveChat(Long roomId, String senderId, String message, Long productId) {
+
         if (roomId == null) {
             throw new IllegalArgumentException("roomId는 필수입니다.");
         }
@@ -58,23 +61,19 @@ public class ChatServiceImpl implements ChatService {
             throw new IllegalArgumentException("message는 비어있을 수 없습니다.");
         }
 
-        // 방 멤버인지 검증 — 보안/무결성 위해 추천
         if (!isMember(roomId, senderId)) {
             throw new IllegalStateException("해당 유저는 이 채팅방 멤버가 아닙니다.");
         }
 
-        ChatDTO chatDTO = new ChatDTO();
-        chatDTO.setRoomId(roomId);
-        chatDTO.setSenderId(senderId);
-        chatDTO.setMessage(message);
+        Long chatId = chatDAO.saveChat(roomId, senderId, message, productId);
 
-        int result = chatDAO.insertChat(chatDTO);
-        if (result != 1 || chatDTO.getChatId() == null) {
+        if (chatId == null) {
             throw new IllegalStateException("채팅 저장에 실패했습니다.");
         }
 
-        return chatDTO.getChatId();
+        return chatId;
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -132,6 +131,11 @@ public class ChatServiceImpl implements ChatService {
     public Long getOpponentLastReadChatId(Long roomId, String myUserId) {
         Long v = roomMemberDAO.findOpponentLastReadChatId(roomId, myUserId);
         return (v == null ? 0L : v);
+    }
+
+    @Override
+    public Long findRoomIdByTwoMembers(String userA, String userB) {
+        return chatDAO.findRoomIdByTwoMembers(userA, userB);
     }
 
 }

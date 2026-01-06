@@ -35,7 +35,7 @@
 
     <section class="dev-panel">
         <h3>⚙ 개발용: 임시 상품 추가</h3>
-        <input type="text" id="productId" placeholder="productId">
+        <input type="text" id="productName" placeholder="productName">
         <input type="text" id="skuId" placeholder="skuId">
         <input type="number" id="quantity" value="1" min="1">
         <button onclick="addItem()">추가</button>
@@ -45,7 +45,7 @@
 
 <script>
     function loadCart() {
-        fetch('/api/cart')
+        fetch('/api/cart/view')
             .then(res => res.json())
             .then(renderCart);
     }
@@ -64,7 +64,7 @@
             div.className = 'cart-item';
             div.innerHTML = `
                 <div class="cart-info">
-                    <strong>상품 ID: ${item.productId}</strong>
+                    <strong>상품 이름: ${item.productName}</strong>
                     <span>SKU: ${item.skuId}</span>
                     <span>수량: ${item.quantity}</span>
                 </div>

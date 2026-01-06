@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/user/layout/base :: layout(~{::body}, ~{::head/link})">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,7 +17,7 @@
 <div class="layout">
 
   <!-- LEFT: 방 리스트 -->
-  <aside class="sidebar">
+  <aside class="chat-sidebar">
     <div class="sidebar-top">
       <div class="title">Messages</div>
       <input class="search" type="text" placeholder="Search rooms..." />
@@ -69,6 +70,20 @@
       </div>
     </main>
 
+    <!-- (추가) 첨부된 상품 드래프트 카드 -->
+    <div id="productDraft" class="product-draft" style="display:none;">
+      <div class="product-draft__left">
+        <div class="product-draft__title">첨부된 상품</div>
+        <div class="product-draft__img"><img src="" alt="" style="display:none;" /></div>
+        <a id="productDraftLink" class="product-draft__link" href="#" target="_blank" rel="noopener">
+          상품 상세 보기
+        </a>
+      </div>
+
+      <button type="button" id="productDraftRemove" class="product-draft__remove" aria-label="첨부 상품 제거">
+        ✕
+      </button>
+    </div>
     <!-- 입력 영역 -->
     <footer class="chat-input">
       <input id="messageInput" type="text" placeholder="Type your message..." style="flex:1;">
