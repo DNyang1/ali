@@ -82,6 +82,27 @@
         DELETE FROM pw_reset_token WHERE token = #{token}
     </delete>
 
+    <select id="findPendingSuppliers" resultType="com.finalProject.ali.user.dto.SupplierDTO">
+        SELECT * FROM supplier
+        WHERE status = 'PENDING'
+        ORDER BY created_at DESC
+    </select>
+
+    <update id="updateSupplierStatus">
+        UPDATE supplier
+        SET status = #{status}, updated_at = NOW()
+        WHERE supplier_id = #{supplierId}
+    </update>
+
+    <select id="getUserRole" resultType="string">
+        SELECT role FROM users WHERE user_id = #{userId}
+    </select>
+
+    <update id="updateUserRole">
+        UPDATE users
+        SET role = #{role}, updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
 
 
 </mapper>

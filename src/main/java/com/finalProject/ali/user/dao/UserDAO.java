@@ -5,6 +5,7 @@ import com.finalProject.ali.user.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Map;
 
 @Mapper
@@ -35,4 +36,9 @@ public interface UserDAO {
 
     // 비밀번호 변경 완료 후 사용한 토큰은 즉시 삭제합니다.
     void deleteResetToken(@Param("token") String token);
+
+    List<SupplierDTO> findPendingSuppliers();
+    void updateSupplierStatus(@Param("supplierId") String supplierId, @Param("status") String status);
+    String getUserRole(String userId);
+    void updateUserRole(@Param("userId") String userId, @Param("role") String role);
 }

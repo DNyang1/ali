@@ -13,10 +13,10 @@ public class UserDTO {
     private String phone;
     private String birth;
     private String address;
-    private int isLocked;
-    private int loginFailCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     //image
     private String profileImg;
+    //권한
+    private String role;
 }

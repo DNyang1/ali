@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,14 +44,30 @@ public class UserService implements org.springframework.security.core.userdetail
         UserDTO user = userDAO.findByUserId(userId);
 
         if (user == null) {
-            throw new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found: " + userId);
+            throw new org.springframework.security.core.userdetails.UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId);
         }
 
-        // Security가 이해할 수 있는 UserDetails 객체로 변환하여 반환
+        // 1. DB에서 가져온 role 값이 있는지 확인 (예: "ROLE_ADMIN,ROLE_USER" 또는 "ROLE_ADMIN")
+        String rawRole = user.getRole();
+        if (rawRole == null || rawRole.isEmpty()) {
+            rawRole = "ROLE_USER"; // 권한이 없으면 기본 유저 권한 부여
+        }
+
+        // 2. 콤마(,)로 구분된 권한들을 리스트로 변환
+        String[] roles = rawRole.split(",");
+
+        // 3. roles() 대신 authorities()를 사용하여 "ROLE_" 접두사 수동 제어
+        // SimpleGrantedAuthority를 사용하면 DB에 있는 문자열 그대로 권한을 부여합니다.
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUserId())
-                .password(user.getPassword()) // 암호화된 비밀번호
-                .roles("USER") // 권한 설정
+                .password(user.getPassword())
+                .authorities(java.util.Arrays.stream(roles)
+                        .map(role -> {
+                            // ROLE_ 접두사가 없으면 붙여줌
+                            String roleName = role.trim().startsWith("ROLE_") ? role.trim() : "ROLE_" + role.trim();
+                            return new org.springframework.security.core.authority.SimpleGrantedAuthority(roleName);
+                        })
+                        .toList())
                 .build();
     }
     // 로그인 확인
@@ -153,6 +170,28 @@ public class UserService implements org.springframework.security.core.userdetail
         return isUpdated;
     }
 
+    // UserService.java에 추가
+    public List<SupplierDTO> getPendingSuppliers() {
+        // UserDAO를 통해 PENDING 상태인 공급자 리스트 조회
+        return userDAO.findPendingSuppliers();
+    }
 
+    @Transactional
+    public void approveSupplier(String supplierId, String userId) { // 매개변수 이름을 userId로 인지
+        // 1. 상태 업데이트
+        userDAO.updateSupplierStatus(supplierId, "APPROVED");
+
+        // 2. 이메일 대신 ID로 유저 정보를 가져오도록 수정
+        UserDTO user = userDAO.findByUserId(userId);
+        if (user != null) {
+            String currentRole = user.getRole();
+            if (currentRole == null || !currentRole.contains("SUPPLIER")) {
+                // 기존 권한이 null일 경우를 대비해 처리
+                String newRole = (currentRole == null || currentRole.isEmpty()) ? "SUPPLIER" : currentRole + ",SUPPLIER";
+
+                userDAO.updateUserRole(userId, newRole);
+            }
+        }
+    }
 
 }

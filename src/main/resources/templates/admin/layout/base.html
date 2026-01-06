@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content, links)">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${pageTitle} ?: '관리자 페이지'">관리자</title>
+    <link rel="stylesheet" href="/admin/css/adminpage.css"/>
+    <th:block th:if="${links != null}" th:replace="${links}" />
+</head>
+<body>
+<div class="admin-layout">
+    <div th:replace="~{admin/partials/header :: header}"></div>
+
+    <div class="admin-body">
+        <aside class="admin-sidebar-wrapper">
+            <div th:replace="~{admin/partials/sidebar :: sidebar}"></div>
+        </aside>
+
+        <main class="admin-content">
+            <th:block th:replace="${content}" />
+        </main>
+    </div>
+</div>
+</body>
+</html>

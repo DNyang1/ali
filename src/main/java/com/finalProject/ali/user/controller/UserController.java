@@ -78,7 +78,7 @@ public class UserController {
     }
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData, HttpSession session) {
         String userId = loginData.get("userId");
         String password = loginData.get("password");
 
@@ -101,7 +101,11 @@ public class UserController {
             UserDTO user = userService.findByUserId(userId);
             session.setAttribute("loginUser", user);
 
-            return ResponseEntity.ok("success");
+            Map<String, String> response = new java.util.HashMap<>();
+            response.put("status", "success");
+            response.put("role", user.getRole() != null ? user.getRole() : "ROLE_USER");
+
+            return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
             // 인증 실패 시 (아이디 없음, 비밀번호 틀림 등)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");

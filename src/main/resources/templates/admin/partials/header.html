@@ -1,0 +1,14 @@
+<header th:fragment="header" class="topbar">
+    <div class="topbar-left">
+        <a th:href="@{/admin/adminpage}" class="brand">ALI ADMIN</a>
+        <span class="page-title" th:text="${pageTitle} ?: '관리자 홈'">관리자 홈</span>
+    </div>
+
+    <div class="topbar-right">
+        <div th:if="${session.loginUser != null}" class="auth">
+            <span class="role-tag">관리자</span>
+            <span class="username" th:text="${session.loginUser.name}">관리자님</span>
+            <a th:href="@{/user/logout}" class="logout">로그아웃</a>
+        </div>
+    </div>
+</header>
