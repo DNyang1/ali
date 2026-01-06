@@ -2,9 +2,7 @@ package com.finalProject.ali.cart.service;
 
 import com.finalProject.ali.cart.domain.Cart;
 import com.finalProject.ali.cart.domain.CartItem;
-import com.finalProject.ali.cart.dto.AddCartItemRequest;
-import com.finalProject.ali.cart.dto.CartItemResponse;
-import com.finalProject.ali.cart.dto.CartResponse;
+import com.finalProject.ali.cart.dto.*;
 import com.finalProject.ali.cart.mapper.CartItemMapper;
 import com.finalProject.ali.cart.mapper.CartMapper;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +91,22 @@ public class CartServiceImpl implements CartService{
         }
 
         cartItemMapper.deleteById(cartItemId);
+    }
+
+    @Override
+    public CartViewResponse getCartView(String userId) {
+
+        Cart cart = cartMapper.findActiveCart(userId);
+        if (cart == null) {
+            return new CartViewResponse();
+        }
+
+        List<CartItemView> items = cartItemMapper.findCartItemViews(cart.getCartId());
+
+        CartViewResponse response = new CartViewResponse();
+        response.setCartId(cart.getCartId());
+        response.setItems(items);
+        return response;
     }
 
 

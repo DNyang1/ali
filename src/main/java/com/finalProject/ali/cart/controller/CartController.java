@@ -2,6 +2,7 @@ package com.finalProject.ali.cart.controller;
 
 import com.finalProject.ali.cart.dto.AddCartItemRequest;
 import com.finalProject.ali.cart.dto.CartResponse;
+import com.finalProject.ali.cart.dto.CartViewResponse;
 import com.finalProject.ali.cart.service.CartService;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
@@ -35,5 +36,12 @@ public class CartController {
         UserDTO user = (UserDTO) session.getAttribute("loginUser");
         String userId = user.getUserId();
         cartService.deleteItem(userId, cartItemId);
+    }
+
+    @GetMapping("/view")
+    public CartViewResponse getCartView(HttpSession session) {
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
+        return cartService.getCartView(userId);
     }
 }
