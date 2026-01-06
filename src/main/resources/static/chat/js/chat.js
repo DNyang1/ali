@@ -528,38 +528,31 @@ function bindProductDraft() {
         const imgEl = draftEl.querySelector(".product-draft__img img");
         const linkEl = document.getElementById("productDraftLink");
 
-        // 기본 상태(로딩 전)
-        if (titleEl) titleEl.textContent = "첨부된 상품";
-        if (imgEl) {
-            imgEl.style.display = "none";
-            imgEl.src = "/img/no-image.png";
-            imgEl.removeAttribute("src");
-        }
-        if (linkEl) linkEl.textContent = "상품 상세 보기";
-
         try {
             const res = await fetch(`/api/products/${encodeURIComponent(pid)}/summary`);
             if (!res.ok) return;
 
             const s = await res.json();
 
-            // 상품명 표시
+            // 상품명
             if (titleEl && s?.productName) {
                 titleEl.textContent = s.productName;
             }
 
-            // 링크 텍스트도 상품명으로
+            // 링크 텍스트
             if (linkEl) {
                 linkEl.textContent = "상품으로 이동";
+                linkEl.href = `/products/${pid}`;
             }
 
-            // 썸네일 표시
+            // 썸네일
             if (imgEl && s?.thumbnailUrl) {
                 imgEl.src = s.thumbnailUrl;
-                imgEl.alt = s.productName || `상품 ${pid}`;
-                imgEl.style.display = "";
-                imgEl.onerror = () => { imgEl.style.display = "none"; };
+                imgEl.alt = s.productName || "상품 이미지";
+                imgEl.style.display = "block";
+                imgEl.onerror = () => imgEl.style.display = "none";
             }
+
         } catch (e) {
             console.log("[draft summary] fail", e);
         }
