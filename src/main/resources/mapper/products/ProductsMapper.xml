@@ -4,47 +4,102 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.products.dao.ProductsDAO">
-    <select id="productList" resultType="com.finalProject.ali.products.dto.ProductsDTO">
+    <select id="productList"
+            resultType="com.finalProject.ali.products.dto.ProductsDTO">
+
         SELECT
-            product_id,
-            category_id,
-            product_name,
-            description,
-            is_customizable,
-            created_at,
-            updated_at
-        FROM products
-        ORDER BY created_at DESC
+        p.product_id,
+        p.category_id,
+        p.supplier_id,
+        p.product_name,
+        p.description,
+        p.is_customizable,
+        p.created_at,
+        p.updated_at,
+
+        pr.min_price AS minPrice,
+        pr.max_price AS maxPrice
+
+        FROM products p
+
+        LEFT JOIN (
+        SELECT
+        s.product_id,
+        MIN(sp.price) AS min_price,
+        MAX(sp.price) AS max_price
+        FROM sku s
+        JOIN sku_price sp
+        ON sp.sku_id = s.sku_id
+        WHERE s.sku_id = (
+        SELECT MIN(s2.sku_id)
+        FROM sku s2
+        WHERE s2.product_id = s.product_id
+        )
+        GROUP BY s.product_id
+        ) pr
+        ON pr.product_id = p.product_id
+
+        ORDER BY p.created_at DESC
+
     </select>
+
 
     <select id="productDetail"
             parameterType="long"
             resultType="com.finalProject.ali.products.dto.ProductsDTO">
         SELECT
-            product_id,
-            category_id,
-            product_name,
-            description,
-            is_customizable,
-            created_at,
-            updated_at
-        FROM products
-        WHERE product_id = #{productId}
+            p.product_id,
+            p.category_id,
+            p.supplier_id,
+            p.product_name,
+            p.description,
+            p.is_customizable,
+            p.created_at,
+            p.updated_at,
+            s.moq
+        FROM products p
+        LEFT JOIN sku s
+        ON s.sku_id = (
+        SELECT MIN(s2.sku_id)
+        FROM sku s2
+        WHERE s2.product_id = p.product_id
+        )
+
+        WHERE p.product_id = #{productId}
     </select>
+
 
     <select id="selectByCustom"
             resultType="com.finalProject.ali.products.dto.ProductsDTO">
         SELECT
-            product_id,
-            category_id,
-            product_name,
-            description,
-            is_customizable,
-            created_at,
-            updated_at
-        FROM products
-        WHERE is_customizable = #{isCustomizable}
-        ORDER BY created_at DESC
+            p.product_id,
+            p.category_id,
+            p.product_name,
+            p.description,
+            p.is_customizable,
+            p.created_at,
+            p.updated_at,
+            pr.min_price,
+            pr.max_price
+        FROM products p
+        LEFT JOIN (
+        SELECT
+        s.product_id,
+        MIN(CAST(REPLACE(sp.price, ',', '') AS UNSIGNED)) AS min_price,
+        MAX(CAST(REPLACE(sp.price, ',', '') AS UNSIGNED)) AS max_price
+        FROM sku s
+        JOIN sku_price sp
+        ON sp.sku_id = s.sku_id
+        WHERE s.sku_id = (
+        SELECT MIN(s2.sku_id)
+        FROM sku s2
+        WHERE s2.product_id = s.product_id
+        )
+        GROUP BY s.product_id
+        ) pr
+        ON pr.product_id = p.product_id
+        WHERE p.is_customizable = #{isCustomizable}
+        ORDER BY p.created_at DESC
     </select>
 
     <select id="selectByRootCategory"
@@ -96,5 +151,50 @@
         WHERE parent_id IS NULL
         ORDER BY category_id
     </select>
+
+    <select id="searchByKeyword"
+            parameterType="string"
+            resultType="com.finalProject.ali.products.dto.ProductsDTO">
+
+        SELECT
+        p.product_id,
+        p.category_id,
+        p.supplier_id,
+        p.product_name,
+        p.description,
+        p.is_customizable,
+        p.created_at,
+        p.updated_at,
+
+        pr.min_price AS minPrice,
+        pr.max_price AS maxPrice
+
+        FROM products p
+
+        LEFT JOIN (
+        SELECT
+        s.product_id,
+        MIN(sp.price) AS min_price,
+        MAX(sp.price) AS max_price
+        FROM sku s
+        JOIN sku_price sp
+        ON sp.sku_id = s.sku_id
+        WHERE s.sku_id = (
+        SELECT MIN(s2.sku_id)
+        FROM sku s2
+        WHERE s2.product_id = s.product_id
+        )
+        GROUP BY s.product_id
+        ) pr
+        ON pr.product_id = p.product_id
+
+        WHERE p.product_name LIKE CONCAT('%', #{keyword}, '%')
+
+        ORDER BY p.created_at DESC
+
+    </select>
+
+
+
 
 </mapper>

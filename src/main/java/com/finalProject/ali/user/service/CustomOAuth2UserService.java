@@ -25,11 +25,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-
-        // 어떤 소셜 서비스인지 확인 (google, kakao 등)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-
         Map<String, Object> attributes = oAuth2User.getAttributes();
+
         String userId = "";
         String name = "";
         String email = "";
@@ -37,13 +35,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if ("google".equals(registrationId)) {
             userId = "google_" + attributes.get("sub");
             name = (String) attributes.get("name");
-            email = (String) attributes.get("email"); // 구글 이메일
+            email = (String) attributes.get("email");
         } else if ("kakao".equals(registrationId)) {
+            // 1. 고유 ID값 추출 (kakao_12345678)
             userId = "kakao_" + attributes.get("id");
             Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
             name = (String) properties.get("nickname");
             email = userId + "@kakao.com";
-        } else if ("naver".equals(registrationId)) {
+        }else if ("naver".equals(registrationId)) {
             Map<String, Object> response = (Map<String, Object>) attributes.get("response");
             userId = "naver_" + response.get("id");
             name = (String) response.get("name");

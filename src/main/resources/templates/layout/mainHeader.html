@@ -24,10 +24,13 @@
                 <a th:href="@{/chat}" class="chip">
                     메시지 <span th:text="${unreadChatCount} ?: 0">0</span>
                 </a>
+                <a th:href="@{/user/switch-role}" class="chip">
+                    공급자로 전환(임시)
+                </a>
                 <a th:href="@{/mypage/user/dashboard}" class="chip">
                     내 마이페이지
                 </a>
-                <a th:href="@{/user/logout}" class="logout">로그아웃</a>
+                <a th:href="@{/user/logout}" class="logout link">로그아웃</a>
             </div>
 
         </div>

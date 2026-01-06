@@ -3,6 +3,7 @@
  */
 function updateSupplierInfo() {
     const supplierData = {
+        cpNumber: document.getElementById('cpNumber').value,
         cpName: document.getElementById('cpName').value,
         cpPhone: document.getElementById('cpPhone').value,
         cpAddress: document.getElementById('cpAddress').value

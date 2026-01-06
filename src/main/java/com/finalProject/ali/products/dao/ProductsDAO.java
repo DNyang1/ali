@@ -25,5 +25,5 @@ public interface ProductsDAO {
 
     List<CategoryDTO> selectRootCategories();
 
-
+    List<ProductsDTO> searchByKeyword(String keyword);
 }

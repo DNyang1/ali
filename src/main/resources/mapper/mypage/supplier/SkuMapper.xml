@@ -121,5 +121,10 @@
         SET moq = #{moq}
         WHERE sku_id = #{skuId}
     </update>
+    <update id="updateStock">
+        UPDATE sku
+        SET stock_quantity = #{stock}
+        WHERE sku_id = #{skuId}
+    </update>
 
 </mapper>

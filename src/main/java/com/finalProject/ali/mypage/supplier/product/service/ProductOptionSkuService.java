@@ -36,25 +36,6 @@ public class ProductOptionSkuService {
         return optionDAO.findByProductId(productId);
     }
 
-    @Transactional
-    public void addOption(Long productId, String supplierId, OptionDTO form) {
-        ProductDTO product = loadMyProductOrThrow(productId, supplierId);
-
-        String categoryId = product.getCategoryId();
-        String optionName = form.getOptionName();
-        String optionValue = form.getOptionValue();
-
-        String optionId;
-        if (optionDAO.existsProductOption(productId, optionName) > 0) {
-            optionId = optionDAO.findProductOptionId(productId, optionName);
-        } else {
-            optionId = productId + "-" + categoryId + "@" + optionName;
-            optionDAO.insertProductOption(optionId, productId, categoryId, optionName);
-        }
-
-        String optionValueId = optionId + "@" + optionValue;
-        optionDAO.insertProductOptionValue(optionValueId, optionId, optionValue, 0);
-    }
 
     public List<SkuDTO> skus(Long productId, String supplierId) {
         loadMyProductOrThrow(productId, supplierId);
@@ -227,9 +208,18 @@ public class ProductOptionSkuService {
             s.setDisplayStatus(s.getStatus());
         }
     }
+    @Transactional
+    public void updateStock(String skuId, long stock){
+        if(stock < 0){
+            throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
+        }
+        skuDAO.updateStock(skuId, stock);
+    }
 
-
-
+    @Transactional
+    public void updateOptionValue(String optionId, String optionValue){
+        optionDAO.updateOptionValue(optionId, optionValue);
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package com.finalProject.ali.mypage.supplier.product.controller;
 
 import com.finalProject.ali.mypage.supplier.common.controller.BaseSupplierController;
+import com.finalProject.ali.mypage.supplier.product.dao.OptionDAO;
 import com.finalProject.ali.mypage.supplier.product.dao.SkuPriceDAO;
 import com.finalProject.ali.mypage.supplier.product.dao.SupplierDAO;
 import com.finalProject.ali.mypage.supplier.product.dto.OptionDTO;
@@ -51,17 +52,10 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
 
         model.addAttribute("productId", productId);
         model.addAttribute("options", service.options(productId, supplierId()));
-        model.addAttribute("form", new OptionDTO());
 
         return "mypage/supplier/product/option";
     }
 
-    @PostMapping("/mypage/supplier/product/{productId}/option")
-    public String addOption(@PathVariable Long productId,
-                            @ModelAttribute("form") OptionDTO form) {
-        service.addOption(productId, supplierId(), form);
-        return "redirect:/mypage/supplier/product/" + productId + "/option";
-    }
 
     @GetMapping("/mypage/supplier/product/{productId}/sku")
     public String skuPage(@PathVariable Long productId, Model model) {
@@ -178,6 +172,26 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
         skuPriceService.replacePricesAndMoq(skuId, req);
         return "OK";
     }
+    @PostMapping("/mypage/supplier/sku/{skuId}/stock")
+    public String updateStock(@PathVariable String skuId,
+                              @RequestParam long stock,
+                              @RequestParam long productId) {
 
+        if (stock < 0) throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
+        service.updateStock(skuId, stock);
 
+        return "redirect:/mypage/supplier/product/" + productId + "/sku?updated=1";
+    }
+    @PostMapping("/mypage/supplier/product/option/{optionId}/update")
+    public String updateOptionValue(@PathVariable String optionId,
+                                    @RequestParam String optionValue,
+                                    @RequestParam Long productId) {
+
+        if (optionValue == null || optionValue.trim().isEmpty()) {
+            throw new IllegalArgumentException("옵션 값은 비울 수 없습니다.");
+        }
+
+        service.updateOptionValue(optionId, optionValue.trim());
+        return "redirect:/mypage/supplier/product/" + productId + "/option?updated=1";
+    }
 }
