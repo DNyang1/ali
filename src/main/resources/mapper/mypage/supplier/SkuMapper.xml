@@ -84,7 +84,7 @@
         SELECT
             sku_id         AS skuId,
             status         AS status,
-            stock_quantity AS stockQuantity
+            stock_quantity AS stockQuantity,
             moq            AS moq
         FROM sku
         WHERE sku_id = #{skuId}
