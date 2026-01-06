@@ -328,3 +328,29 @@ function buyNow(skuId, quantity) {
         return originalResolveSkuId();
     };
 })();
+
+// 송진영이 추가함
+document.querySelector('.btn.chat')?.addEventListener('click', async (e) => {
+    const productId = e.currentTarget.dataset.productId;
+
+    const res = await fetch('/chat/api/rooms/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+    });
+
+    if (!res.ok) {
+        alert('채팅방 생성 실패');
+        return;
+    }
+
+    const data = await res.json();
+    console.log('startChat response:', data);
+
+    if (!data.roomId) {
+        alert('roomId 없음');
+        return;
+    }
+
+    location.href = `/chat/messages-user?roomId=${data.roomId}&productId=${productId}`;
+});

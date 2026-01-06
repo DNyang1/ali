@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class ChatSendDTO {
-    private Long roomId;
-    private String message;
-    private String senderId;
+public class ProductSummaryDTO {
     private Long productId;
+    private String productName;
+    private String thumbnailUrl; // 지금은 null 가능
 }
+
