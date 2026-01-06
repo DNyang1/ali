@@ -1,5 +1,6 @@
 package com.finalProject.ali.chat.controller;
 
+import com.finalProject.ali.chat.dao.ChatProductSummaryDAO;
 import com.finalProject.ali.chat.dto.ProductSummaryDTO;
 import com.finalProject.ali.products.dto.ProductsDTO;
 import com.finalProject.ali.products.service.ProductService;
@@ -11,27 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-@RestController
 @RequiredArgsConstructor
+@RestController
 @RequestMapping("/api/products")
-public class chatProductApiController {
+public class ChatProductApiController {
 
-    private final ProductService productService;
+    private final ChatProductSummaryDAO chatProductSummaryDAO;
 
     @GetMapping("/{productId}/summary")
-    public ProductSummaryDTO getSummary(@PathVariable Long productId) {
-        ProductsDTO p = productService.productDetail(productId);
-        if (p == null) {
+    public ProductSummaryDTO summary(@PathVariable Long productId) {
+        ProductSummaryDTO dto = chatProductSummaryDAO.findProductSummary(productId);
+        if (dto == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-
-        ProductSummaryDTO dto = new ProductSummaryDTO();
-        dto.setProductId(p.getProductId());
-        dto.setProductName(p.getProductName());
-
-        // 이미지 구조 아직 없으면 null
-        dto.setThumbnailUrl(null);
-
         return dto;
     }
 }
