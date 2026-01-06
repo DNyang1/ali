@@ -11,6 +11,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.finalProject.ali.mypage.supplier.image.dao.ProductImageDAO;
+import com.finalProject.ali.mypage.supplier.image.dto.ProductImageDTO;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class SupplierProductController extends BaseSupplierController {
     private final SupplierProductService supplierProductService;
     private final SupplierCategoryDAO categoryDAO;
     private final SupplierDAO supplierDAO;
+    private final ProductImageDAO productImageDAO;
 
     private String supplierId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -74,6 +78,7 @@ public class SupplierProductController extends BaseSupplierController {
             }
 
         model.addAttribute("product", product);
+        addProductImages(id, model);
         return "mypage/supplier/product/detail";
     }
 
@@ -85,7 +90,7 @@ public class SupplierProductController extends BaseSupplierController {
 
         ProductDTO form = supplierProductService.get(id, supplierId());
         model.addAttribute("form", form);
-
+        addProductImages(id, model);
         model.addAttribute("rootCategories", categoryDAO.findRoot());
 
         if (form.getCategoryId() != null && !form.getCategoryId().isBlank()) {
@@ -124,4 +129,14 @@ public class SupplierProductController extends BaseSupplierController {
         supplierProductService.toggleStatus(id, supplierId());
         return "redirect:/mypage/supplier/product";
     }
+
+    private void addProductImages(Long productId, Model model) {
+        ProductImageDTO thumb = productImageDAO.findThumb(productId);
+        model.addAttribute("thumbImagePath", thumb != null ? thumb.getImagePath() : null);
+
+        List<ProductImageDTO> details = productImageDAO.findByType(productId, "DETAIL");
+        model.addAttribute("detailImages", details);
+    }
+
+
 }

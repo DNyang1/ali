@@ -44,6 +44,28 @@
     <div class="panel-body">
       <p><b>ID</b> : <span th:text="${product.productId}">1</span></p>
       <p><b>카테고리 ID</b> : <span th:text="${product.categoryId}">CAT-001</span></p>
+      <hr style="margin:16px 0;">
+
+      <div class="image-section">
+        <h3>이미지</h3>
+
+        <div style="margin-bottom:16px;">
+          <p><b>대표 이미지</b></p>
+          <img th:if="${thumbImagePath != null}"
+               th:src="${thumbImagePath}"
+               style="width:220px; height:220px; object-fit:cover; border:1px solid #ddd; border-radius:8px;">
+        </div>
+
+        <div>
+          <p><b>상세 이미지</b></p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <img th:each="img : ${detailImages}"
+                 th:src="${img.imagePath}"
+                 style="width:140px; height:140px; object-fit:cover; border:1px solid #ddd; border-radius:8px;">
+          </div>
+        </div>
+      </div>
+
       <p><b>상품명</b> : <span th:text="${product.productName}">상품명</span></p>
       <p>
         <b>커스터마이즈</b> :
