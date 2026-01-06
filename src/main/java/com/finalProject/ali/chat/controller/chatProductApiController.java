@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/products")
-public class ProductApiController {
+public class chatProductApiController {
 
     private final ProductService productService;
 
