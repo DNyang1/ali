@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (type === 'ORDER') {
-            alert('주문 플로우는 다음 단계에서 구현');
+            buyNow(skuId, quantity);
         }
     }
 
@@ -226,17 +226,17 @@ function findUnitPriceByQty(priceRules, qty) {
     return 0;
 }
 function resolveSkuId() {
-    console.log('[DEBUG] SKUS =', SKUS);
-    console.log('[DEBUG] SKUS[0] =', SKUS[0]);
-    console.log('[DEBUG] typeof SKUS[0] =', typeof SKUS[0]);
     const selectedValueIds = Object.values(selectedOptions);
+
+    if (selectedValueIds.length === 0) return null;
 
     for (const sku of PARSED_SKUS) {
         const skuOptionIds = sku.optionValueIds || [];
 
-        const matched =
-            skuOptionIds.length === selectedValueIds.length &&
-            selectedValueIds.every(id => skuOptionIds.includes(id));
+        // ✅ 핵심 수정 포인트
+        const matched = skuOptionIds.every(id =>
+            selectedValueIds.includes(id)
+        );
 
         if (matched) {
             return sku.skuId;
@@ -245,7 +245,7 @@ function resolveSkuId() {
     return null;
 }
 function addToCart(skuId, quantity) {
-    fetch('/cart/items', {
+    fetch('/api/cart/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -262,3 +262,69 @@ function addToCart(skuId, quantity) {
             closeModal();
         });
 }
+function buyNow(skuId, quantity) {
+    fetch('/api/orders/preview/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            productId: PRODUCT_ID,
+            skuId: skuId,
+            quantity: quantity
+        })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error('바로 주문 미리보기 실패');
+        })
+        .then(() => {
+            location.href = '/orders/checkout';
+        });
+}
+
+
+/* ======================================================
+   🔧 DEV ONLY : SKU 직접 선택 블록 (ORDER / CART 공통)
+   ====================================================== */
+(function () {
+    // 로컬에서만 쓰고 싶으면 주석 해제
+    // if (location.hostname !== 'localhost') return;
+
+    // 🔥 전역에 명시적으로 고정
+    window.__DEV_FORCED_SKU_ID__ = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!Array.isArray(PARSED_SKUS) || PARSED_SKUS.length === 0) return;
+
+        const select = document.createElement('select');
+        select.style.cssText =
+            'width:100%;margin-top:12px;padding:6px;font-size:13px;';
+
+        select.innerHTML = '<option value="">[DEV] SKU 직접 선택 (장바구니/주문 공통)</option>';
+
+        PARSED_SKUS.forEach(sku => {
+            const opt = document.createElement('option');
+            opt.value = sku.skuId;
+            opt.textContent = `${sku.skuId} | ${sku.optionValueIds?.join(', ')}`;
+            select.appendChild(opt);
+        });
+
+        select.addEventListener('change', e => {
+            window.__DEV_FORCED_SKU_ID__ = e.target.value || null;
+            console.log('🔧 [DEV] __DEV_FORCED_SKU_ID__ =', window.__DEV_FORCED_SKU_ID__);
+        });
+
+        document.body.appendChild(select);
+    });
+
+    // 🔥 resolveSkuId를 안전하게 후킹
+    const originalResolveSkuId = window.resolveSkuId;
+
+    window.resolveSkuId = function () {
+        // ✅ 1순위: DEV 강제 SKU (ORDER / CART 공통)
+        if (window.__DEV_FORCED_SKU_ID__) {
+            return window.__DEV_FORCED_SKU_ID__;
+        }
+
+        // ✅ 2순위: 기존 옵션 기반 로직
+        return originalResolveSkuId();
+    };
+})();
