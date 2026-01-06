@@ -10,8 +10,7 @@
 <body>
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
-<h2 class="page-title">전체 상품</h2>
-
+<h2 th:text="${pageTitle}">전체 상품</h2>
 <div class="category-tabs">
 
     <a th:href="@{/products/list(custom=${custom})}"
