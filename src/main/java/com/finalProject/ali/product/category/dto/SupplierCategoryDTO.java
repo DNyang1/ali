@@ -1,7 +1,8 @@
-package com.finalProject.ali.mypage.supplier.category.dto;
+package com.finalProject.ali.product.category.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDate;
 
 @Getter @Setter

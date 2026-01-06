@@ -1,6 +1,6 @@
-package com.finalProject.ali.mypage.supplier.category.dao;
+package com.finalProject.ali.product.category.dao;
 
-import com.finalProject.ali.mypage.supplier.category.dto.SupplierCategoryDTO;
+import com.finalProject.ali.product.category.dto.SupplierCategoryDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
