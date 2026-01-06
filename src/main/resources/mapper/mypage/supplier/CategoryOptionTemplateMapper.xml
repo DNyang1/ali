@@ -3,10 +3,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.CategoryOptionTemplateDAO">
+<mapper namespace="com.finalProject.ali.product.dao.CategoryOptionTemplateDAO">
 
     <select id="findTemplatesByCategoryIds"
-            resultType="com.finalProject.ali.mypage.supplier.product.dao.CategoryOptionTemplateDAO$TemplateRow">
+            resultType="com.finalProject.ali.product.dao.CategoryOptionTemplateDAO$TemplateRow">
         SELECT
         template_id AS templateId,
         category_id AS categoryId,
@@ -27,7 +27,7 @@
     </select>
 
     <select id="findTemplateValueRows"
-            resultType="com.finalProject.ali.mypage.supplier.product.dao.CategoryOptionTemplateDAO$TemplateValueRow">
+            resultType="com.finalProject.ali.product.dao.CategoryOptionTemplateDAO$TemplateValueRow">
         SELECT
             option_value AS optionValue,
             sort_order   AS sortOrder

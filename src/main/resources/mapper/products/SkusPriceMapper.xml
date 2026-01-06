@@ -3,12 +3,12 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.products.dao.SkusPriceDAO">
+<mapper namespace="com.finalProject.ali.product.dao.SkuPriceDAO">
 
     <!-- 상품의 모든 SKU에 대한 구간 가격(한 번에) -->
     <select id="findPriceRulesByProductId"
             parameterType="long"
-            resultType="com.finalProject.ali.products.dto.SkusPriceDTO">
+            resultType="com.finalProject.ali.product.dto.SkuPriceDTO">
         SELECT
             sp.sku_price_id AS skuPriceId,
             sp.sku_id       AS skuId,
@@ -24,7 +24,7 @@
     <!-- (옵션) 단일 SKU -->
     <select id="findPriceRulesBySkuId"
             parameterType="string"
-            resultType="com.finalProject.ali.products.dto.SkusPriceDTO">
+            resultType="com.finalProject.ali.product.dto.SkuPriceDTO">
         SELECT
             sku_price_id AS skuPriceId,
             sku_id       AS skuId,

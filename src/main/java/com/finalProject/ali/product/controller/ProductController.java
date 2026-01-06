@@ -1,0 +1,125 @@
+package com.finalProject.ali.product.controller;
+
+import com.finalProject.ali.product.dto.OptionDTO;
+import com.finalProject.ali.product.dto.ProductDTO;
+import com.finalProject.ali.product.dto.SkuDTO;
+import com.finalProject.ali.product.dto.SkuPriceDTO;
+import com.finalProject.ali.product.service.OptionService;
+import com.finalProject.ali.product.service.ProductService;
+import com.finalProject.ali.product.service.SkuService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
+import java.util.Map;
+
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/products")
+public class ProductController {
+
+    private final ProductService productService;
+    private final OptionService optionService;
+    private final SkuService skuService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @GetMapping
+    public String productsRoot() {
+        return "redirect:/products/list";
+    }
+
+    @GetMapping("/list")
+    public String productsList(
+            @RequestParam(required = false) Boolean custom,
+            @RequestParam(required = false) String category,
+            Model model) {
+
+        List<ProductDTO> products;
+        String pageTitle = "전체 상품";
+
+        if (category != null) {
+            products = productService.getProductsByRootCategory(category);
+            pageTitle = "카테고리 상품";
+
+        } else if (Boolean.TRUE.equals(custom)) {
+            products = productService.getProductsByCustom(true);
+            pageTitle = "커스텀 상품";
+
+        } else if (Boolean.FALSE.equals(custom)) {
+            products = productService.getProductsByCustom(false);
+            pageTitle = "Ali 상품";
+
+        } else {
+            products = productService.productList();
+        }
+
+        model.addAttribute("products", products);
+        model.addAttribute("categories", productService.getRootCategories());
+        model.addAttribute("custom", custom);
+        model.addAttribute("category", category);
+        model.addAttribute("pageTitle", pageTitle);
+
+        return "products/products_list";
+    }
+
+
+
+
+
+    @GetMapping("/{productId}")
+    public String productsDetail(@PathVariable Long productId, Model model) throws Exception {
+
+        ProductDTO product = productService.productDetail(productId);
+
+        Map<String, List<OptionDTO>> options =
+                optionService.getGroupOptions(productId);
+
+        List<SkuDTO> skus =
+                skuService.getSkuWithPrices(productId);
+
+        List<SkuPriceDTO> defaultPriceRules =
+                (!skus.isEmpty() && skus.get(0).getPriceRules() != null)
+                        ? skus.get(0).getPriceRules()
+                        : List.of();
+
+        model.addAttribute("product", product);
+        model.addAttribute("options", options);
+        model.addAttribute(
+                "requiredOptionCount",
+                options == null ? 0 : options.size()
+        );
+
+        model.addAttribute(
+                "skusJson",
+                objectMapper.writeValueAsString(skus)
+        );
+
+        model.addAttribute(
+                "defaultPriceRulesJson",
+                objectMapper.writeValueAsString(defaultPriceRules)
+        );
+
+        return "products/products_detail";
+    }
+
+    @GetMapping("/search")
+    public String search(
+            @RequestParam String keyword,
+            Model model
+    ) {
+        List<ProductDTO> products = productService.searchProducts(keyword);
+
+        model.addAttribute("products", products);
+        model.addAttribute("keyword", keyword);
+
+        return "products/products_search";
+    }
+
+}

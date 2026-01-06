@@ -3,11 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.products.dao.SkusDAO">
+<mapper namespace="com.finalProject.ali.product.dao.SkuDAO">
     <!-- SKU + 옵션값 조합(행 단위) -->
     <select id="findSkuRowsByProductId"
             parameterType="long"
-            resultType="com.finalProject.ali.products.dto.SkuRowDTO">
+            resultType="com.finalProject.ali.product.dto.SkuRowDTO">
         SELECT
             s.sku_id           AS skuId,
             s.product_id       AS productId,

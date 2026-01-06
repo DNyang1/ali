@@ -13,7 +13,7 @@
     }
 
     async function loadChildren(parentId, target, placeholder) {
-        const res = await fetch(`/mypage/supplier/category/children?parentId=${encodeURIComponent(parentId)}`);
+        const res = await fetch(`/api/categories/children?parentId=${encodeURIComponent(parentId)}`);
         if (!res.ok) throw new Error('카테고리 조회 실패');
         const data = await res.json();
 

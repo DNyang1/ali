@@ -3,10 +3,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.ProductDAO">
+<mapper namespace="com.finalProject.ali.product.dao.ProductDAO">
 
     <select id="findBySupplierId"
-            resultType="com.finalProject.ali.mypage.supplier.product.dto.ProductDTO">
+            resultType="com.finalProject.ali.product.dto.ProductDTO">
         SELECT
             product_id      AS productId,
             category_id     AS categoryId,
@@ -43,7 +43,7 @@
     </insert>
 
     <select id="findById"
-            resultType="com.finalProject.ali.mypage.supplier.product.dto.ProductDTO">
+            resultType="com.finalProject.ali.product.dto.ProductDTO">
         SELECT
             product_id      AS productId,
             category_id     AS categoryId,

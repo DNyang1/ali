@@ -1,15 +1,14 @@
 package com.finalProject.ali.mypage.supplier.product.controller;
 
 import com.finalProject.ali.mypage.supplier.common.controller.BaseSupplierController;
-import com.finalProject.ali.mypage.supplier.product.dao.OptionDAO;
-import com.finalProject.ali.mypage.supplier.product.dao.SkuPriceDAO;
-import com.finalProject.ali.mypage.supplier.product.dao.SupplierDAO;
-import com.finalProject.ali.mypage.supplier.product.dto.OptionDTO;
-import com.finalProject.ali.mypage.supplier.product.dto.SkuForm;
-import com.finalProject.ali.mypage.supplier.product.dto.SkuPriceDTO;
-import com.finalProject.ali.mypage.supplier.product.dto.SkuPriceRequestDTO;
-import com.finalProject.ali.mypage.supplier.product.service.ProductOptionSkuService;
-import com.finalProject.ali.mypage.supplier.product.service.SkuPriceService;
+import com.finalProject.ali.product.dao.SkuPriceDAO;
+import com.finalProject.ali.product.dao.SupplierDAO;
+import com.finalProject.ali.product.dto.OptionDTO;
+import com.finalProject.ali.product.dto.SkuForm;
+import com.finalProject.ali.product.dto.SkuPriceDTO;
+import com.finalProject.ali.product.dto.SkuPriceRequestDTO;
+import com.finalProject.ali.product.service.ProductOptionSkuService;
+import com.finalProject.ali.product.service.SkuPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
