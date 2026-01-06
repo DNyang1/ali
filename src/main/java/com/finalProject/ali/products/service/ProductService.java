@@ -45,4 +45,8 @@ public class ProductService {
         return productDAO.searchByKeyword(keyword);
     }
 
+    public List<ProductsDTO> getProductsByCategory(String categoryId) {
+        return productDAO.findByCategoryId(categoryId);
+    }
+
 }

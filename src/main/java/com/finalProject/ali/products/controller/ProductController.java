@@ -39,30 +39,34 @@ public class ProductController {
             Model model) {
 
         List<ProductsDTO> products;
+        String pageTitle = "전체 상품";
 
-        if (category != null && custom != null) {
-            products = productService.getProductsByCategoryAndCustom(category, custom);
-
-        } else if (category != null) {
+        if (category != null) {
             products = productService.getProductsByRootCategory(category);
+            pageTitle = "카테고리 상품";
 
-        } else if (custom != null) {
-            products = productService.getProductsByCustom(custom);
+        } else if (Boolean.TRUE.equals(custom)) {
+            products = productService.getProductsByCustom(true);
+            pageTitle = "커스텀 상품";
+
+        } else if (Boolean.FALSE.equals(custom)) {
+            products = productService.getProductsByCustom(false);
+            pageTitle = "Ali 상품";
 
         } else {
             products = productService.productList();
         }
 
-        List<CategoryDTO> categories = productService.getRootCategories();
-
-
         model.addAttribute("products", products);
-        model.addAttribute("categories", categories);
+        model.addAttribute("categories", productService.getRootCategories());
         model.addAttribute("custom", custom);
         model.addAttribute("category", category);
+        model.addAttribute("pageTitle", pageTitle);
 
         return "products/products_list";
     }
+
+
 
 
 
