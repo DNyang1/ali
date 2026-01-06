@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.mypage.supplier.image.dao.ProductImageDAO">
+
+    <select id="findThumb" resultType="com.finalProject.ali.mypage.supplier.image.dto.ProductImageDTO">
+        SELECT image_id AS imageId,
+               product_id AS productId,
+               image_type AS imageType,
+               image_path AS imagePath,
+               sort_order AS sortOrder,
+               created_at AS createdAt
+        FROM product_image
+        WHERE product_id = #{productId}
+          AND image_type = 'THUMB'
+        ORDER BY created_at DESC
+            LIMIT 1
+    </select>
+
+    <select id="findByType" resultType="com.finalProject.ali.mypage.supplier.image.dto.ProductImageDTO">
+        SELECT image_id AS imageId,
+               product_id AS productId,
+               image_type AS imageType,
+               image_path AS imagePath,
+               sort_order AS sortOrder,
+               created_at AS createdAt
+        FROM product_image
+        WHERE product_id = #{productId}
+          AND image_type = #{imageType}
+        ORDER BY sort_order ASC, image_id ASC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO product_image (product_id, image_type, image_path, sort_order)
+        VALUES (#{productId}, #{imageType}, #{imagePath}, #{sortOrder})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM product_image WHERE image_id = #{imageId}
+    </delete>
+
+    <select id="nextSort" resultType="int">
+        SELECT COALESCE(MAX(sort_order) + 1, 0)
+        FROM product_image
+        WHERE product_id = #{productId}
+          AND image_type = #{imageType}
+    </select>
+
+    <select id="findById" resultType="com.finalProject.ali.mypage.supplier.image.dto.ProductImageDTO">
+        SELECT image_id AS imageId,
+               product_id AS productId,
+               image_type AS imageType,
+               image_path AS imagePath,
+               sort_order AS sortOrder,
+               created_at AS createdAt
+        FROM product_image
+        WHERE image_id = #{imageId}
+    </select>
+
+
+
+
+
+</mapper>
