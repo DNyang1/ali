@@ -16,4 +16,15 @@
         WHERE order_id = #{orderId}
     </update>
 
+    <select id="findById"
+            parameterType="long"
+            resultType="com.finalProject.ali.order.domain.Order">
+        SELECT
+        order_id,
+        user_id,
+        total_amount,
+        status
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
 </mapper>

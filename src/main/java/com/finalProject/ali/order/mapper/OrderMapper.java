@@ -9,4 +9,5 @@ public interface OrderMapper {
     int insert(Order order);
     int updateTotalAmount(@Param("orderId") Long orderId,
                           @Param("totalAmount") Long totalAmount);
+    Order findById(Long orderId);
 }
