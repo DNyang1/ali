@@ -144,7 +144,7 @@
        주문 미리보기
        ======================= */
     function loadPreview() {
-        fetch('/api/orders/preview/current')
+        fetch('/api/order/preview/current')
             .then(res => res.json())
             .then(renderPreview);
     }
@@ -235,7 +235,7 @@
 
         try {
             // 1️⃣ 주문 생성
-            const orderRes = await fetch('/api/orders', {
+            const orderRes = await fetch('/api/order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -278,7 +278,7 @@
                     '결제 성공!\n' +
                     '주문번호: ' + orderData.orderId
                 );
-                location.href = '/orders/complete';
+                location.href = `/order/complete?orderId=${orderData.orderId}`;
             } else {
                 alert(
                     '결제 실패\n' +
