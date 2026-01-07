@@ -70,6 +70,8 @@
                     <span>SKU: ${item.skuId}</span>
                     <span>옵션: ${item.optionSummary ?? '-'}</span>
                     <span>수량: ${item.quantity}</span>
+                    <span>가격: ${item.unitPrice}</span>
+                    <span>가격: ${item.lineAmount}</span>
                 </div>
                 <div class="cart-actions">
                     <button onclick="deleteItem('${item.cartItemId}')">삭제</button>

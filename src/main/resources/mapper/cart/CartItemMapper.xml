@@ -36,7 +36,7 @@
     </delete>
 
     <select id="findCartItemViews"
-            resultType="com.finalProject.ali.cart.dto.CartItemView">
+            resultType="com.finalProject.ali.cart.dto.CartItemViewResponse">
         SELECT
             ci.cart_item_id,
             ci.product_id,

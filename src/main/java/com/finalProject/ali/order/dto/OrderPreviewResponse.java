@@ -1,4 +1,4 @@
-package com.finalProject.ali.order.domain;
+package com.finalProject.ali.order.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

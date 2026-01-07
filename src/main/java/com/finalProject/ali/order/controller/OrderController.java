@@ -1,6 +1,6 @@
 package com.finalProject.ali.order.controller;
 
-import com.finalProject.ali.order.domain.OrderPreviewResponse;
+import com.finalProject.ali.order.dto.OrderPreviewResponse;
 import com.finalProject.ali.order.dto.DirectOrderRequest;
 import com.finalProject.ali.order.dto.OrderCreateRequest;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
