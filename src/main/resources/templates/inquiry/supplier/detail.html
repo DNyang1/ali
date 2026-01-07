@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{::links})">
+
+<head>
+    <th:block th:fragment="links"></th:block>
+    <title>inquiry</title>
+</head>
+
+<body>
+    <th:block th:fragment="content">
+
+        <div th:replace="inquiry/_detail :: inquiryDetail(${inquiry})"></div>
+
+        <hr style="margin:16px 0;" />
+
+        <div style="display:flex; gap:10px;">
+            <form th:action="@{/inquiry/supplier/{id}/status(id=${inquiry.inquiryId})}" method="post">
+                <input type="hidden" name="status" value="1"/>
+                <button type="submit">완료</button>
+            </form>
+
+            <form th:action="@{/inquiry/supplier/{id}/status(id=${inquiry.inquiryId})}" method="post">
+                <input type="hidden" name="status" value="2"/>
+                <button type="submit">반려</button>
+            </form>
+        </div>
+
+    </th:block>
+</body>
+</html>
