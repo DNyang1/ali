@@ -35,7 +35,6 @@ public class OrderServiceImpl implements OrderService{
         order.setUserId(userId);
         order.setTotalAmount(0L);
         orderMapper.insert(order);
-
         long total = 0L;
 
         for (CartItemResponse ci : cart.getItems()) {
