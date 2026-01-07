@@ -263,7 +263,7 @@ function addToCart(skuId, quantity) {
         });
 }
 function buyNow(skuId, quantity) {
-    fetch('/api/orders/preview/direct', {
+    fetch('/api/order/preview/direct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -276,7 +276,7 @@ function buyNow(skuId, quantity) {
             if (!res.ok) throw new Error('바로 주문 미리보기 실패');
         })
         .then(() => {
-            location.href = '/orders/checkout';
+            location.href = '/order/checkout';
         });
 }
 

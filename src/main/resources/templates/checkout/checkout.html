@@ -144,7 +144,7 @@
        주문 미리보기
        ======================= */
     function loadPreview() {
-        fetch('/api/orders/preview/current')
+        fetch('/api/order/preview/current')
             .then(res => res.json())
             .then(renderPreview);
     }
@@ -227,18 +227,69 @@
     /* =======================
        주문 생성
        ======================= */
-    function order() {
+    async function order() {
         if (!selectedAddressId) {
             alert('배송지를 선택해주세요.');
             return;
         }
 
-        fetch('/api/orders', { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                alert('주문 완료! 주문번호: ' + data.orderId);
-                location.href = '/orders/complete';
+        try {
+            // 1️⃣ 주문 생성
+            const orderRes = await fetch('/api/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    addressId: selectedAddressId
+                })
             });
+
+            if (!orderRes.ok) {
+                throw new Error('주문 생성 실패');
+            }
+
+            const orderData = await orderRes.json();
+
+            // ✅ 개발 단계: 주문 생성 알림 유지
+            alert('주문 생성 완료!\n주문번호: ' + orderData.orderId);
+
+            // 2️⃣ 결제 시도 (Mock 결제)
+            const paymentRes = await fetch('/api/payments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    orderId: orderData.orderId,
+                    method: 'MOCK'   // 나중에 CARD / BANK 로 확장 가능
+                })
+            });
+
+            if (!paymentRes.ok) {
+                throw new Error('결제 요청 실패');
+            }
+
+            const paymentData = await paymentRes.json();
+
+            // 3️⃣ 결제 결과 분기
+            if (paymentData.status === 'SUCCESS') {
+                alert(
+                    '결제 성공!\n' +
+                    '주문번호: ' + orderData.orderId
+                );
+                location.href = `/order/complete?orderId=${orderData.orderId}`;
+            } else {
+                alert(
+                    '결제 실패\n' +
+                    '다시 시도해주세요.'
+                );
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert('주문/결제 처리 중 오류가 발생했습니다.');
+        }
     }
 
     /* 초기 로딩 */
