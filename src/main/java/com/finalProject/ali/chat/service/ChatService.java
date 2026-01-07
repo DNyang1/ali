@@ -13,7 +13,7 @@ public interface ChatService {
     Long createRoom(List<String> userIds);
 
     // 채팅 메시지 저장
-    Long saveChat(Long roomId, String senderId, String message);
+    Long saveChat(Long roomId, String senderId, String message, Long productId);
 
     // 방별 채팅 내역 조회
     List<ChatDTO> getChatsByRoomId(Long roomId);
@@ -28,5 +28,7 @@ public interface ChatService {
     List<ChatDTO> getChatsForRoomWithReadStatus(Long roomId, String userId);
 
     Long getOpponentLastReadChatId(Long roomId, String myUserId);
+
+    Long findRoomIdByTwoMembers(String userA, String userB);
 
 }

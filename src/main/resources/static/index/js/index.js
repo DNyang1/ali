@@ -36,6 +36,8 @@ fetch('/api/categories/main')
             const li2 = document.createElement('li');
             li2.className = 'category-item';
             li2.innerHTML = html;
+            li2.dataset.categoryId = c.categoryId;
+            li2.dataset.categoryName = c.categoryName;
             allCategoryList.appendChild(li2);
         });
     })
@@ -93,5 +95,105 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
+const allCategoryGrid = document.getElementById('allCategoryGrid');
+const allCategoryTitle = document.getElementById('allCategoryTitle');
+
+allCategoryList.addEventListener('click', async (e) => {
+    const item = e.target.closest('.category-item');
+    if (!item) return;
+
+    const categoryId = item.dataset.categoryId;
+    const categoryName = item.dataset.categoryName;
+
+    allCategoryTitle.textContent = categoryName;
+    allCategoryGrid.innerHTML = '<p>로딩중...</p>';
+
+    try {
+        const res = await fetch(`/api/categories/children?parentId=${categoryId}`);
+        const children = await res.json();
+
+        if (Array.isArray(children) && children.length > 0) {
+            renderSubCategories(children);
+        }
+        else {
+            fetchProducts(categoryId);
+        }
+
+    } catch (err) {
+        console.error(err);
+        allCategoryGrid.innerHTML = '<p>불러오지 못했습니다.</p>';
+    }
+});
+
+function renderSubCategories(categories) {
+    allCategoryGrid.innerHTML = categories.map(c => `
+        <div class="category-preview-item"
+             data-category-id="${c.categoryId}"
+             data-category-name="${c.categoryName}">
+            <div class="category-preview-thumb circle">
+                ${c.categoryName[0]}
+            </div>
+            <div class="category-preview-name">
+                ${c.categoryName}
+            </div>
+        </div>
+    `).join('');
+
+    allCategoryGrid.querySelectorAll('.category-preview-item').forEach(item => {
+        item.addEventListener('click', () => {
+            onCategoryClick(
+                item.dataset.categoryId,
+                item.dataset.categoryName
+            );
+        });
+    });
+}
+
+function onCategoryClick(categoryId, categoryName) {
+    allCategoryTitle.textContent = categoryName;
+    allCategoryGrid.innerHTML = '<p>로딩중...</p>';
+
+    fetch(`/api/categories/children?parentId=${categoryId}`)
+        .then(res => res.json())
+        .then(children => {
+            if (children.length > 0) {
+                renderSubCategories(children);
+            } else {
+                fetchProducts(categoryId);
+            }
+        });
+}
+
+async function fetchProducts(categoryId) {
+    try {
+        const res = await fetch(`/api/products/preview?categoryId=${categoryId}`);
+        const products = await res.json();
+        renderCategoryPreview(products);
+    } catch (e) {
+        console.error(e);
+        allCategoryGrid.innerHTML = '<p>상품을 불러오지 못했습니다.</p>';
+    }
+}
+
+function renderCategoryPreview(products) {
+    if (!Array.isArray(products) || products.length === 0) {
+        allCategoryGrid.innerHTML = '<p>상품이 없습니다.</p>';
+        return;
+    }
+
+    allCategoryGrid.innerHTML = products.map(p => `
+        <div class="category-preview-item"
+             onclick="location.href='/products/${p.productId}'">
+            <div class="category-preview-thumb">
+                <img src="${p.imageUrl || '/images/no-image.png'}"
+                     alt="${p.productName}">
+            </div>
+            <div class="category-preview-name">
+                ${p.productName}
+            </div>
+        </div>
+    `).join('');
+}
 
 

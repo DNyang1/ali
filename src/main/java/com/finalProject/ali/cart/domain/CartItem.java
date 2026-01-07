@@ -11,4 +11,5 @@ public class CartItem {
     private Long productId;
     private String skuId;
     private Long quantity;
+
 }

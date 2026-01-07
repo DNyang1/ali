@@ -28,12 +28,12 @@ public class ChatController {
 
         if (req.getRoomId() == null) return;
         if (req.getSenderId() == null || req.getSenderId().isBlank()) return;
-        if (req.getMessage() == null || req.getMessage().isBlank()) return;
+        if ((req.getMessage() == null || req.getMessage().isBlank()) && req.getProductId() == null) return;
 
         // 방 멤버 검증
         if (!chatService.isMember(req.getRoomId(), req.getSenderId())) return;
 
-        Long chatId = chatService.saveChat(req.getRoomId(), req.getSenderId(), req.getMessage());
+        Long chatId = chatService.saveChat(req.getRoomId(), req.getSenderId(), req.getMessage(), req.getProductId());
         log.info("DB saved chatId={}", chatId);
 
         ChatDTO payload = new ChatDTO();
@@ -41,10 +41,13 @@ public class ChatController {
         payload.setRoomId(req.getRoomId());
         payload.setSenderId(req.getSenderId());
         payload.setMessage(req.getMessage());
+        payload.setProductId(req.getProductId());
         payload.setChatAt(LocalDateTime.now());
 
         messagingTemplate.convertAndSend("/topic/rooms/" + req.getRoomId(), payload);
-        log.info("WS sent => /topic/rooms/{}", req.getRoomId());
+//        log.info("WS sent => /topic/rooms/{}", req.getRoomId());
+        log.info("WS recv productId => {}", req.getProductId());
+
     }
 
 }

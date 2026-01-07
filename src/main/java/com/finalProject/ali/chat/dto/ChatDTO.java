@@ -13,4 +13,5 @@ public class ChatDTO {
     private String message;
     private LocalDateTime chatAt;
     private Boolean readByOpponent; // 내가 보낸 메시지를 상대가 읽었는지
+    private Long productId;
 }

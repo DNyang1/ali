@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/user/layout/base :: layout(~{::body}, ~{::head/link})">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Messages</title>
+  <link rel="stylesheet" href="/chat/css/chat.css"/>
+</head>
+
+<body>
+
+<!-- 서버에서 내려주는 값들 -->
+<input type="hidden" id="currentUserId" th:value="${currentUserId}">
+<input type="hidden" id="currentRoomId" th:value="${currentRoomId}">
+
+<div class="layout">
+
+  <!-- LEFT: 방 리스트 -->
+  <aside class="chat-sidebar">
+    <div class="sidebar-top">
+      <div class="title">Messages</div>
+      <input class="search" type="text" placeholder="Search rooms..." />
+    </div>
+
+    <div class="room-list" id="roomList">
+      <!-- rooms: List<RoomViewDTO> 같은 걸로 내려주면 좋음 -->
+      <div class="room-item"
+           th:each="r : ${rooms}" th:classappend="${r.roomId} == ${currentRoomId} ? ' active' : ''" th:attr="data-room-id=${r.roomId}">
+        <div class="room-title">
+          <span th:text="'Room #' + ${r.roomId}">Room</span>
+
+          <!-- unread badge -->
+          <span class="badge" th:if="${r.unreadCount != null and r.unreadCount > 0}" th:text="${r.unreadCount}">0</span>
+        </div>
+
+        <div class="room-sub" th:text="${r.lastMessage} ?: '메시지가 없습니다.'">last</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT: 채팅 화면 -->
+  <section class="content">
+
+    <header class="chat-header">
+      <div>
+        <div class="chat-title" th:text="${currentRoomTitle}">Room</div>
+        <div class="chat-sub" th:text="${currentRoomSub}">sub</div>
+      </div>
+      <div class="chat-actions">
+        <!-- 아이콘 영역(나중에) -->
+        <button type="button">...</button>
+      </div>
+    </header>
+
+    <!-- 메시지 출력 영역 -->
+    <main class="chat-body" id="chatBody">
+      <div th:if="${#lists.isEmpty(rooms)}" style="opacity:.5;">
+        채팅방이 없습니다.
+      </div>
+      <!-- 초기 메시지: 서버에서 렌더링 -->
+      <div th:each="m : ${messages}" class="msg" th:classappend="${m.senderId} == ${currentUserId} ? ' me' : ''" th:attr="data-chat-id=${m.chatId}">
+      <div class="text" th:text="${m.message}">hello</div>
+        <div class="meta">
+          <span th:text="${m.senderId}">sender</span>
+          ·
+          <span th:text="${#temporals.format(m.chatAt, 'MM-dd HH:mm')}">time</span>
+          <span class="read" style="display:none;">읽음</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- (추가) 첨부된 상품 드래프트 카드 -->
+    <div id="productDraft" class="product-draft" style="display:none;">
+      <div class="product-draft__left">
+        <div class="product-draft__title">첨부된 상품</div>
+        <div class="product-draft__img"><img src="" alt="" style="display:none;" /></div>
+        <a id="productDraftLink" class="product-draft__link" href="#" target="_blank" rel="noopener">
+          상품 상세 보기
+        </a>
+      </div>
+
+      <button type="button" id="productDraftRemove" class="product-draft__remove" aria-label="첨부 상품 제거">
+        ✕
+      </button>
+    </div>
+    <!-- 입력 영역 -->
+    <footer class="chat-input">
+      <input id="messageInput" type="text" placeholder="Type your message..." style="flex:1;">
+      <button id="sendBtn" type="button">Send</button>
+    </footer>
+
+  </section>
+</div>
+
+<!-- STOMP libs (CDN) : 팀 정책상 CDN 괜찮으면 사용, 아니면 static으로 다운받아도 됨 -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="/chat/js/chat.js"></script>
+</body>
+</html>

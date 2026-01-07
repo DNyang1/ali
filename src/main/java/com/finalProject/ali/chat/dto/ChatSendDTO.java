@@ -1,10 +1,12 @@
 package com.finalProject.ali.chat.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 public class ChatSendDTO {
     private Long roomId;
     private String message;
     private String senderId;
+    private Long productId;
 }

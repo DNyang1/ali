@@ -10,7 +10,7 @@ import com.finalProject.ali.order.domain.OrderPreviewResponse;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
-import com.finalProject.ali.products.dao.SkusPriceDAO;
+import com.finalProject.ali.product.dao.SkuPriceDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService{
 
     private final CartService cartService;
-    private final SkusPriceDAO skuPriceDAO;
+    private final SkuPriceDAO skuPriceDAO;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
 
@@ -89,5 +89,24 @@ public class OrderServiceImpl implements OrderService{
 
 
         return new OrderPreviewResponse(result,total);
+    }
+
+    @Override
+    public OrderPreviewResponse getDirectOrderPreview(Long productId, String skuId, Long quantity) {
+        Long unitPrice = skuPriceDAO.findUnitPriceByQty(skuId, quantity);
+        String productName = "test";
+        long lineAmount = unitPrice * quantity;
+        OrderPreviewItem item = new OrderPreviewItem();
+        item.setProductId(productId);
+        item.setSkuId(skuId);
+        item.setProductName(productName);
+        item.setQuantity(quantity);
+        item.setUnitPrice(unitPrice);
+        item.setLineAmount(lineAmount);
+
+        return new OrderPreviewResponse(
+                List.of(item),
+                lineAmount
+        );
     }
 }

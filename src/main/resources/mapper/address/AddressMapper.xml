@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.address.mapper.AddressMapper">
+    <select id="findByUserId" resultType="com.finalProject.ali.address.domain.Address">
+        SELECT *
+        FROM address
+        WHERE user_id = #{userId}
+        ORDER BY is_default DESC, id DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO address (
+            user_id,
+            r_name,
+            r_phone,
+            zipcode,
+            address1,
+            address2,
+            is_default
+        ) VALUES (
+            #{userId},
+            #{rName},
+            #{rPhone},
+            #{zipcode},
+            #{address1},
+            #{address2},
+            #{isDefault}
+        )
+    </insert>
+    
+    <update id="clearDefault">
+        UPDATE address
+        SET is_default = 0
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="setDefault">
+        UPDATE address
+        SET is_default = 1
+        WHERE id = #{id}
+    </update>
+
+</mapper>

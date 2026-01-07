@@ -3,9 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.mypage.supplier.category.dao.SupplierCategoryDAO">
+<mapper namespace="com.finalProject.ali.product.category.dao.CategoryDAO">
 
-    <select id="findRoot" resultType="com.finalProject.ali.mypage.supplier.category.dto.SupplierCategoryDTO">
+    <select id="findRoot" resultType="com.finalProject.ali.product.category.dto.CategoryDTO">
         SELECT category_id AS categoryId,
                parent_id   AS parentId,
                category_name AS categoryName,
@@ -17,7 +17,7 @@
     </select>
 
     <select id="findChildren" parameterType="string"
-            resultType="com.finalProject.ali.mypage.supplier.category.dto.SupplierCategoryDTO">
+            resultType="com.finalProject.ali.product.category.dto.CategoryDTO">
         SELECT category_id AS categoryId,
                parent_id   AS parentId,
                category_name AS categoryName,
@@ -29,7 +29,7 @@
     </select>
 
     <select id="findById" parameterType="string"
-            resultType="com.finalProject.ali.mypage.supplier.category.dto.SupplierCategoryDTO">
+            resultType="com.finalProject.ali.product.category.dto.CategoryDTO">
         SELECT category_id AS categoryId,
                parent_id   AS parentId,
                category_name AS categoryName,

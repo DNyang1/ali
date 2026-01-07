@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.mypage.supplier.product.dao.SkuDAO">
+<mapper namespace="com.finalProject.ali.product.dao.SkuDAO">
 
     <insert id="insert">
         INSERT INTO sku (sku_id, product_id, stock_quantity, moq, status, created_at)
@@ -18,7 +18,7 @@
     </select>
 
     <select id="findByProductId"
-            resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuDTO">
+            resultType="com.finalProject.ali.product.dto.SkuDTO">
         SELECT
         s.sku_id         AS skuId,
         s.product_id     AS productId,
@@ -56,7 +56,7 @@
     </insert>
 
     <select id="findOptionsBySkuId"
-            resultType="com.finalProject.ali.mypage.supplier.product.dto.OptionDTO">
+            resultType="com.finalProject.ali.product.dto.OptionDTO">
         SELECT
             pov.option_value_id AS optionId,
             po.product_id       AS productId,
@@ -80,11 +80,11 @@
         WHERE sku_id = #{skuId}
     </select>
 
-    <select id="findBySkuId" resultType="com.finalProject.ali.mypage.supplier.product.dao.SkuDAO$SkuRow">
+    <select id="findBySkuId" resultType="com.finalProject.ali.product.dto.SkuRowDTO">
         SELECT
             sku_id         AS skuId,
             status         AS status,
-            stock_quantity AS stockQuantity
+            stock_quantity AS stockQuantity,
             moq            AS moq
         FROM sku
         WHERE sku_id = #{skuId}
@@ -96,13 +96,13 @@
         WHERE sku_id = #{skuId}
     </update>
     <select id="findPricesBySkuId"
-            resultType="com.finalProject.ali.mypage.supplier.product.dto.SkuPriceDTO">
+            resultType="com.finalProject.ali.product.dto.SkuPriceDTO">
         SELECT
             sp.sku_price_id AS skuPriceId,
             sp.sku_id       AS skuId,
             sp.min_qty      AS minQty,
             sp.max_qty      AS maxQty,
-            sp.price        AS price,
+            sp.price        AS unitPrice,
             sp.created_at   AS createdAt
         FROM sku_price sp
                  JOIN sku s ON s.sku_id = sp.sku_id
