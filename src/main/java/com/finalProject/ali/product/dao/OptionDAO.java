@@ -10,8 +10,7 @@ import java.util.List;
 @Mapper
 public interface OptionDAO {
     //태민
-    List<OptionDTO> findByProductId(Long productId);
-
+    List<OptionDTO> findByProductIdV2(@Param("productId") Long productId);
     int existsProductOption(@Param("productId") Long productId,
                             @Param("optionName") String optionName);
 
@@ -30,6 +29,13 @@ public interface OptionDAO {
 
     void updateOptionValue(@Param("optionId") String optionId,
                            @Param("optionValue") String optionValue);
+    int updateOptionValueStatus(@Param("optionValueId") String optionValueId,
+                                @Param("status") String status);
+    int countSkuLinksByOptionValueId(@Param("optionValueId") String optionValueId);
+    String findOptionValueStatus(@Param("optionValueId") String optionValueId);
+    List<OptionDTO> findByProductIdV2All(@Param("productId") Long productId);
+
+
     // 현성
     List<OptionDTO> optionByProduct(
             @Param("productId") Long productId

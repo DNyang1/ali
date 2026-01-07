@@ -5,6 +5,7 @@ import com.finalProject.ali.cart.domain.CartItem;
 import com.finalProject.ali.cart.dto.*;
 import com.finalProject.ali.cart.mapper.CartItemMapper;
 import com.finalProject.ali.cart.mapper.CartMapper;
+import com.finalProject.ali.product.dao.SkuPriceDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class CartServiceImpl implements CartService{
 
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
+    private final SkuPriceDAO skuPriceDAO;
 
     @Override
     public CartResponse getCart(String userId) {
@@ -101,7 +103,13 @@ public class CartServiceImpl implements CartService{
             return new CartViewResponse();
         }
 
-        List<CartItemView> items = cartItemMapper.findCartItemViews(cart.getCartId());
+        List<CartItemViewResponse> items = cartItemMapper.findCartItemViews(cart.getCartId());
+
+        for (CartItemViewResponse ci : items) {
+            Long unitPrice = skuPriceDAO.findUnitPriceByQty(ci.getSkuId(),ci.getQuantity());
+            ci.setUnitPrice(unitPrice);
+            ci.setLineAmount(unitPrice * ci.getQuantity());
+        }
 
         CartViewResponse response = new CartViewResponse();
         response.setCartId(cart.getCartId());

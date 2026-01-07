@@ -100,14 +100,16 @@ function registerSupplier() {
         return;
     }
 
+    // supplier_register.js의 registerSupplier 함수 마지막 부분 수정
     fetch('/user/supplier-signup', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
     }).then(res => {
         if (res.ok) {
-            alert("판매자 등록이 완료되었습니다!");
-            location.href = "/mypage/supplier/dashboard";
+            alert("판매자 등록 신청이 완료되었습니다. 심사 후 승인됩니다!");
+            // 수정: 대시보드가 아닌 switch-role로 리다이렉트
+            location.href = "/user/switch-role";
         } else {
             alert("등록 실패: 데이터 형식을 확인하거나 관리자에게 문의하세요.");
         }

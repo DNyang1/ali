@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/user/layout/base :: layout(~{::content}, ~{::links})">
+
+<head>
+    <th:block th:fragment="links"></th:block>
+</head>
+
+<body>
+    <th:block th:fragment="content">
+        <div th:replace="inquiry/_list :: inquiryList(${inquiries}, 'user')"></div>
+    </th:block>
+</body>
+</html>

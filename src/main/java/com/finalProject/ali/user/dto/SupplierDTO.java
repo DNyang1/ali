@@ -12,6 +12,8 @@ public class SupplierDTO {
     private String cpName;
     private String cpAddress;
     private String cpPhone;
+    private String status;
+    private String memo;
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
 }

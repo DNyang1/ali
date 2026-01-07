@@ -1,0 +1,134 @@
+/* supplier_status.css */
+
+/* 전체 배경 및 폰트 설정 */
+body {
+    background-color: #f8fafc;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* 중앙 상태 박스 컨테이너 */
+.status-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.status-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 50px 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+/* 상태 아이콘 스타일 */
+.status-icon {
+    font-size: 64px;
+    margin-bottom: 24px;
+}
+
+/* 대기 중 아이콘 애니메이션 효과 */
+.pending-icon {
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 텍스트 타이틀 및 설명 */
+.status-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a3a6c; /* 공급자 메인 블루 */
+    margin-bottom: 12px;
+}
+
+.reject-text {
+    color: #e11d48; /* 반려 시 강조 레드 */
+}
+
+.status-desc {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* 반려 사유(Memo) 박스 스타일 */
+.memo-box {
+    background-color: #fff1f2;
+    border: 1px solid #ffe4e6;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0 30px 0;
+    text-align: left;
+}
+
+.memo-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #be123c;
+    margin: 0 0 8px 0;
+}
+
+.memo-content {
+    font-size: 14px;
+    color: #444;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* 버튼 그룹 및 버튼 공통 스타일 */
+.btn-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    display: inline-block;
+}
+
+/* 재신청 버튼 (공급자 테마 블루) */
+.btn-reapply {
+    background-color: #2563eb;
+    color: white;
+    flex: 2;
+}
+
+.btn-reapply:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* 아웃라인 버튼 (홈으로 가기 등) */
+.btn-outline {
+    background-color: #fff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    flex: 1;
+}
+
+.btn-outline:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
