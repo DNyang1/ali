@@ -6,8 +6,8 @@
 <mapper namespace="com.finalProject.ali.order.mapper.OrderMapper">
     <insert id="insert" parameterType="com.finalProject.ali.order.domain.Order"
             useGeneratedKeys="true" keyProperty="orderId">
-        INSERT INTO orders (user_id, total_amount, created_at)
-        VALUES (#{userId}, #{totalAmount}, NOW())
+        INSERT INTO orders (user_id, total_amount, address_id, status, created_at)
+        VALUES (#{userId}, #{totalAmount}, #{addressId}, #{status}, NOW())
     </insert>
 
     <update id="updateTotalAmount">
@@ -24,4 +24,10 @@
         FROM orders
         WHERE order_id = #{orderId}
     </select>
+    
+    <update id="updateStatus">
+        UPDATE orders
+        SET status = #{status}
+        WHERE order_id = #{orderId}
+    </update>
 </mapper>

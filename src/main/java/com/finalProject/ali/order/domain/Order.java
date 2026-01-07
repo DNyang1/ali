@@ -13,4 +13,6 @@ public class Order {
     private String userId;
     private Long totalAmount;
     private LocalDateTime createdAt;
+    private String status;
+    private Long addressId;
 }

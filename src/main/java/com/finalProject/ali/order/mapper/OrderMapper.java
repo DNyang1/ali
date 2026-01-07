@@ -10,4 +10,5 @@ public interface OrderMapper {
     int updateTotalAmount(@Param("orderId") Long orderId,
                           @Param("totalAmount") Long totalAmount);
     Order findById(Long orderId);
+    void updateStatus(Long orderId, String status);
 }

@@ -32,7 +32,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         paymentMapper.insert(payment);
 
-        // + 오더상태 변경
+        orderMapper.updateStatus(order.getOrderId(), "PAID");
 
         PaymentResponse response = new PaymentResponse();
         response.setPaymentId(payment.getPaymentId());
