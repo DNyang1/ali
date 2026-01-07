@@ -4,7 +4,6 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.product.dao.SkuDAO">
-    <!-- SKU + 옵션값 조합(행 단위) -->
     <select id="findSkuRowsByProductId"
             parameterType="long"
             resultType="com.finalProject.ali.product.dto.SkuRowDTO">
@@ -18,5 +17,30 @@
             ON ovs.sku_id = s.sku_id
         WHERE s.product_id = #{productId}
         ORDER BY s.sku_id
+    </select>
+
+    <select id="findSkuByOptionValues"
+            parameterType="map"
+            resultType="com.finalProject.ali.product.dto.SkuDTO">
+
+        SELECT
+            s.sku_id        AS skuId,
+            s.product_id    AS productId,
+            s.stock_quantity AS stockQuantity,
+            s.status,
+            s.moq
+        FROM sku s
+        JOIN sku_option so
+        ON s.sku_id = so.sku_id
+        WHERE so.option_value_id IN
+        <foreach collection="optionValueIds"
+                 item="id"
+                 open="("
+                 close=")"
+                 separator=",">
+            #{id}
+        </foreach>
+        GROUP BY s.sku_id
+        HAVING COUNT(DISTINCT so.option_value_id) = #{optionCount}
     </select>
 </mapper>
