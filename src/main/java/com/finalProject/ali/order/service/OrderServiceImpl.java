@@ -7,6 +7,7 @@ import com.finalProject.ali.order.domain.Order;
 import com.finalProject.ali.order.domain.OrderItem;
 import com.finalProject.ali.order.domain.OrderPreviewItem;
 import com.finalProject.ali.order.domain.OrderPreviewResponse;
+import com.finalProject.ali.order.dto.OrderCreateRequest;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
@@ -27,15 +28,16 @@ public class OrderServiceImpl implements OrderService{
     private final OrderItemMapper orderItemMapper;
 
     @Override
-    public OrderCreateResponse createOrder(String userId) {
+    public OrderCreateResponse createOrder(String userId, OrderCreateRequest request) {
 
         CartResponse cart = cartService.getCart(userId);
 
         Order order = new Order();
         order.setUserId(userId);
+        order.setAddressId(request.getAddressId());
         order.setTotalAmount(0L);
+        order.setStatus("CREATED");
         orderMapper.insert(order);
-
         long total = 0L;
 
         for (CartItemResponse ci : cart.getItems()) {

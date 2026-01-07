@@ -3,11 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.finalProject.ali.cart.mapper.OrderMapper">
+<mapper namespace="com.finalProject.ali.order.mapper.OrderMapper">
     <insert id="insert" parameterType="com.finalProject.ali.order.domain.Order"
             useGeneratedKeys="true" keyProperty="orderId">
-        INSERT INTO orders (user_id, total_amount, created_at)
-        VALUES (#{userId}, #{totalAmount}, NOW())
+        INSERT INTO orders (user_id, total_amount, address_id, status, created_at)
+        VALUES (#{userId}, #{totalAmount}, #{addressId}, #{status}, NOW())
     </insert>
 
     <update id="updateTotalAmount">
@@ -16,4 +16,18 @@
         WHERE order_id = #{orderId}
     </update>
 
+    <select id="findById"
+            parameterType="long"
+            resultType="com.finalProject.ali.order.domain.Order">
+        SELECT
+            *
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+    
+    <update id="updateStatus">
+        UPDATE orders
+        SET status = #{status}
+        WHERE order_id = #{orderId}
+    </update>
 </mapper>
