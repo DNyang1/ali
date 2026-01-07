@@ -68,6 +68,7 @@ public class UserService implements org.springframework.security.core.userdetail
                             return new org.springframework.security.core.authority.SimpleGrantedAuthority(roleName);
                         })
                         .toList())
+
                 .build();
     }
     // 로그인 확인
