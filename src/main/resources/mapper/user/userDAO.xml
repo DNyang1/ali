@@ -31,10 +31,16 @@
 
     <insert id="insertSupplier" parameterType="com.finalProject.ali.user.dto.SupplierDTO">
         INSERT INTO supplier (
-        supplier_id, user_id, cp_number, cp_name, cp_phone, cp_address, created_at
+        supplier_id, user_id, cp_number, cp_name, cp_phone, cp_address, status, memo, created_at
         ) VALUES (
-        #{supplierId}, #{userId}, #{cpNumber}, #{cpName}, #{cpPhone}, #{cpAddress}, NOW()
+        #{supplierId}, #{userId}, #{cpNumber}, #{cpName}, #{cpPhone}, #{cpAddress}, 'PENDING', NULL, NOW()
         )
+        ON DUPLICATE KEY UPDATE
+        cp_number = #{cpNumber},
+        cp_name = #{cpName},
+        cp_phone = #{cpPhone},
+        cp_address = #{cpAddress},
+        status = 'PENDING',  memo = NULL,         updated_at = NOW()
     </insert>
 
     <update id="updateSupplier" parameterType="com.finalProject.ali.user.dto.SupplierDTO">
@@ -88,12 +94,6 @@
         ORDER BY created_at DESC
     </select>
 
-    <update id="updateSupplierStatus">
-        UPDATE supplier
-        SET status = #{status}, updated_at = NOW()
-        WHERE supplier_id = #{supplierId}
-    </update>
-
     <select id="getUserRole" resultType="string">
         SELECT role FROM users WHERE user_id = #{userId}
     </select>
@@ -104,5 +104,24 @@
         WHERE user_id = #{userId}
     </update>
 
+    <update id="updateSupplierStatus">
+        UPDATE supplier
+        SET
+        status = #{status},
+        memo = #{memo},
+        updated_at = NOW()
+        WHERE supplier_id = #{supplierId}
+    </update>
+
+    <select id="findAllUsers" resultType="com.finalProject.ali.user.dto.UserDTO">
+        SELECT * FROM users
+        ORDER BY created_at DESC
+    </select>
+
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status = #{status}, updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
 
 </mapper>

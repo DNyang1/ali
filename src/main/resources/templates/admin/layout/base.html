@@ -4,7 +4,9 @@
     <meta charset="UTF-8"/>
     <title th:text="${pageTitle} ?: '관리자 페이지'">관리자</title>
     <link rel="stylesheet" href="/admin/css/adminpage.css"/>
-    <th:block th:if="${links != null}" th:replace="${links}" />
+
+    <th:block th:if="${links != null}">
+        <div th:replace="${links}"></div> </th:block>
 </head>
 <body>
 <div class="admin-layout">

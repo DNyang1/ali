@@ -15,8 +15,10 @@ public class UserDTO {
     private String address;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    //image
+
+    //프로필 이미지
     private String profileImg;
-    //권한
+    //판매자 권한
     private String role;
+    private String status;
 }

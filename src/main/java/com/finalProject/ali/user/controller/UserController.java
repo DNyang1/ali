@@ -189,25 +189,35 @@ public class UserController {
 
     // 판매자와 구매자 전환
     @GetMapping("/switch-role")
-    public String switchRole(HttpSession session) {
-        // 1. 세션에서 현재 로그인 유저 가져오기
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+    public String switchRole(
+            @RequestParam(value = "reapply", required = false) Boolean reapply, // 1. 지역변수(파라미터) 생성
+            HttpSession session,
+            org.springframework.ui.Model model) {
 
-        if (loginUser == null) {
-            System.out.println("DEBUG: 세션에 loginUser가 없음!");
-            return "redirect:/user/login";
-        }
-        // 2. 서비스로 판매자 정보(supplier)가 있는지 조회
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/user/login";
+
         SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
 
-        if (supplier == null) {
-            // 3. 판매자 정보가 없으면 등록 페이지로 이동
-            return "user/supplier_register";
-        }
+        if (supplier == null) return "user/supplier_register";
 
-        // 4. 이미 판매자라면 판매자 전용 메인 페이지로 이동
-        session.setAttribute("supplierInfo", supplier);
-        return "redirect:/mypage/supplier/dashboard";
+        String status = supplier.getStatus();
+
+        if ("APPROVED".equals(status)) {
+            session.setAttribute("supplierInfo", supplier);
+            return "redirect:/mypage/supplier/dashboard";
+        }
+        // 2. 반려 상태(REJECTED)이면서 사용자가 '재신청' 버튼을 눌러 reapply=true를 보낸 경우
+        else if ("REJECTED".equals(status) && Boolean.TRUE.equals(reapply)) {
+            model.addAttribute("supplier", supplier); // 기존에 입력했던 정보를 폼에 뿌려주기 위해 전달
+            return "user/supplier_register"; // 등록 폼으로 이동
+        }
+        // 3. 그 외 PENDING이거나, 그냥 REJECTED 상태를 확인하러 들어온 경우
+        else {
+            model.addAttribute("status", status);
+            model.addAttribute("supplier", supplier); // memo 출력을 위해 supplier 객체 전달
+            return "user/supplier_status";
+        }
     }
 
     @PostMapping("/supplier-signup")

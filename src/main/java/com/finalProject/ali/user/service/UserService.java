@@ -171,7 +171,6 @@ public class UserService implements org.springframework.security.core.userdetail
         return isUpdated;
     }
 
-    // UserService.java에 추가
     public List<SupplierDTO> getPendingSuppliers() {
         // UserDAO를 통해 PENDING 상태인 공급자 리스트 조회
         return userDAO.findPendingSuppliers();
@@ -180,7 +179,7 @@ public class UserService implements org.springframework.security.core.userdetail
     @Transactional
     public void approveSupplier(String supplierId, String userId) { // 매개변수 이름을 userId로 인지
         // 1. 상태 업데이트
-        userDAO.updateSupplierStatus(supplierId, "APPROVED");
+        userDAO.updateSupplierStatus(supplierId, "APPROVED", null);
 
         // 2. 이메일 대신 ID로 유저 정보를 가져오도록 수정
         UserDTO user = userDAO.findByUserId(userId);
@@ -194,5 +193,26 @@ public class UserService implements org.springframework.security.core.userdetail
             }
         }
     }
+    // 판매자 등록 상태
+    public void updateSupplierStatus(String supplierId, String status, String memo) {
+        userDAO.updateSupplierStatus(supplierId, status, memo);
+    }
+
+    // 전체 회원 조회
+    public List<UserDTO> getAllUsers() {
+        return userDAO.findAllUsers();
+    }
+    // 계정 상태 변경 (정지/해제)
+    public void updateUserStatus(String userId, String status) {
+        userDAO.updateUserStatus(userId, status);
+    }
+    // 권한 변경 (기존 로직 활용)
+    public void changeUserRole(String userId, String role) {
+        userDAO.updateUserRole(userId, role);
+    }
+
+
+
+
 
 }

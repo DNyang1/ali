@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::section}, ~{::link})}">
+<head>
+  <link rel="stylesheet" href="/admin/css/userList.css"/>
+</head>
+<body>
+<section>
+  <h2>전체 회원 관리</h2>
+
+  <div th:if="${users == null or users.isEmpty()}" style="padding: 20px; text-align: center;">
+    등록된 회원이 없습니다.
+  </div>
+
+  <table th:unless="${users == null or users.isEmpty()}">
+    <thead>
+    <tr>
+      <th>가입일</th>
+      <th>아이디</th>
+      <th>이름</th>
+      <th>현재 권한</th>
+      <th>계정 상태</th>
+      <th>관리</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+      <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}"></td>
+      <td th:text="${user.userId}" style="font-weight:bold;"></td>
+      <td th:text="${user.name}"></td>
+
+      <td>
+        <form th:action="@{/admin/users/role}" method="post">
+          <input type="hidden" name="userId" th:value="${user.userId}">
+
+          <select name="role" onchange="this.form.submit()" class="role-select"
+                  th:classappend="${user.role == 'ROLE_ADMIN' ? 'admin-role' : (user.role == 'BUYER,SUPPLIER' ? 'supplier-role' : '')}">
+
+            <option value="ROLE_USER" th:selected="${user.role == 'ROLE_USER'}">
+              구매자
+            </option>
+
+            <option value="BUYER,SUPPLIER" th:selected="${user.role == 'BUYER,SUPPLIER'}">
+              구매자 & 판매자
+            </option>
+
+            <option value="ROLE_ADMIN" th:selected="${user.role == 'ROLE_ADMIN'}">
+              관리자
+            </option>
+
+          </select>
+        </form>
+      </td>
+
+      <td>
+        <span th:if="${user.status == 'ACTIVE'}" class="badge active">활동중</span>
+        <span th:if="${user.status == 'SUSPENDED'}" class="badge suspended">정지됨</span>
+      </td>
+
+      <td>
+        <form th:action="@{/admin/users/status}" method="post" style="display:inline;">
+          <input type="hidden" name="userId" th:value="${user.userId}">
+
+          <button th:if="${user.status == 'ACTIVE'}"
+                  type="submit" name="status" value="SUSPENDED"
+                  class="btn-suspend"
+                  onclick="return confirm('정말 이 계정을 정지시키겠습니까?');">
+            정지
+          </button>
+
+          <button th:if="${user.status == 'SUSPENDED'}"
+                  type="submit" name="status" value="ACTIVE"
+                  class="btn-activate">
+            해제
+          </button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</section>
+</body>
+</html>
