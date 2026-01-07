@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="inquiryDetail(inq)">
+
+    <h2>문의 상세</h2>
+
+    <div style="margin-top:12px;">
+      <div><b>문의번호:</b> <span th:text="${inq.inquiryId}">1</span></div>
+      <div><b>상품ID:</b> <span th:text="${inq.productId}">10</span></div>
+      <div><b>수량:</b> <span th:text="${inq.quantity}">3</span></div>
+
+      <div><b>상태:</b>
+        <span th:if="${inq.status == 0}">답변대기</span>
+        <span th:if="${inq.status == 1}">완료</span>
+        <span th:if="${inq.status == 2}">반려</span>
+      </div>
+
+      <div><b>작성일:</b> <span th:text="${inq.createdAt}">2026-01-07</span></div>
+    </div>
+
+    <hr style="margin:16px 0;" />
+
+    <div>
+      <b>문의 내용</b>
+      <pre th:text="${inq.content}" style="white-space:pre-wrap; margin-top:8px;">내용</pre>
+    </div>
+
+  </div>
+</body>
+</html>
