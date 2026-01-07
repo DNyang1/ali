@@ -2,6 +2,7 @@ package com.finalProject.ali.product.service;
 
 import com.finalProject.ali.product.dao.OptionDAO;
 import com.finalProject.ali.product.dto.OptionDTO;
+import com.finalProject.ali.product.dto.StockOptionDTO;
 import com.finalProject.ali.product.service.OptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,20 @@ public class OptionServiceImpl implements OptionService {
         return rows.stream()
                 .collect(Collectors.groupingBy(
                         OptionDTO::getOptionName,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+    }
+
+    @Override
+    public Map<String, List<StockOptionDTO>> getStockOptions(Long productId) {
+
+        List<StockOptionDTO> options =
+                optionDAO.findOptionsByProductStock(productId);
+
+        return options.stream()
+                .collect(Collectors.groupingBy(
+                        StockOptionDTO::getOptionTypeName,
                         LinkedHashMap::new,
                         Collectors.toList()
                 ));
