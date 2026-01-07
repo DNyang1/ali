@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="inquiryList(inquiries, mode)">
+
+    <h2 th:text="${mode == 'supplier' ? '받은 문의' : '내 문의'}">문의 목록</h2>
+
+    <div th:if="${#lists.isEmpty(inquiries)}" style="margin-top:12px;">
+      문의가 없습니다.
+    </div>
+
+    <table th:if="${!#lists.isEmpty(inquiries)}" style="width:100%; margin-top:12px; border-collapse: collapse;">
+      <thead>
+      <tr>
+        <th style="border-bottom:1px solid #ddd; padding:8px;">번호</th>
+        <th style="border-bottom:1px solid #ddd; padding:8px;">상품ID</th>
+        <th style="border-bottom:1px solid #ddd; padding:8px;">내용</th>
+        <th style="border-bottom:1px solid #ddd; padding:8px;">상태</th>
+        <th style="border-bottom:1px solid #ddd; padding:8px;">작성일</th>
+        <th style="border-bottom:1px solid #ddd; padding:8px;">상세</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr th:each="inq : ${inquiries}">
+        <td style="border-bottom:1px solid #eee; padding:8px;" th:text="${inq.inquiryId}">1</td>
+        <td style="border-bottom:1px solid #eee; padding:8px;" th:text="${inq.productId}">10</td>
+
+        <td style="border-bottom:1px solid #eee; padding:8px;"
+            th:text="${#strings.abbreviate(inq.content, 30)}">내용...</td>
+
+        <!-- 상태 라벨 -->
+        <td style="border-bottom:1px solid #eee; padding:8px;">
+          <span th:if="${inq.status == 0}">답변대기</span>
+          <span th:if="${inq.status == 1}">완료</span>
+          <span th:if="${inq.status == 2}">반려</span>
+        </td>
+
+        <td style="border-bottom:1px solid #eee; padding:8px;" th:text="${inq.createdAt}">2026-01-07</td>
+
+        <td style="border-bottom:1px solid #eee; padding:8px;">
+          <a th:if="${mode == 'user'}"
+             th:href="@{/inquiry/user/detail/{id}(id=${inq.inquiryId})}">보기</a>
+
+          <a th:if="${mode == 'supplier'}"
+             th:href="@{/inquiry/supplier/detail/{id}(id=${inq.inquiryId})}">보기</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+</body>
+</html>

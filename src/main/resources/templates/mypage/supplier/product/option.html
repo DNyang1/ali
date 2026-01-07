@@ -17,9 +17,8 @@
     </header>
 
     <div class="panel-body">
-
         <p style="font-size:12px; opacity:.8; margin:0 0 12px;">
-            * 옵션은 카테고리 기준으로 자동 생성되며, 여기서는 이름(표시)만 수정할 수 있습니다.
+            * SKU가 등록되기 전까지만 옵션을 비활성화할 수 있습니다.
         </p>
 
         <table class="table">
@@ -28,36 +27,46 @@
                 <th>optionId</th>
                 <th>name</th>
                 <th>value</th>
-                <th>수정</th>
+                <th>status</th>
+                <th>토글</th>
             </tr>
             </thead>
+
             <tbody>
             <tr th:if="${#lists.isEmpty(options)}">
-                <td colspan="4">옵션이 없습니다.</td>
+                <td colspan="5">옵션이 없습니다.</td>
             </tr>
 
             <tr th:each="o : ${options}">
                 <td th:text="${o.optionId}">id</td>
                 <td th:text="${o.optionName}">Color</td>
-                <td>
-                    <form th:action="@{/mypage/supplier/product/option/{optionId}/update(optionId=${o.optionId})}"
-                          method="post" class="inline-form">
-                        <input type="hidden" name="productId" th:value="${productId}">
-                        <input type="text" name="optionValue"
-                               th:value="${o.optionValue}" required style="width:220px;">
+                <td th:text="${o.optionValue}">RED</td>
 
-                </td>
                 <td>
-                    <button type="submit" class="primary">저장</button>
+                    <span class="status"
+                          th:classappend="${o.status == 'ACTIVE'} ? ' ok' : ' off'"
+                          th:text="${o.status}">
+                        ACTIVE
+                    </span>
+                </td>
+
+                <td>
+                    <form th:action="@{/mypage/supplier/product/{pid}/option-values/{ovid}/toggle(pid=${productId}, ovid=${o.optionValueId})}"
+                          method="post" class="inline-form">
+                        <button type="submit"
+                                th:classappend="${o.status == 'ACTIVE'} ? ' danger' : ' primary'"
+                                th:text="${o.status == 'ACTIVE' ? '비활성화' : '활성화'}">
+                            토글
+                        </button>
                     </form>
                 </td>
             </tr>
             </tbody>
         </table>
-
-
     </div>
 </section>
-
+<script th:if="${param.error != null}">
+    alert('이미 SKU에 사용된 옵션은 비활성화할 수 없습니다.');
+</script>
 </body>
 </html>

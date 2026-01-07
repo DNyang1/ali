@@ -39,10 +39,11 @@
 
                     <div class="opt-items">
                         <label th:each="o : ${entry.value}">
-                            <input type="checkbox"
-                                   name="optionValueIds"
-                                   th:value="${o.optionId}"
-                                   th:checked="${selectedOptionIds.contains(o.optionId)}"/>
+                            <input type="radio"
+                                   th:name="'selected[' + ${entry.key} + ']'"
+                                   th:value="${o.optionValueId}"
+                                   th:checked="${selectedMap != null and selectedMap[entry.key] == o.optionValueId}"
+                                   required />
                             <span th:text="${o.optionValue}">Red</span>
                         </label>
                     </div>

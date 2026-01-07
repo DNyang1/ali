@@ -36,4 +36,5 @@ public interface ProductDAO {
     List<ProductDTO> searchByKeyword(String keyword);
     List<ProductDTO> findByCategoryId(String categoryId);
 
+    String findSupplierIdByProductId(@Param("productId") Long productId);
 }

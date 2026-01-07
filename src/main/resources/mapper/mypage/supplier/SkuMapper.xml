@@ -55,13 +55,16 @@
         VALUES (#{optionId}, #{skuId})
     </insert>
 
-    <select id="findOptionsBySkuId"
+
+    <select id="findOptionsBySkuIdV2"
             resultType="com.finalProject.ali.product.dto.OptionDTO">
         SELECT
-            pov.option_value_id AS optionId,
+            po.option_id        AS optionId,
+            pov.option_value_id AS optionValueId,
             po.product_id       AS productId,
             po.option_name      AS optionName,
-            pov.option_value    AS optionValue
+            pov.option_value    AS optionValue,
+            pov.status          AS status
         FROM option_value_sku ovs
                  JOIN product_option_value pov ON pov.option_value_id = ovs.option_value_id
                  JOIN product_option po ON po.option_id = pov.option_id
@@ -126,5 +129,47 @@
         SET stock_quantity = #{stock}
         WHERE sku_id = #{skuId}
     </update>
+
+    <select id="countDuplicateSkuCombination" resultType="int">
+        SELECT COUNT(*) FROM (
+        SELECT s.sku_id
+        FROM sku s
+        JOIN option_value_sku ovs ON ovs.sku_id = s.sku_id
+        WHERE s.product_id = #{productId}
+        GROUP BY s.sku_id
+        HAVING COUNT(*) = #{cnt}
+        AND SUM(
+        CASE
+        WHEN ovs.option_value_id IN
+        <foreach collection="optionValueIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        THEN 1 ELSE 0
+        END
+        ) = #{cnt}
+        ) t
+    </select>
+
+    <select id="countDuplicateSkuCombinationExcludingSku" resultType="int">
+        SELECT COUNT(*) FROM (
+        SELECT s.sku_id
+        FROM sku s
+        JOIN option_value_sku ovs ON ovs.sku_id = s.sku_id
+        WHERE s.product_id = #{productId}
+        AND s.sku_id != #{skuId}
+        GROUP BY s.sku_id
+        HAVING COUNT(*) = #{cnt}
+        AND SUM(
+        CASE
+        WHEN ovs.option_value_id IN
+        <foreach collection="optionValueIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        THEN 1 ELSE 0
+        END
+        ) = #{cnt}
+        ) t
+    </select>
+
 
 </mapper>
