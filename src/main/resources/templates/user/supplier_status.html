@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>판매자 등록 - ALI</title>
+    <link rel="stylesheet" href="/user/css/supplier_status.css"/>
+</head>
+<body>
+<div class="status-container">
+    <div th:if="${status == 'PENDING'}" class="status-box">
+        <div class="status-icon pending-icon">⏳</div>
+        <h2 class="status-title">입점 심사가 진행 중입니다.</h2>
+        <p class="status-desc">
+            관리자가 사업자 정보를 확인하고 있습니다.<br>
+            승인 완료 후 판매자 기능을 이용하실 수 있습니다.
+        </p>
+        <div class="btn-group">
+            <a href="/" class="btn btn-outline">홈으로 돌아가기</a>
+        </div>
+    </div>
+
+    <div th:if="${status == 'REJECTED'}" class="status-box">
+        <div class="status-icon reject-icon">❌</div>
+        <h2 class="status-title reject-text">입점 신청이 반려되었습니다.</h2>
+
+        <div class="memo-box">
+            <p class="memo-label">반려 사유</p>
+            <p class="memo-content" th:text="${supplier.memo}">정보가 일치하지 않습니다.</p>
+        </div>
+
+        <p class="status-desc">위 사유를 확인하신 후 정보를 수정하여 재신청해 주세요.</p>
+
+        <div class="btn-group">
+            <a href="/user/switch-role?reapply=true" class="btn btn-reapply">정보 수정 및 재신청</a>
+            <a href="/" class="btn btn-outline">홈으로</a>
+        </div>
+    </div>
+</div>
+<script src="/user/js/supplier_register.js"></script>
+</body>
+</html>

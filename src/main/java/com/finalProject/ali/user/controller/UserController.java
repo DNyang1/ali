@@ -76,9 +76,44 @@ public class UserController {
 
         return ResponseEntity.ok("회원가입 성공");
     }
+    @PostMapping("/send-auth-code")
+    @ResponseBody
+    public ResponseEntity<String> sendAuthCode(@RequestParam String email, HttpSession session) {
+        // 1. 이메일 중복 체크 (선택 사항, 필요시 UserDAO로 확인)
+
+        // 2. 인증코드 생성 및 발송
+        try {
+            String authCode = emailService.sendVerificationEmail(email);
+
+            // 3. 세션에 인증코드와 이메일 저장 (나중에 verifyAuthCode에서 검증용)
+            session.setAttribute("emailAuthCode", authCode);
+            session.setAttribute("authEmail", email);
+            session.setAttribute("isEmailVerified", false); // 초기화
+
+            // 유효시간 설정이 필요하다면 세션 타임아웃이나 별도 로직 필요 (여기선 생략)
+
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("fail");
+        }
+    }
+
+    @PostMapping("/verify-auth-code")
+    @ResponseBody
+    public ResponseEntity<String> verifyAuthCode(@RequestParam String code, HttpSession session) {
+        String serverCode = (String) session.getAttribute("emailAuthCode");
+
+        if (serverCode != null && serverCode.equals(code)) {
+            session.setAttribute("isEmailVerified", true); // 인증 완료 플래그
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
+        }
+    }
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData, HttpSession session) {
         String userId = loginData.get("userId");
         String password = loginData.get("password");
 
@@ -101,7 +136,19 @@ public class UserController {
             UserDTO user = userService.findByUserId(userId);
             session.setAttribute("loginUser", user);
 
-            return ResponseEntity.ok("success");
+            Map<String, String> response = new java.util.HashMap<>();
+            response.put("status", "success");
+            String mainRole = "ROLE_USER";
+            if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+                // 관리자 -> 판매자 -> 유저 순으로 우선순위 체크하거나, 단순히 0번째 가져오기
+                if (user.getRoles().contains("ROLE_ADMIN")) mainRole = "ROLE_ADMIN";
+                else if (user.getRoles().contains("ROLE_SUPPLIER")) mainRole = "ROLE_SUPPLIER";
+                else mainRole = user.getRoles().get(0);
+            }
+
+            response.put("role", mainRole);
+
+            return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
             // 인증 실패 시 (아이디 없음, 비밀번호 틀림 등)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
@@ -185,25 +232,35 @@ public class UserController {
 
     // 판매자와 구매자 전환
     @GetMapping("/switch-role")
-    public String switchRole(HttpSession session) {
-        // 1. 세션에서 현재 로그인 유저 가져오기
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+    public String switchRole(
+            @RequestParam(value = "reapply", required = false) Boolean reapply, // 1. 지역변수(파라미터) 생성
+            HttpSession session,
+            org.springframework.ui.Model model) {
 
-        if (loginUser == null) {
-            System.out.println("DEBUG: 세션에 loginUser가 없음!");
-            return "redirect:/user/login";
-        }
-        // 2. 서비스로 판매자 정보(supplier)가 있는지 조회
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/user/login";
+
         SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
 
-        if (supplier == null) {
-            // 3. 판매자 정보가 없으면 등록 페이지로 이동
-            return "user/supplier_register";
-        }
+        if (supplier == null) return "user/supplier_register";
 
-        // 4. 이미 판매자라면 판매자 전용 메인 페이지로 이동
-        session.setAttribute("supplierInfo", supplier);
-        return "redirect:/mypage/supplier/dashboard";
+        String status = supplier.getStatus();
+
+        if ("APPROVED".equals(status)) {
+            session.setAttribute("supplierInfo", supplier);
+            return "redirect:/mypage/supplier/dashboard";
+        }
+        // 2. 반려 상태(REJECTED)이면서 사용자가 '재신청' 버튼을 눌러 reapply=true를 보낸 경우
+        else if ("REJECTED".equals(status) && Boolean.TRUE.equals(reapply)) {
+            model.addAttribute("supplier", supplier); // 기존에 입력했던 정보를 폼에 뿌려주기 위해 전달
+            return "user/supplier_register"; // 등록 폼으로 이동
+        }
+        // 3. 그 외 PENDING이거나, 그냥 REJECTED 상태를 확인하러 들어온 경우
+        else {
+            model.addAttribute("status", status);
+            model.addAttribute("supplier", supplier); // memo 출력을 위해 supplier 객체 전달
+            return "user/supplier_status";
+        }
     }
 
     @PostMapping("/supplier-signup")

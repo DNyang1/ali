@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::section}, ~{::link})}">
+<head>
+    <link rel="stylesheet" href="/admin/css/supplierList.css"/>
+</head>
+<body>
+<section>
+    <h2>판매자 입점 신청 대기 목록</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>신청일</th>
+            <th>업체명</th>
+            <th>승인처리</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="supplier : ${suppliers}">
+            <td th:text="${#temporals.format(supplier.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${supplier.cpName}"></td>
+            <td>
+                <form th:action="@{/admin/supplier/approve}" method="post" style="display:inline;">
+                    <input type="hidden" name="supplierId" th:value="${supplier.supplierId}">
+                    <input type="hidden" name="userId" th:value="${supplier.userId}">
+                    <button type="submit" class="approve-btn">승인</button>
+                </form>
+
+                <button type="button" class="reject-btn"
+                        th:data-id="${supplier.supplierId}"
+                        onclick="rejectWithMemo(this.getAttribute('data-id'))">
+                    반려
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+<script src="/admin/js/supplierList.js"></script>
+</section>
+</body>
+</html>

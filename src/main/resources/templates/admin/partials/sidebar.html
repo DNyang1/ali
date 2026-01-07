@@ -1,0 +1,19 @@
+<meta charset="UTF-8">
+<nav th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-title">관리자 메뉴</div>
+
+    <a th:href="@{/admin/supplier/list}"
+       th:classappend="${activeMenu=='suppliers'} ? ' active' : ''">판매자 승인</a>
+
+    <a th:href="@{/admin/users}"
+       th:classappend="${activeMenu=='users'} ? ' active' : ''">회원 관리</a>
+
+    <a th:href="@{/admin/products}"
+       th:classappend="${activeMenu=='products'} ? ' active' : ''">상품 승인/관리</a>
+
+    <a th:href="@{/admin/inquiry}"
+       th:classappend="${activeMenu=='inquiry'} ? ' active' : ''">전체 문의 관리</a>
+
+    <hr class="sidebar-sep"/>
+    <a th:href="@{/}" class="sidebar-sub">메인 사이트로 이동</a>
+</nav>
