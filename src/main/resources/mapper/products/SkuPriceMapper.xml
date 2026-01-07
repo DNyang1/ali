@@ -72,4 +72,15 @@
         WHERE sku_id = #{skuId}
         ORDER BY min_qty
     </select>
+
+    <select id="findUnitPriceByQty"
+            resultType="long">
+        SELECT price
+        FROM sku_price
+        WHERE sku_id = #{skuId}
+        AND #{qty} >= min_qty
+        AND (max_qty IS NULL OR <![CDATA[ #{qty} <= max_qty ]]>)
+        ORDER BY min_qty DESC
+        LIMIT 1
+    </select>
 </mapper>
