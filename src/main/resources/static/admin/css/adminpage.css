@@ -1,0 +1,146 @@
+/* 전역 설정 */
+:root {
+    --sidebar-w: 240px;
+    --topbar-h: 64px;
+    --primary-color: #2c3e50;
+    --bg-color: #f8f9fa;
+    --border-color: #ddd;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+/* 전체 레이아웃: 수직 쌓기 (헤더 - 바디 - 푸터) */
+.admin-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* 헤더 스타일 */
+.topbar {
+    height: var(--topbar-h);
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex: 0 0 auto; /* 높이 고정 */
+    z-index: 100;
+}
+
+/* 바디 영역: 수평 배치 (사이드바 - 컨텐츠) */
+.admin-body {
+    display: flex;
+    flex: 1;
+    min-height: 0; /* flex 자식의 최소 높이 제한 해제 (스크롤 이슈 방지) */
+}
+
+/* 사이드바 스타일 */
+.admin-sidebar-wrapper {
+    flex: 0 0 var(--sidebar-w);
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    height: 100%;
+    min-height: calc(100vh - var(--topbar-h));
+}
+
+.sidebar-title {
+    padding: 10px 25px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.sidebar a {
+    color: #bdc3c7;
+    padding: 15px 25px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    background-color: #34495e;
+    color: white;
+}
+
+.sidebar-sep {
+    border: 0;
+    border-top: 1px solid #3e4f5f;
+    margin: 10px 0;
+}
+
+/* 메인 컨텐츠 스타일 */
+.admin-content {
+    flex: 1;
+    min-width: 0; /* 가로 너비 부족 시 깨짐 방지 */
+    padding: 30px;
+    background-color: var(--bg-color);
+    overflow-y: auto; /* 내용이 길어지면 메인 영역만 스크롤 */
+}
+
+/* --- 헤더(Topbar) 세부 요소 스타일 추가 --- */
+.topbar-left, .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.brand {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.page-title {
+    font-size: 1rem;
+    color: #666;
+    border-left: 1px solid var(--border-color);
+    padding-left: 20px;
+}
+
+.auth {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.role-tag {
+    background: #e8f0fe;
+    color: #1967d2;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.username {
+    font-weight: 500;
+    color: #333;
+}
+
+.logout {
+    font-size: 0.85rem;
+    color: #d93025;
+    text-decoration: none;
+    border: 1px solid #d93025;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.logout:hover {
+    background: #d93025;
+    color: white;
+}

@@ -58,6 +58,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setEmail(email);
             user.setPassword("OAUTH_USER");
             userDAO.insertUser(user);
+            try {
+                userDAO.insertUserRole(user.getUserId(), "ROLE_USER");
+            } catch (Exception e) {
+                // 혹시 모를 중복 에러 방지
+                e.printStackTrace();
+            }
         }
         session.setAttribute("loginUser", user);
 
