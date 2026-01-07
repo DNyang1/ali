@@ -79,7 +79,10 @@
 
               <div class="opt-items">
                 <label th:each="o : ${group.value}">
-                  <input type="checkbox" name="optionValueIds" th:value="${o.optionId}">
+                  <input type="radio"
+                         th:name="'selected[' + ${group.key} + ']'"
+                         th:value="${o.optionValueId}"
+                         required>
                   <span th:text="${o.optionValue}"></span>
                 </label>
               </div>

@@ -18,7 +18,6 @@ public interface SkuDAO {
     int countByProductId(@Param("productId") Long productId);
     void insertLink(@Param("skuId") String skuId,
                     @Param("optionId") String optionValueId);
-    List<OptionDTO> findOptionsBySkuId(@Param("skuId") String skuId);
     void deleteLinksBySkuId(@Param("skuId") String skuId);
     int countOrderItemsBySkuId(@Param("skuId") String skuId);
     Long findProductIdBySkuId(@Param("skuId") String skuId);
@@ -26,7 +25,17 @@ public interface SkuDAO {
     int updateStatus(@Param("skuId") String skuId, @Param("status") String status);
     int updateMoq(@Param("skuId") String skuId, @Param("moq") Long moq);
     void updateStock(@Param("skuId") String skuId, @Param("stock") long stock);
+    int countDuplicateSkuCombination(Long productId, List<String> optionValueIds, int cnt);
+    List<OptionDTO> findOptionsBySkuIdV2(@Param("skuId") String skuId);
+    int countDuplicateSkuCombinationExcludingSku(Long productId, String skuId, List<String> optionValueIds, int cnt);
+
 
     List<SkuRowDTO> findSkuRowsByProductId(Long productId);
+
+    SkuDTO findSkuByOptionValues(
+            @Param("optionValueIds") List<String> optionValueIds,
+            @Param("optionCount") int optionCount
+    );
+
 
 }

@@ -8,152 +8,141 @@
 
 <body>
 <section class="dash">
-  <!-- HEAD -->
-  <header class="dash-head">
+  <header class="page-header">
     <div>
-      <h2 class="dash-title">대시보드</h2>
-      <p class="dash-sub">주문/문의/찜/내 정보를 한 번에 확인하세요.</p>
+      <h2 class="page-title">대시보드</h2>
+      <p class="page-desc">주문 · 문의 · 찜 · 내 정보를 한 번에 확인하세요.</p>
     </div>
+    <p class="page-desc" style="margin:0;">
+      주문/문의 현황을 한눈에 확인하고 빠르게 이동하세요.
+    </p>
   </header>
 
-  <!-- A. KPI -->
-  <div class="dash-kpi">
-    <a class="kpi-card" th:href="@{/mypage/user/orders}">
-      <div class="kpi-label">진행중 주문</div>
-      <div class="kpi-value" th:text="${summary.activeOrderCount}">0</div>
-      <div class="kpi-hint">결제완료 · 배송중</div>
-    </a>
+  <section class="profile-hero">
+    <div class="profile-hero-left">
+      <div class="avatar"
+           th:text="${user != null and user.name != null and !#strings.isEmpty(user.name) ? #strings.substring(user.name,0,1) : 'U'}">U</div>
 
-    <a class="kpi-card" th:href="@{/mypage/user/payments}">
-      <div class="kpi-label">미결제/견적대기</div>
-      <div class="kpi-value" th:text="${summary.pendingPayOrQuoteCount}">0</div>
-      <div class="kpi-hint">미결제 · 견적 대기</div>
-    </a>
+      <div class="profile-meta">
+        <div class="profile-name" th:text="${user != null ? user.name : '사용자'}">사용자</div>
+        <div class="profile-sub" th:text="${user != null ? user.email : 'user@email.com'}">user@email.com</div>
+      </div>
+    </div>
 
-    <a class="kpi-card" th:href="@{/mypage/user/cart}">
-      <div class="kpi-label">장바구니</div>
-      <div class="kpi-value" th:text="${summary.cartCount}">0</div>
-      <div class="kpi-hint">담아둔 상품</div>
-    </a>
+    <div class="profile-hero-actions">
+      <a class="hero-btn" th:href="@{/mypage/user/profile}">내정보 수정</a>
+    </div>
+  </section>
+  <section class="panel">
+    <header class="panel-head">
+      <div>
+        <h3 class="panel-title">처리 필요</h3>
+      </div>
+    </header>
 
-    <a class="kpi-card" th:href="@{/mypage/user/inquiry}">
-      <div class="kpi-label">미읽음 메시지</div>
-      <div class="kpi-value" th:text="${summary.unreadMessageCount}">0</div>
-      <div class="kpi-hint">문의/답변</div>
-    </a>
-  </div>
+    <div class="panel-body">
+      <ul class="action-list">
+        <li>
+          <span class="name">미결제/견적대기</span>
+          <span class="count" th:text="${summary.pendingPayOrQuoteCount}">0</span>
+          <a th:href="@{/mypage/user/payments}">처리</a>
+        </li>
+        <li>
+          <span class="name">미읽음 메시지</span>
+          <span class="count" th:text="${summary.unreadMessageCount}">0</span>
+          <a th:href="@{/mypage/user/inquiry}">확인</a>
+        </li>
+        <li>
+          <span class="name">진행 중 주문</span>
+          <span class="count" th:text="${summary.activeOrderCount}">0</span>
+          <a th:href="@{/mypage/user/orders}">보기</a>
+        </li>
+      </ul>
+    </div>
+  </section>
 
-  <!-- MAIN GRID -->
-  <div class="dash-grid">
-    <!-- LEFT COLUMN -->
-    <div class="dash-col">
-      <!-- B. Recent Orders -->
-      <section class="dash-panel">
-        <div class="panel-head">
-          <h3 class="panel-title">최근 주문</h3>
-          <a class="panel-link" th:href="@{/mypage/user/orders}">더보기</a>
-        </div>
-        <div class="panel-body">
-          <table class="dash-table">
-            <thead>
-            <tr>
-              <th>주문번호</th>
-              <th>날짜</th>
-              <th>상태</th>
-              <th class="right">결제금액</th>
-              <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="o : ${recentOrders}">
-              <td th:text="${o.orderNo}">20260106-0001</td>
-              <td th:text="${#temporals.format(o.createdAt,'yyyy-MM-dd')}">2026-01-06</td>
-              <td>
-                <span class="badge" th:classappend="${o.status}" th:text="${o.status}">PAID</span>
-              </td>
-              <td class="right" th:text="${#numbers.formatInteger(o.totalAmount,0,'COMMA')}">120,000</td>
-              <td class="right">
-                <a class="btn-sm" th:href="@{/mypage/user/orders/{id}(id=${o.orderId})}">상세</a>
-              </td>
-            </tr>
 
-            <tr th:if="${recentOrders == null or #lists.isEmpty(recentOrders)}">
-              <td colspan="5" class="empty">최근 주문이 없습니다.</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+  <div class="grid-2">
+    <section class="panel">
+      <header class="panel-head">
+        <h3 class="panel-title">최근 주문</h3>
+        <a class="panel-link" th:href="@{/mypage/user/orders}">전체 보기</a>
+      </header>
+      <div class="panel-body">
+        <table class="dash-table">
+          <thead>
+          <tr>
+            <th>주문번호</th>
+            <th>날짜</th>
+            <th>상태</th>
+            <th class="right">결제금액</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="o : ${recentOrders}">
+            <td th:text="${o.orderNo}">20260106-0001</td>
+            <td th:text="${#temporals.format(o.createdAt,'yyyy-MM-dd')}">2026-01-06</td>
+            <td>
+              <span class="badge" th:classappend="${o.status}" th:text="${o.status}">PAID</span>
+            </td>
+            <td class="right" th:text="${#numbers.formatInteger(o.totalAmount,0,'COMMA')}">120,000</td>
+            <td class="right">
+              <a class="btn-sm" th:href="@{/mypage/user/orders/{id}(id=${o.orderId})}">상세</a>
+            </td>
+          </tr>
+          <tr th:if="${recentOrders == null or #lists.isEmpty(recentOrders)}">
+            <td colspan="5" class="empty">최근 주문이 없습니다.</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-      <!-- C. Favorites / Recently viewed -->
-      <section class="dash-panel mt12">
-        <div class="panel-head">
-          <h3 class="panel-title">관심/저장</h3>
-          <a class="panel-link" th:href="@{/mypage/user/wishlist}">더보기</a>
-        </div>
-        <div class="panel-body">
-          <div class="card-grid">
-            <!-- 실제 데이터 -->
-            <a class="p-card" th:each="p : ${favoriteProducts}" th:href="@{/product/{id}(id=${p.productId})}">
-              <div class="p-thumb"></div>
-              <div class="p-name" th:text="${p.name}">샘플 상품명</div>
-              <div class="p-sub" th:text="${p.supplierName}">공급사</div>
+    <section class="panel">
+      <header class="panel-head">
+        <h3 class="panel-title">최근 문의</h3>
+        <a class="panel-link" th:href="@{/mypage/user/inquiry}">전체 보기</a>
+      </header>
+      <div class="panel-body">
+        <ul class="mini-list">
+          <li th:each="q : ${recentInquiries}">
+            <a th:href="@{/mypage/user/inquiry}">
+              <span class="mini-left">
+                <span class="mini-title" th:text="${q.title}">문의 제목 샘플</span>
+                <span class="mini-meta" th:text="${#temporals.format(q.createdAt,'MM-dd')}">01-06</span>
+              </span>
+              <span class="badge small" th:classappend="${q.status}" th:text="${q.status}">PENDING</span>
             </a>
+          </li>
 
-            <!-- 빈 상태 -->
-            <div class="empty-box" th:if="${favoriteProducts == null or #lists.isEmpty(favoriteProducts)}">
-              아직 찜/최근 본 상품이 없습니다.
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- RIGHT COLUMN -->
-    <div class="dash-col">
-      <!-- Profile (상단) -->
-      <section class="profile-card">
-        <div class="profile-top">
-          <div class="avatar"
-               th:text="${user != null and user.name != null and !#strings.isEmpty(user.name) ? #strings.substring(user.name,0,1) : 'U'}">U</div>
-
-          <div class="profile-meta">
-            <div class="profile-name" th:text="${user != null ? user.name : '사용자'}">사용자</div>
-            <div class="profile-sub" th:text="${user != null ? user.email : 'user@email.com'}">user@email.com</div>
-          </div>
-
-          <a class="btn-sm" th:href="@{/mypage/user/profile}">수정</a>
-        </div>
-
-      </section>
-
-      <!-- D. Inquiry / Messages -->
-      <section class="dash-panel mt12">
-        <div class="panel-head">
-          <h3 class="panel-title">최근 문의/메시지</h3>
-          <a class="panel-link" th:href="@{/mypage/user/inquiry}">더보기</a>
-        </div>
-        <div class="panel-body">
-          <ul class="mini-list">
-            <li th:each="q : ${recentInquiries}">
-              <a th:href="@{/mypage/user/inquiry}">
-                <span class="mini-left">
-                  <span class="mini-title" th:text="${q.title}">문의 제목 샘플</span>
-                  <span class="mini-meta" th:text="${#temporals.format(q.createdAt,'MM-dd')}">01-06</span>
-                </span>
-                <span class="badge small" th:classappend="${q.status}" th:text="${q.status}">PENDING</span>
-              </a>
-            </li>
-
-            <li class="empty" th:if="${recentInquiries == null or #lists.isEmpty(recentInquiries)}">
-              최근 문의가 없습니다.
-            </li>
-          </ul>
-        </div>
-      </section>
-    </div>
+          <li class="empty" th:if="${recentInquiries == null or #lists.isEmpty(recentInquiries)}">
+            최근 문의가 없습니다.
+          </li>
+        </ul>
+      </div>
+    </section>
   </div>
-</section>
 
+  <section class="panel">
+    <header class="panel-head">
+      <h3 class="panel-title">관심/저장</h3>
+      <a class="panel-link" th:href="@{/mypage/user/wishlist}">전체 보기</a>
+    </header>
+    <div class="panel-body">
+      <div class="card-grid">
+        <a class="p-card" th:each="p : ${favoriteProducts}" th:href="@{/product/{id}(id=${p.productId})}">
+          <div class="p-thumb"></div>
+          <div class="p-name" th:text="${p.name}">샘플 상품명</div>
+          <div class="p-sub" th:text="${p.supplierName}">공급사</div>
+        </a>
+
+        <div class="empty-box" th:if="${favoriteProducts == null or #lists.isEmpty(favoriteProducts)}">
+          아직 찜/최근 본 상품이 없습니다.
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
 </body>
 </html>

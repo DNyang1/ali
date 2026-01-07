@@ -7,4 +7,6 @@ import java.util.List;
 public interface SkuService {
 
     List<SkuDTO> getSkuWithPrices(Long productId);
+
+    SkuDTO findSkuByOptionValues(List<String> optionValueIds);
 }

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 완료</title>
+
+    <style>
+        body { margin:0; background:#f5f5f5; font-family:Arial,sans-serif; }
+        .page { max-width:900px; margin:0 auto; padding:40px 16px; }
+        .card { background:#fff; border-radius:14px; padding:24px; box-shadow:0 6px 24px rgba(0,0,0,.08); margin-bottom:24px; }
+        h2 { margin:0 0 20px; font-size:22px; }
+
+        .complete-icon {
+            font-size:48px;
+            margin-bottom:16px;
+        }
+
+        .complete-message {
+            font-size:16px;
+            color:#333;
+            margin-bottom:24px;
+        }
+
+        .order-info {
+            font-size:14px;
+            color:#555;
+            line-height:1.8;
+        }
+
+        .order-info strong {
+            color:#000;
+        }
+
+        .actions {
+            text-align:right;
+            margin-top:32px;
+        }
+
+        .actions a {
+            display:inline-block;
+            text-decoration:none;
+            margin-left:10px;
+        }
+
+        .actions button {
+            background:linear-gradient(135deg,#ff6a00,#ff8a00);
+            border:none;
+            color:#fff;
+            padding:12px 26px;
+            border-radius:26px;
+            font-size:15px;
+            cursor:pointer;
+        }
+
+        .actions .secondary {
+            background:#eee;
+            color:#333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+
+    <section class="card">
+        <div class="complete-icon">✅</div>
+        <h2>결제가 완료되었습니다</h2>
+
+        <div class="complete-message">
+            주문이 정상적으로 접수되었습니다.<br>
+            아래 주문 정보를 확인해주세요.
+        </div>
+
+        <div class="order-info">
+            <div>주문번호: <strong th:text="${orderId}">ORD-000000</strong></div>
+            <div>주문 상태: <strong>결제 완료</strong></div>
+        </div>
+
+        <div class="actions">
+            <a href="/">
+                <button class="secondary">메인으로</button>
+            </a>
+            <a href="/orders/my">
+                <button>내 주문 보기</button>
+            </a>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

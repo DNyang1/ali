@@ -5,17 +5,56 @@
 
 <mapper namespace="com.finalProject.ali.product.dao.OptionDAO">
 
-    <select id="findByProductId"
+
+    <select id="findByProductIdV2"
+            parameterType="long"
             resultType="com.finalProject.ali.product.dto.OptionDTO">
         SELECT
-            pov.option_value_id AS optionId,
+            po.option_id        AS optionId,
+            pov.option_value_id AS optionValueId,
             po.product_id       AS productId,
             po.option_name      AS optionName,
-            pov.option_value    AS optionValue
+            pov.option_value    AS optionValue,
+            pov.status          AS status
+        FROM product_option po
+                 JOIN product_option_value pov ON pov.option_id = po.option_id
+        WHERE po.product_id = #{productId}
+          AND pov.status = 'ACTIVE'
+        ORDER BY po.option_name, pov.sort_order, pov.option_value
+    </select>
+
+    <select id="findByProductIdV2All"
+            resultType="com.finalProject.ali.product.dto.OptionDTO">
+        SELECT
+            po.option_id        AS optionId,
+            pov.option_value_id AS optionValueId,
+            po.product_id       AS productId,
+            po.option_name      AS optionName,
+            pov.option_value    AS optionValue,
+            pov.status          AS status
         FROM product_option po
                  JOIN product_option_value pov ON pov.option_id = po.option_id
         WHERE po.product_id = #{productId}
         ORDER BY po.option_name, pov.sort_order, pov.option_value
+    </select>
+
+
+    <update id="updateOptionValueStatus">
+        UPDATE product_option_value
+        SET status = #{status}
+        WHERE option_value_id = #{optionValueId}
+    </update>
+
+    <select id="countSkuLinksByOptionValueId" resultType="int">
+        SELECT COUNT(*)
+        FROM option_value_sku
+        WHERE option_value_id = #{optionValueId}
+    </select>
+
+    <select id="findOptionValueStatus" resultType="string">
+        SELECT status
+        FROM product_option_value
+        WHERE option_value_id = #{optionValueId}
     </select>
 
     <select id="existsProductOption" resultType="int">

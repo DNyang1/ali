@@ -2,6 +2,7 @@ package com.finalProject.ali.order.controller;
 
 import com.finalProject.ali.order.domain.OrderPreviewResponse;
 import com.finalProject.ali.order.dto.DirectOrderRequest;
+import com.finalProject.ali.order.dto.OrderCreateRequest;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
 import com.finalProject.ali.order.service.OrderService;
 import com.finalProject.ali.user.dto.UserDTO;
@@ -11,16 +12,16 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/orders")
+@RequestMapping("/api/order")
 public class OrderController {
 
     private final OrderService orderService;
 
     @PostMapping
-    public OrderCreateResponse create(HttpSession session) {
+    public OrderCreateResponse create(@RequestBody OrderCreateRequest request, HttpSession session) {
         UserDTO user = (UserDTO) session.getAttribute("loginUser");
         String userId = user.getUserId();
-        return orderService.createOrder(userId);
+        return orderService.createOrder(userId, request);
     }
 
     @GetMapping("/preview")

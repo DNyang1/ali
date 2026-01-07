@@ -50,7 +50,8 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
         addCommonAttributes(model);
 
         model.addAttribute("productId", productId);
-        model.addAttribute("options", service.options(productId, supplierId()));
+        model.addAttribute("options", service.optionsAll(productId, supplierId()));
+
 
         return "mypage/supplier/product/option";
     }
@@ -68,7 +69,7 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
         model.addAttribute("productId", productId);
         model.addAttribute("skus", service.getSkusWithEditable(productId, supplierId()));
 
-        var options = service.options(productId, supplierId());
+        var options = service.optionsActive(productId, supplierId());
         model.addAttribute("options", options);
 
         Map<String, List<OptionDTO>> optionGroups = options.stream()
@@ -87,15 +88,14 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
 
     @PostMapping("/mypage/supplier/product/{productId}/sku")
     public String addSku(@PathVariable Long productId,
-                         @ModelAttribute("skuForm") SkuForm skuForm,
-                         @RequestParam(value = "optionValueIds", required = false)
-                         List<String> optionValueIds) {
+                         @ModelAttribute("skuForm") SkuForm skuForm) {
 
-        skuForm.setOptionValueIds(optionValueIds);
-
-        service.createSku(productId, supplierId(), skuForm);
-
-        return "redirect:/mypage/supplier/product/" + productId + "/sku";
+        try {
+            service.createSku(productId, supplierId(), skuForm);
+            return "redirect:/mypage/supplier/product/" + productId + "/sku";
+        } catch (IllegalStateException e) {
+                        return "redirect:/mypage/supplier/product/" + productId + "/sku?error=dup";
+        }
     }
 
 
@@ -103,6 +103,7 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
     public String editSkuOptions(@PathVariable Long productId,
                                  @PathVariable String skuId,
                                  Model model) {
+
         if (!service.canEditSkuOptions(skuId)) {
             return "redirect:/mypage/supplier/product/" + productId + "/sku?error=sold";
         }
@@ -114,15 +115,18 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
         model.addAttribute("productId", productId);
         model.addAttribute("skuId", skuId);
 
-        var allOptions = service.options(productId, supplierId());
-        var linked = service.findOptionsBySkuId(productId, supplierId(), skuId);
+        var OptionActive = service.optionsActive(productId, supplierId());
+        var linked = service.findOptionsBySkuIdV2(productId, supplierId(), skuId);
 
-        Set<String> selected = new HashSet<>();
-        for (var o : linked) selected.add(o.getOptionId());
+        Map<String, String> selectedMap = new LinkedHashMap<>();
+        for (var o : linked) {
+            selectedMap.put(o.getOptionName(), o.getOptionValueId());
+        }
 
-        model.addAttribute("options", allOptions);
-        model.addAttribute("selectedOptionIds", selected);
-        Map<String, List<OptionDTO>> optionGroups = allOptions.stream()
+        model.addAttribute("options", OptionActive);
+        model.addAttribute("selectedMap", selectedMap);
+
+        Map<String, List<OptionDTO>> optionGroups = OptionActive.stream()
                 .collect(Collectors.groupingBy(
                         OptionDTO::getOptionName,
                         LinkedHashMap::new,
@@ -137,18 +141,33 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
     @PostMapping("/mypage/supplier/product/{productId}/sku/{skuId}/edit-options")
     public String updateSkuOptions(@PathVariable Long productId,
                                    @PathVariable String skuId,
-                                   @RequestParam(value = "optionValueIds", required = false)
-                                   List<String> optionValueIds) {
+                                   @ModelAttribute SkuForm skuForm) {
 
         try {
+            List<String> optionValueIds = (skuForm.getSelected() == null)
+                    ? List.of()
+                    : skuForm.getSelected().values().stream()
+                    .filter(v -> v != null && !v.isBlank())
+                    .distinct()
+                    .toList();
+
             service.updateSkuOptions(productId, supplierId(), skuId, optionValueIds);
+
             return "redirect:/mypage/supplier/product/" + productId + "/sku?updated=1";
+
         } catch (IllegalStateException e) {
+
+            if (e.getMessage() != null && e.getMessage().contains("동일한 옵션 조합")) {
+                return "redirect:/mypage/supplier/product/" + productId + "/sku?error=dup";
+            }
+
             return "redirect:/mypage/supplier/product/" + productId + "/sku?error=sold";
+
         } catch (IllegalArgumentException e) {
             return "redirect:/mypage/supplier/product/" + productId + "/sku/" + skuId + "/edit-options?error=empty";
         }
     }
+
     @GetMapping("/mypage/supplier/sku/{skuId}/prices")
     @ResponseBody
     public List<SkuPriceDTO> getSkuPrices(@PathVariable String skuId) {
@@ -193,4 +212,29 @@ public class SupplierProductOptionSkuController extends BaseSupplierController {
         service.updateOptionValue(optionId, optionValue.trim());
         return "redirect:/mypage/supplier/product/" + productId + "/option?updated=1";
     }
+    @PostMapping("/mypage/supplier/product/{productId}/option-values/{optionValueId}/toggle")
+    public String toggleOptionValue(
+            @PathVariable Long productId,
+            @PathVariable String optionValueId
+    ) {
+        try {
+            service.toggleOptionValueStatus(productId, supplierId(), optionValueId);
+            return "redirect:/mypage/supplier/product/" + productId + "/option";
+        } catch (IllegalStateException e) {
+            return "redirect:/mypage/supplier/product/" + productId + "/option?error=locked";
+        }
+    }
+
+
+    @PostMapping("/mypage/supplier/product/option-value/{optionValueId}/update")
+    public String updateOptionValueV2(
+            @PathVariable String optionValueId,
+            @RequestParam Long productId,
+            @SessionAttribute("supplierId") String supplierId,
+            @RequestParam String optionValue
+    ) {
+        service.updateOptionValue(optionValueId, optionValue); // 지금 메서드 그대로 사용 가능
+        return "redirect:/mypage/supplier/product/" + productId + "/option";
+    }
+
 }
