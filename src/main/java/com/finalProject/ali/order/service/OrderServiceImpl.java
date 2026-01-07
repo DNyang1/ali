@@ -11,7 +11,7 @@ import com.finalProject.ali.order.dto.OrderCreateRequest;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
-import com.finalProject.ali.products.dao.SkusPriceDAO;
+import com.finalProject.ali.product.dao.SkuPriceDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService{
 
     private final CartService cartService;
-    private final SkusPriceDAO skuPriceDAO;
+    private final SkuPriceDAO skuPriceDAO;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
 

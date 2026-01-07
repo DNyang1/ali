@@ -2,8 +2,8 @@ package com.finalProject.ali.chat.controller;
 
 import com.finalProject.ali.chat.dto.*;
 import com.finalProject.ali.chat.service.ChatService;
-import com.finalProject.ali.products.dto.ProductsDTO;
-import com.finalProject.ali.products.service.ProductService;
+import com.finalProject.ali.product.dto.ProductDTO;
+import com.finalProject.ali.product.service.ProductService;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -100,7 +100,7 @@ public class ChatRestController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "productId is required");
         }
 
-        ProductsDTO product = productService.productDetail(productId);
+        ProductDTO product = productService.productDetail(productId);
         if (product == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다.");
         }
