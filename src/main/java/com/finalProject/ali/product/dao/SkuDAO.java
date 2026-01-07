@@ -29,4 +29,10 @@ public interface SkuDAO {
 
     List<SkuRowDTO> findSkuRowsByProductId(Long productId);
 
+    SkuDTO findSkuByOptionValues(
+            @Param("optionValueIds") List<String> optionValueIds,
+            @Param("optionCount") int optionCount
+    );
+
+
 }

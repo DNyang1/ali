@@ -1,15 +1,27 @@
-const selectedOptions = {};
 let modalMode = null;
-const PARSED_SKUS = typeof SKUS === 'string' ? JSON.parse(SKUS) : SKUS;
+
+const RAW_SKUS = window.SKUS || [];
+const PARSED_SKUS = Array.isArray(RAW_SKUS)
+    ? RAW_SKUS
+    : (typeof RAW_SKUS === 'string' ? JSON.parse(RAW_SKUS) : []);
+
+const DEFAULT_PRICE_RULES_SAFE =
+    window.DEFAULT_PRICE_RULES || [];
+
+console.log('JS PARSED_SKUS 👉', PARSED_SKUS);
+console.log('JS PRICE RULES 👉', DEFAULT_PRICE_RULES_SAFE);
+
 
 function closeModal() {
     const modal = document.getElementById('orderModal');
     const overlay = document.getElementById('orderModalOverlay');
+    if (!modal || !overlay) return;
 
     modal.style.display = 'none';
     overlay.style.display = 'none';
     document.body.style.overflow = 'auto';
 }
+
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('orderModal');
     const overlay = document.getElementById('orderModalOverlay');
@@ -17,12 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const openCartBtn = document.getElementById('openCartModal');
     const closeBtn = document.getElementById('closeOrderModal');
 
-    const qtyInput = document.getElementById('orderQty');
-    const priceEl = document.getElementById('orderPrice');
-
-
     const rules = normalizePriceRules(DEFAULT_PRICE_RULES);
-
 
     renderMainPriceTiers(rules);
 
@@ -35,142 +42,187 @@ document.addEventListener('DOMContentLoaded', () => {
         modalMode = 'CART';
         openModal();
     });
-    function openModal() {
-        Object.keys(selectedOptions).forEach(key => delete selectedOptions[key]);
-        document.querySelectorAll('.option-btn.active')
-            .forEach(btn => btn.classList.remove('active'));
 
+    function openModal() {
         modal.style.display = 'block';
         overlay.style.display = 'block';
         document.body.style.overflow = 'hidden';
 
         renderPriceTiers(rules);
-        updatePrice();
-
+        renderSkuList(PARSED_SKUS);
+        updateSummary();
         updateModalButtons();
     }
-    function updateModalButtons() {
-        const orderBtn = document.getElementById('submitOrder');
-        const cartBtn = document.getElementById('submitCart');
 
-        if (modalMode === 'ORDER') {
-            orderBtn.style.display = 'block';
-            cartBtn.style.display = 'none';
-        } else {
-            orderBtn.style.display = 'none';
-            cartBtn.style.display = 'block';
-        }
+    function updateModalButtons() {
+        document.getElementById('submitOrder').style.display =
+            modalMode === 'ORDER' ? 'block' : 'none';
+        document.getElementById('submitCart').style.display =
+            modalMode === 'CART' ? 'block' : 'none';
     }
+
     closeBtn?.addEventListener('click', closeModal);
     overlay?.addEventListener('click', closeModal);
 
+    document.getElementById('submitOrder')?.addEventListener('click', () => submit('ORDER'));
+    document.getElementById('submitCart')?.addEventListener('click', () => submit('CART'));
 
+    function submit(type) {
+        const items = collectSkuItems();
+        const totalQty = items.reduce((s, i) => s + i.quantity, 0);
 
-    document.addEventListener('click', e => {
-        const btn = e.target.closest('.option-btn');
-        if (!btn) return;
-
-        const box = btn.closest('.option-box');
-        if (!box) return;
-
-        const name = box.querySelector('.option-title')?.innerText?.trim();
-        const valueId = btn.dataset.optionValueId;
-
-        console.log('[OPTION CLICK]', { name, valueId });
-
-        // 기존 active 처리
-        box.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        selectedOptions[name] = valueId;
-        console.log('[selectedOptions NOW]', JSON.stringify(selectedOptions));
-    });
-
-    qtyInput?.addEventListener('input', updatePrice);
-
-    function updatePrice() {
-        const qty = Number(qtyInput.value || 1);
-        const unitPrice = findUnitPriceByQty(rules, qty);
-
-        priceEl.dataset.unitPrice = unitPrice;
-        priceEl.innerText = (qty * unitPrice).toLocaleString() + '원';
-    }
-
-    document.getElementById('submitOrder')?.addEventListener('click', () => {
-        handleSubmit('ORDER');
-    });
-
-    document.getElementById('submitCart')?.addEventListener('click', () => {
-        handleSubmit('CART');
-    });
-    function handleSubmit(type) {
-
-        const skuId = resolveSkuId();
-
-        if (!skuId) {
-            alert('옵션을 모두 선택해주세요.');
-            return;
-        }
-
-        const quantity = Number(qtyInput.value);
-
-        if (quantity < MOQ) {
+        if (totalQty < MOQ) {
             alert(`최소 주문 수량은 ${MOQ}개입니다.`);
             return;
         }
-
-        if (type === 'CART') {
-            addToCart(skuId, quantity);
+        if (items.length === 0) {
+            alert('수량을 선택하세요.');
+            return;
         }
+
+        const first = items[0];
 
         if (type === 'ORDER') {
-            buyNow(skuId, quantity);
+            buyNow(first.skuId, first.quantity);
+        } else {
+            addToCart(first.skuId, first.quantity);
         }
     }
-
 });
 
+/* =========================
+   SKU 리스트 렌더링
+========================= */
+function renderSkuList(skus) {
+    const container = document.getElementById('skuList');
+    if (!container) return;
 
+    container.innerHTML = '';
+
+    skus.forEach(sku => {
+        const priceRules = sku.priceRules || [];
+        const unitPrice = findUnitPriceByQty(priceRules, MOQ);
+
+        const row = document.createElement('div');
+        row.className = 'sku-row';
+        row.dataset.skuId = sku.skuId;
+        row.dataset.unitPrice = unitPrice;
+
+        row.innerHTML = `
+            <div class="sku-left">
+                <div class="sku-id">${sku.skuId}</div>
+                <div class="sku-stock">재고 ${sku.stockQuantity ?? 0}개</div>
+            </div>
+            <div class="sku-right">
+                <span class="sku-price">₩${unitPrice.toLocaleString()}</span>
+                <div class="qty-box">
+                    <button class="qty-minus">-</button>
+                    <span class="qty">0</span>
+                    <button class="qty-plus">+</button>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(row);
+    });
+
+    bindSkuQtyEvents();
+}
+
+
+/* =========================
+   수량 +/- 이벤트
+========================= */
+function bindSkuQtyEvents() {
+    document.querySelectorAll('.sku-row').forEach(row => {
+        const minus = row.querySelector('.qty-minus');
+        const plus = row.querySelector('.qty-plus');
+        const qtyEl = row.querySelector('.qty');
+
+        minus.addEventListener('click', () => {
+            let q = Number(qtyEl.innerText);
+            if (q > 0) q--;
+            qtyEl.innerText = q;
+            updateSummary();
+        });
+
+        plus.addEventListener('click', () => {
+            let q = Number(qtyEl.innerText);
+            const stock = Number(
+                PARSED_SKUS.find(s => s.skuId === row.dataset.skuId)?.stockQuantity || 0
+            );
+            if (q < stock) q++;
+            qtyEl.innerText = q;
+            updateSummary();
+        });
+    });
+}
+
+/* =========================
+   총 수량 / 금액
+========================= */
+function updateSummary() {
+    let totalQty = 0;
+    let totalPrice = 0;
+
+    document.querySelectorAll('.sku-row').forEach(row => {
+        const qty = Number(row.querySelector('.qty').innerText);
+        const unitPrice = Number(row.dataset.unitPrice);
+
+        totalQty += qty;
+        totalPrice += qty * unitPrice;
+    });
+
+    document.getElementById('totalQty').innerText = totalQty;
+    document.getElementById('totalPrice').innerText =
+        totalPrice.toLocaleString() + '원';
+}
+
+/* =========================
+   SKU 수집
+========================= */
+function collectSkuItems() {
+    const items = [];
+
+    document.querySelectorAll('.sku-row').forEach(row => {
+        const qty = Number(row.querySelector('.qty').innerText);
+        if (qty > 0) {
+            items.push({
+                skuId: row.dataset.skuId,
+                quantity: qty
+            });
+        }
+    });
+
+    return items;
+}
+
+/* =========================
+   가격 로직
+========================= */
 function normalizePriceRules(data) {
     if (Array.isArray(data)) return data;
+    try { return JSON.parse(data); } catch { return []; }
+}
 
-    if (typeof data === 'string') {
-        try {
-            return JSON.parse(data);
-        } catch (e) {
-            console.error('가격 JSON 파싱 실패', e);
-            return [];
-        }
-    }
-    return [];
+function findUnitPriceByQty(priceRules, qty) {
+    return [...priceRules]
+        .sort((a, b) => b.minQty - a.minQty)
+        .find(r => qty >= r.minQty && (r.maxQty == null || qty <= r.maxQty))
+        ?.unitPrice || 0;
 }
 
 function renderPriceTiers(priceRules) {
     const container = document.getElementById('priceTiers');
+    if (!container) return;
+
     container.innerHTML = '';
-
-    if (!priceRules || priceRules.length === 0) {
-        container.innerHTML = '<li>가격 정보 없음</li>';
-        return;
-    }
-
-    priceRules.forEach(rule => {
-        const min = Number(rule.minQty);
-        const max = rule.maxQty !== null ? Number(rule.maxQty) : null;
-        const price = Number(rule.unitPrice);
-
-        const rangeText = max
-            ? `${min} - ${max} 개`
-            : `${min} 개 이상`;
-
+    priceRules.forEach(r => {
         const li = document.createElement('li');
-        li.className = 'price-tier-item';
-
         li.innerHTML = `
-            <span>${rangeText}</span>
-            <span>₩${price.toLocaleString()}</span>
+            <span>${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개</span>
+            <span>₩${Number(r.unitPrice).toLocaleString()}</span>
         `;
-
         container.appendChild(li);
     });
 }
@@ -180,105 +232,19 @@ function renderMainPriceTiers(priceRules) {
     if (!container) return;
 
     container.innerHTML = '';
-
-    if (!priceRules || priceRules.length === 0) {
-        container.innerHTML = '<span>가격 정보 없음</span>';
-        return;
-    }
-
-    priceRules.forEach(rule => {
-        const min = Number(rule.minQty);
-        const max = rule.maxQty !== null ? Number(rule.maxQty) : null;
-        const price = Number(rule.unitPrice);
-
-        const rangeText = max
-            ? `${min} - ${max} 개`
-            : `≥ ${min} 개`;
-
+    priceRules.forEach(r => {
         const div = document.createElement('div');
-        div.className = 'main-price-tier';
-
         div.innerHTML = `
-            <div class="range">${rangeText}</div>
-            <div class="price">₩${price.toLocaleString()}</div>
+            <div>${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개</div>
+            <div>₩${Number(r.unitPrice).toLocaleString()}</div>
         `;
-
         container.appendChild(div);
     });
 }
 
-function findUnitPriceByQty(priceRules, qty) {
 
-    // ✅ minQty 큰 순서로 정렬
-    const sortedRules = [...priceRules].sort(
-        (a, b) => Number(b.minQty) - Number(a.minQty)
-    );
 
-    for (const rule of sortedRules) {
-        const min = Number(rule.minQty);
-        const max = rule.maxQty !== null ? Number(rule.maxQty) : Infinity;
 
-        if (qty >= min && qty <= max) {
-            return Number(rule.unitPrice);
-        }
-    }
-
-    return 0;
-}
-function resolveSkuId() {
-    const selectedValueIds = Object.values(selectedOptions);
-
-    if (selectedValueIds.length === 0) return null;
-
-    for (const sku of PARSED_SKUS) {
-        const skuOptionIds = sku.optionValueIds || [];
-
-        // ✅ 핵심 수정 포인트
-        const matched = skuOptionIds.every(id =>
-            selectedValueIds.includes(id)
-        );
-
-        if (matched) {
-            return sku.skuId;
-        }
-    }
-    return null;
-}
-function addToCart(skuId, quantity) {
-    fetch('/api/cart/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            productId: PRODUCT_ID,
-            skuId: skuId,
-            quantity: quantity
-        })
-    })
-        .then(res => {
-            if (!res.ok) throw new Error('장바구니 추가 실패');
-        })
-        .then(() => {
-            alert('장바구니에 담겼습니다.');
-            closeModal();
-        });
-}
-function buyNow(skuId, quantity) {
-    fetch('/api/orders/preview/direct', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            productId: PRODUCT_ID,
-            skuId: skuId,
-            quantity: quantity
-        })
-    })
-        .then(res => {
-            if (!res.ok) throw new Error('바로 주문 미리보기 실패');
-        })
-        .then(() => {
-            location.href = '/orders/checkout';
-        });
-}
 
 
 /* ======================================================
@@ -372,6 +338,43 @@ function buyNow(skuId, quantity) {
         return originalResolveSkuId();
     };
 })();
+
+
+function addToCart(skuId, quantity) {
+    fetch('/api/cart/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            productId: PRODUCT_ID,
+            skuId: skuId,
+            quantity: quantity
+        })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error('장바구니 추가 실패');
+        })
+        .then(() => {
+            alert('장바구니에 담겼습니다.');
+            closeModal();
+        });
+}
+function buyNow(skuId, quantity) {
+    fetch('/api/orders/preview/direct', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            productId: PRODUCT_ID,
+            skuId: skuId,
+            quantity: quantity
+        })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error('바로 주문 미리보기 실패');
+        })
+        .then(() => {
+            location.href = '/orders/checkout';
+        });
+}
 
 // 송진영이 추가함
 document.querySelector('.btn.chat')?.addEventListener('click', async (e) => {
