@@ -8,7 +8,7 @@ import lombok.Setter;
 public class SkuRowDTO {
     //공통
     private String skuId;
-    private Integer stockQuantity;
+    private Long stockQuantity;
     //현성
     private Long productId;
     private String optionValueId;

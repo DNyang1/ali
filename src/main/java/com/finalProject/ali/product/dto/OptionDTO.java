@@ -13,6 +13,7 @@ public class OptionDTO {
     //태민
     private String optionId;
     private Long productId;
+    private String status;
 
     // 현성
     private String optionValueId;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>장바구니</title>
     <style>
-        body { margin:0; padding:40px 0; background:#f5f5f5; font-family:Arial,sans-serif; }
+        body { margin:0; background:#f5f5f5; font-family:Arial,sans-serif; }
         .page { max-width:900px; margin:0 auto; padding:0 16px; }
         .card { background:#fff; border-radius:14px; padding:24px; box-shadow:0 6px 24px rgba(0,0,0,.08); margin-bottom:24px; }
         h2 { margin:0 0 20px; font-size:22px; }
@@ -17,9 +17,11 @@
         .dev-panel { background:#fafafa; border:1px dashed #ccc; border-radius:12px; padding:16px; }
         .dev-panel input { padding:6px 8px; margin-right:6px; font-size:13px; }
     </style>
+    <link rel="stylesheet" href="/main/css/main-header.css">
+    <link rel="stylesheet" href="/main/css/common.css">
 </head>
 <body>
-
+<div th:replace="layout/mainHeader :: mainHeader"></div>
 <div class="page">
 
     <section class="card">
@@ -27,7 +29,7 @@
         <div id="cart-items"></div>
 
         <div class="actions">
-            <a href="/orders/checkout">
+            <a href="/order/checkout">
                 <button>결제하기</button>
             </a>
         </div>
