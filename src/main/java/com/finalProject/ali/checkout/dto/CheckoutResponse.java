@@ -1,4 +1,4 @@
-package com.finalProject.ali.order.domain;
+package com.finalProject.ali.checkout.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class OrderPreviewResponse {
-    private List<OrderPreviewItem> items;
+public class CheckoutResponse {
+    private List<CheckoutItem> items;
     private Long totalAmount;
+    private Long addressId;
 }

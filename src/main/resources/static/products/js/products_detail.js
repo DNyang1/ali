@@ -359,21 +359,15 @@ function addToCart(skuId, quantity) {
         });
 }
 function buyNow(skuId, quantity) {
-    fetch('/api/order/preview/direct', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            productId: PRODUCT_ID,
-            skuId: skuId,
-            quantity: quantity
-        })
-    })
-        .then(res => {
-            if (!res.ok) throw new Error('바로 주문 미리보기 실패');
-        })
-        .then(() => {
-            location.href = '/order/checkout';
-        });
+    // 1️⃣ 바로 주문도 checkoutItems로 통일
+    const items = [{
+        skuId: skuId,
+        quantity: quantity
+    }];
+
+    localStorage.setItem('checkoutItems', JSON.stringify(items));
+
+    location.href = '/order/checkout';
 }
 
 // 송진영이 추가함

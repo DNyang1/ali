@@ -143,12 +143,29 @@
     /* =======================
        주문 미리보기
        ======================= */
-    function loadPreview() {
-        fetch('/api/order/preview/current')
-            .then(res => res.json())
-            .then(renderPreview);
-    }
 
+    async function loadCheckout() {
+        const items = JSON.parse(localStorage.getItem('checkoutItems'));
+
+        if (!items || items.length === 0) {
+            alert('결제 정보가 없습니다.');
+            location.href = '/cart';
+            return;
+        }
+
+        const res = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: items,
+                addressId: null
+            })
+        });
+
+        const checkout = await res.json();
+        renderPreview(checkout);
+        window.currentCheckout = checkout; // 주문 생성용 보관
+    }
     function renderPreview(data) {
         const container = document.getElementById('preview-items');
         container.innerHTML = '';
@@ -241,6 +258,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    ...window.currentCheckout,
                     addressId: selectedAddressId
                 })
             });
@@ -293,7 +311,7 @@
     }
 
     /* 초기 로딩 */
-    loadPreview();
+    loadCheckout();
     loadAddresses();
 </script>
 

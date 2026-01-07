@@ -1,15 +1,18 @@
-package com.finalProject.ali.order.domain;
+package com.finalProject.ali.cart.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderPreviewItem {
-    private String skuId;
+public class CartItemViewResponse {
+    private String cartItemId;
     private Long productId;
     private String productName;
+    private String skuId;
     private Long quantity;
     private Long unitPrice;
     private Long lineAmount;
+
+    private String optionSummary;
 }

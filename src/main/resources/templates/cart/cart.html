@@ -29,9 +29,7 @@
         <div id="cart-items"></div>
 
         <div class="actions">
-            <a href="/order/checkout">
-                <button>결제하기</button>
-            </a>
+                <button onclick="goCheckout()">결제하기</button>
         </div>
     </section>
 
@@ -64,16 +62,24 @@
         cart.items.forEach(item => {
             const div = document.createElement('div');
             div.className = 'cart-item';
+
             div.innerHTML = `
-                <div class="cart-info">
-                    <strong>상품 이름: ${item.productName}</strong>
-                    <span>SKU: ${item.skuId}</span>
-                    <span>수량: ${item.quantity}</span>
-                </div>
-                <div class="cart-actions">
-                    <button onclick="deleteItem('${item.cartItemId}')">삭제</button>
-                </div>
-            `;
+            <div class="cart-info">
+                <label>
+                    <input type="checkbox"
+                           class="cart-check"
+                           data-sku-id="${item.skuId}"
+                           data-quantity="${item.quantity}">
+                    <strong>${item.productName}</strong>
+                </label>
+                <span>옵션: ${item.optionSummary ?? '-'}</span>
+                <span>수량: ${item.quantity}</span>
+                <span>${item.lineAmount} 원</span>
+            </div>
+            <div class="cart-actions">
+                <button onclick="deleteItem('${item.cartItemId}')">삭제</button>
+            </div>
+        `;
             container.appendChild(div);
         });
     }
@@ -93,6 +99,26 @@
     function deleteItem(id) {
         fetch(`/api/cart/items/${id}`, { method: 'DELETE' })
             .then(loadCart);
+    }
+
+    function goCheckout() {
+        const selected = [];
+
+        document.querySelectorAll('.cart-check:checked')
+            .forEach(cb => {
+                selected.push({
+                    skuId: cb.dataset.skuId,
+                    quantity: Number(cb.dataset.quantity)
+                });
+            });
+
+        if (selected.length === 0) {
+            alert('결제할 상품을 선택해주세요.');
+            return;
+        }
+
+        localStorage.setItem('checkoutItems', JSON.stringify(selected));
+        location.href = '/order/checkout';
     }
 
     loadCart();
