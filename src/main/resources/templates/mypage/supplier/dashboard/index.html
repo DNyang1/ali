@@ -73,34 +73,29 @@
                 <tr>
                     <th>항목</th>
                     <th>건수</th>
-                    <th>최신 발생일</th>
                     <th>바로가기</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                    <td>답변 대기 문의</td>
-                    <td th:text="${summary.openInquiries} ?: 0">0</td>
-                    <td th:text="${summary.latestInquiryAt} ?: '-'">-</td>
-                    <td>
-                        <a href="/mypage/supplier/inquiry?status=OPEN">처리하기</a>
-                    </td>
+                    <td>구매확정 대기 주문</td>
+                    <td>0</td>
+                    <td><a class="btn-sm" th:href="@{/mypage/supplier/orders}">처리</a></td>
                 </tr>
                 <tr>
-                    <td>배송 미처리 주문</td>
-                    <td th:text="${summary.shippingPending} ?: 0">0</td>
-                    <td th:text="${summary.latestShippingPendingAt} ?: '-'">-</td>
-                    <td>
-                        <a href="/mypage/supplier/order?filter=SHIPPING_PENDING">처리하기</a>
-                    </td>
+                    <td>환불 / 취소 요청</td>
+                    <td>0</td>
+                    <td><a class="btn-sm" th:href="@{/mypage/supplier/claims}">확인</a></td>
                 </tr>
                 <tr>
-                    <td>정산 미확정 내역</td>
-                    <td th:text="${summary.settlementPending} ?: 0">0</td>
-                    <td th:text="${summary.latestSettlementPendingAt} ?: '-'">-</td>
-                    <td>
-                        <a href="/mypage/supplier/settlement?status=PENDING">처리하기</a>
-                    </td>
+                    <td>견적 요청 대기</td>
+                    <td>0</td>
+                    <td><a class="btn-sm" th:href="@{/mypage/supplier/quotes}">답변</a></td>
+                </tr>
+                <tr>
+                    <td>재고 5개 이하 SKU</td>
+                    <td>0</td>
+                    <td><a class="btn-sm" th:href="@{/mypage/supplier/stock}">보충</a></td>
                 </tr>
                 </tbody>
             </table>
