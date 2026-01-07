@@ -11,4 +11,6 @@ public class CartItemView {
     private String productName;
     private String skuId;
     private Long quantity;
+
+    private String optionSummary;
 }
