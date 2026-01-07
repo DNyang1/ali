@@ -31,9 +31,9 @@ public class ProductOptionSkuService {
         return product;
     }
 
-    public List<OptionDTO> options(Long productId, String supplierId) {
+    public List<OptionDTO> optionsActive(Long productId, String supplierId) {
         loadMyProductOrThrow(productId, supplierId);
-        return optionDAO.findByProductId(productId);
+        return optionDAO.findByProductIdV2(productId);
     }
 
 
@@ -220,6 +220,27 @@ public class ProductOptionSkuService {
     public void updateOptionValue(String optionId, String optionValue){
         optionDAO.updateOptionValue(optionId, optionValue);
     }
+    @Transactional
+    public void toggleOptionValueStatus(Long productId, String supplierId, String optionValueId) {
+        loadMyProductOrThrow(productId, supplierId);
+
+        int links = optionDAO.countSkuLinksByOptionValueId(optionValueId);
+        if (links > 0) {
+            throw new IllegalStateException("SKU가 등록된 옵션값은 비활성화할 수 없습니다.");
+        }
+
+        String cur = optionDAO.findOptionValueStatus(optionValueId);
+        if (cur == null) throw new IllegalArgumentException("옵션값이 존재하지 않습니다.");
+
+        String next = "ACTIVE".equals(cur) ? "INACTIVE" : "ACTIVE";
+        optionDAO.updateOptionValueStatus(optionValueId, next);
+    }
+    public List<OptionDTO> optionsAll(Long productId, String supplierId) {
+        loadMyProductOrThrow(productId, supplierId);
+        return optionDAO.findByProductIdV2All(productId);
+
+    }
+
 
 
 }
