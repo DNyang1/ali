@@ -5,8 +5,6 @@ import com.finalProject.ali.cart.dto.CartResponse;
 import com.finalProject.ali.cart.service.CartService;
 import com.finalProject.ali.order.domain.Order;
 import com.finalProject.ali.order.domain.OrderItem;
-import com.finalProject.ali.order.dto.OrderPreviewItem;
-import com.finalProject.ali.order.dto.OrderPreviewResponse;
 import com.finalProject.ali.order.dto.OrderCreateRequest;
 import com.finalProject.ali.order.dto.OrderCreateResponse;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
@@ -30,85 +28,28 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public OrderCreateResponse createOrder(String userId, OrderCreateRequest request) {
 
-        CartResponse cart = cartService.getCart(userId);
-
         Order order = new Order();
         order.setUserId(userId);
         order.setAddressId(request.getAddressId());
-        order.setTotalAmount(0L);
+        order.setTotalAmount(request.getTotalAmount());
         order.setStatus("CREATED");
         orderMapper.insert(order);
-        long total = 0L;
 
-        for (CartItemResponse ci : cart.getItems()) {
-            Long unitPrice = skuPriceDAO.findUnitPriceByQty(ci.getSkuId(), ci.getQuantity());
+        request.getItems().forEach(item -> {
             OrderItem oi = new OrderItem();
             oi.setOrderId(order.getOrderId());
-            oi.setSkuId(ci.getSkuId());
-            oi.setQuantity(ci.getQuantity());
-            oi.setUnitPrice(unitPrice);
+            oi.setSkuId(item.getSkuId());
+            oi.setQuantity(item.getQuantity());
+            oi.setUnitPrice(item.getUnitPrice());
 
             orderItemMapper.insert(oi);
-            total += unitPrice * ci.getQuantity();
-        }
+        });
 
-        orderMapper.updateTotalAmount(order.getOrderId(), total);
 
         OrderCreateResponse res = new OrderCreateResponse();
         res.setOrderId(order.getOrderId());
-        res.setTotalAmount(total);
+        res.setTotalAmount(order.getTotalAmount());
         return res;
     }
 
-    @Override
-    public OrderPreviewResponse getOrderPreview(String userId) {
-
-        CartResponse cart = cartService.getCart(userId);
-
-        if (cart.getItems().isEmpty()) {
-            return new OrderPreviewResponse(List.of(), 0L);
-        }
-
-        long total = 0L;
-        List<OrderPreviewItem> result = new ArrayList<>();
-
-        for (CartItemResponse ci : cart.getItems()) {
-            Long unitPrice = skuPriceDAO.findUnitPriceByQty(ci.getSkuId(), ci.getQuantity());
-            String productName = "test";
-            long lineAmount = unitPrice * ci.getQuantity();
-
-            OrderPreviewItem item = new OrderPreviewItem();
-            item.setSkuId(ci.getSkuId());
-            item.setProductName(productName);
-            item.setProductId(ci.getProductId());
-            item.setQuantity(ci.getQuantity());
-            item.setUnitPrice(unitPrice);
-            item.setLineAmount(lineAmount);
-
-            result.add(item);
-            total += lineAmount;
-        }
-
-
-        return new OrderPreviewResponse(result,total);
-    }
-
-    @Override
-    public OrderPreviewResponse getDirectOrderPreview(Long productId, String skuId, Long quantity) {
-        Long unitPrice = skuPriceDAO.findUnitPriceByQty(skuId, quantity);
-        String productName = "test";
-        long lineAmount = unitPrice * quantity;
-        OrderPreviewItem item = new OrderPreviewItem();
-        item.setProductId(productId);
-        item.setSkuId(skuId);
-        item.setProductName(productName);
-        item.setQuantity(quantity);
-        item.setUnitPrice(unitPrice);
-        item.setLineAmount(lineAmount);
-
-        return new OrderPreviewResponse(
-                List.of(item),
-                lineAmount
-        );
-    }
 }

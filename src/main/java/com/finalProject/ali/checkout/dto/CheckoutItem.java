@@ -1,14 +1,14 @@
-package com.finalProject.ali.order.dto;
+package com.finalProject.ali.checkout.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderPreviewItem {
-    private String skuId;
+public class CheckoutItem {
     private Long productId;
     private String productName;
+    private String skuId;
     private Long quantity;
     private Long unitPrice;
     private Long lineAmount;
