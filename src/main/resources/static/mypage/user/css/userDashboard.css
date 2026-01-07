@@ -1,4 +1,8 @@
-
+html{ font-size:15px; }
+body{
+  font-size:15px;
+  line-height:1.6;
+}
 
 .dash{ width:100%; margin:0; padding:0; }
 
@@ -12,14 +16,14 @@
 }
 .page-title{
   margin:0;
-  font-size:20px;
-  font-weight:900;
+  font-size:22px;
+  font-weight:800;
   letter-spacing:-0.01em;
   color:#111827;
 }
 .page-desc{
   margin:6px 0 0;
-  font-size:13px;
+  font-size:15px;
   color:#667085;
 }
 
@@ -50,11 +54,11 @@
   background:#fafafe;
   border:1px solid #e6e6ef;
   display:flex;align-items:center;justify-content:center;
-  font-weight:900;
+  font-weight:800;
 }
 .profile-meta{ min-width:0; }
-.profile-name{ font-weight:900; color:#111827; }
-.profile-sub{ font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.profile-name{ font-weight:800; color:#111827; }
+.profile-sub{ font-size:14px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 
 
 .profile-hero-actions{ display:flex; flex-wrap:wrap; gap:8px; }
@@ -65,7 +69,7 @@
   border:1px solid rgba(16,185,129,.25);
   background:rgba(16,185,129,.10);
   color:var(--brand,#10b981);
-  font-size:12px;font-weight:900;text-decoration:none;
+  font-size:14px;font-weight:700;text-decoration:none;
 }
 .hero-badge{
   min-width:18px;height:18px;
@@ -74,7 +78,7 @@
   display:inline-flex;align-items:center;justify-content:center;
   background:rgba(16,185,129,.18);
   border:1px solid rgba(16,185,129,.25);
-  font-size:12px;font-weight:900;
+  font-size:13px;font-weight:700;
 }
 
 
@@ -90,8 +94,8 @@
   display:flex;justify-content:space-between;align-items:center;
   border-bottom:1px solid #f0f0f4;
 }
-.panel-title{ font-size:14px;font-weight:900;margin:0; }
-.panel-link{ font-size:12px;color:var(--brand,#10b981);font-weight:900;text-decoration:none; }
+.panel-title{ font-size:16px;font-weight:800;margin:0; }
+.panel-link{ font-size:14px;color:var(--brand,#10b981);font-weight:700;text-decoration:none; }
 .panel-link:hover{ text-decoration:underline; }
 .panel-body{ padding:14px; }
 
@@ -108,16 +112,16 @@
 .dash-table th, .dash-table td{
   padding:10px;
   border-bottom:1px solid #f0f0f4;
-  font-size:13px;
+  font-size:15px;
 }
-.dash-table th{ color:#667085; font-weight:900; background:#fafafa; }
+.dash-table th{ color:#667085; font-weight:700; background:#fafafa; }
 .right{ text-align:right; }
 
 
 .badge{
   padding:4px 10px;
   border-radius:999px;
-  font-size:11px;
+  font-size:13px;
   border:1px solid #ddd;
   background:#f5f5fa;
   white-space:nowrap;
@@ -135,7 +139,7 @@
   border-radius:10px;
   border:1px solid #e8e8ee;
   background:#fafafe;
-  font-size:12px;font-weight:900;color:#111;
+  font-size:14px;font-weight:700;color:#111;
   text-decoration:none;
 }
 .btn-sm:hover{ background:#f5f5ff; }
@@ -149,8 +153,8 @@
   border-radius:10px;
   text-decoration:none;color:#111;background:#fff;
 }
-.mini-title{ font-size:13px;font-weight:700; }
-.mini-meta{ font-size:12px;color:#667; }
+.mini-title{ font-size:15px;font-weight:700; }
+.mini-meta{ font-size:14px;color:#667; }
 
 
 .card-grid{
@@ -170,7 +174,7 @@
 .p-sub{ font-size:12px;color:#667; }
 
 
-.empty,.empty-box{ color:#667;font-size:13px; }
+.empty,.empty-box{ color:#667;font-size:15px; }
 .empty-box{
   border:1px dashed #e8e8ee;
   border-radius:12px;
@@ -196,12 +200,12 @@
   background:#fafefe;
 }
 .action-list .name{
-  font-weight:900;
+  font-weight:700;
   color:#111827;
 }
 .action-list .count{
   margin-left:auto;
-  font-weight:900;
+  font-weight:700;
   color:var(--brand,#10b981);
 }
 .action-list a{
@@ -212,7 +216,7 @@
   border:1px solid rgba(16,185,129,.25);
   background: rgba(16,185,129,.10);
   color:var(--brand,#10b981);
-  font-weight:900;
+  font-weight:700;
   text-decoration:none;
   white-space:nowrap;
 }

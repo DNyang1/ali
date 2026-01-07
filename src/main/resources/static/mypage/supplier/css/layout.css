@@ -1,3 +1,8 @@
+html{ font-size:15px; }
+body{
+    font-size:15px;
+    line-height:1.6;
+}
 :root{
     --bg:#f5f6f8;
     --card:#fff;
@@ -9,7 +14,7 @@
     --brand-soft:rgba(37,99,235,.12);
     --danger:#dc2626;
 
-    --sidebar-w:240px;
+    --sidebar-w:180px;
     --topbar-h:64px;
     --radius:14px;
 }
@@ -25,8 +30,8 @@
 }
 
 .sidebar-title{
-    font-weight:900;
-    font-size:13px;
+    font-weight:700;
+    font-size:14px;
     letter-spacing:.04em;
     opacity:.7;
     margin-bottom:8px;
@@ -37,8 +42,8 @@
     text-decoration:none;
     padding:11px 14px;
     border-radius:12px;
-    font-size:14px;
-    font-weight:800;
+    font-size:15px;
+    font-weight:600;
     display:flex;
     align-items:center;
     transition:.15s;
@@ -52,11 +57,12 @@
 .sidebar a.active{
     background:var(--brand-soft);
     color:#fff;
+    font-weight:800;
     border:1px solid rgba(37,99,235,.35);
 }
 
 .sidebar-sub{
-    font-size:13px;
+    font-size:14px;
     color:#94a3b8;
 }
 
@@ -84,16 +90,16 @@
 }
 
 .brand{
-    font-weight:900;
-    font-size:18px;
+    font-weight:800;
+    font-size:20px;
     color:var(--brand);
     text-decoration:none;
 }
 
 .page-title{
-    font-size:14px;
+    font-size:15px;
     color:var(--muted);
-    font-weight:800;
+    font-weight:600;
 }
 
 .topbar-right{
@@ -111,8 +117,8 @@
     color:var(--brand);
     padding:7px 12px;
     border-radius:999px;
-    font-size:13px;
-    font-weight:800;
+    font-size:15px;
+    font-weight:700;
     text-decoration:none;
 }
 
@@ -120,18 +126,19 @@
     display:flex;
     align-items:center;
     gap:8px;
-    font-size:13px;
+    font-size:15px;
 }
 
 .username{
-    font-weight:800;
+    font-weight:700;
     color:#111827;
 }
 
 .logout{
     color:var(--danger);
     text-decoration:none;
-    font-weight:900;
+    font-weight:700;
+    font-size:15px;
 }
 
 .topbar{
