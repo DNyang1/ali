@@ -261,7 +261,6 @@
             const toNum = (v) => (v == null ? null : Number(v));
             const moq = getCurrentMoq();
 
-            // 기본가: (maxQty=null) + (minQty=1 또는 minQty=MOQ)
             const baseRow = list.find(r => {
                 if (r.maxQty != null) return false;
                 const min = toNum(r.minQty);
@@ -397,4 +396,10 @@
         });
     })();
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("error") === "dup") {
+            alert("이미 동일한 옵션 조합 SKU가 존재합니다.");
+        }
+    });
 

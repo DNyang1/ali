@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,19 +65,50 @@ public class ProductOptionSkuService {
             throw new IllegalStateException("이미 주문된 SKU는 옵션을 수정할 수 없습니다.");
         }
 
-        if (optionIds == null || optionIds.isEmpty()) {
-            throw new IllegalArgumentException("옵션을 최소 1개 선택해야 합니다.");
+        var activeOptions = optionDAO.findByProductIdV2(productId);
+
+        int requiredGroups = (int) activeOptions.stream()
+                .map(OptionDTO::getOptionName)
+                .distinct()
+                .count();
+
+        var allowed = activeOptions.stream()
+                .map(OptionDTO::getOptionValueId)
+                .collect(Collectors.toSet());
+
+        List<String> chosen = (optionIds == null ? List.<String>of() : optionIds).stream()
+                .filter(v -> v != null && !v.isBlank())
+                .distinct()
+                .toList();
+
+        if (chosen.isEmpty()) {
+            throw new IllegalArgumentException("옵션을 선택하세요.");
+        }
+
+        if (chosen.size() != requiredGroups) {
+            throw new IllegalArgumentException("옵션을 모두 선택해야 합니다.");
+        }
+
+        for (String id : chosen) {
+            if (!allowed.contains(id)) {
+                throw new IllegalArgumentException("허용되지 않은 옵션값입니다.");
+            }
+        }
+
+        int dup = skuDAO.countDuplicateSkuCombinationExcludingSku(productId, skuId, chosen, chosen.size());
+        if (dup > 0) {
+            throw new IllegalStateException("이미 동일한 옵션 조합 SKU가 존재합니다.");
         }
 
         skuDAO.deleteLinksBySkuId(skuId);
-        for (String optionId : optionIds) {
-            skuDAO.insertLink(skuId, optionId);
+        for (String optionValueId : chosen) {
+            skuDAO.insertLink(skuId, optionValueId);
         }
     }
 
-    public List<OptionDTO> findOptionsBySkuId(Long productId, String supplierId, String skuId) {
+    public List<OptionDTO> findOptionsBySkuIdV2(Long productId, String supplierId, String skuId) {
         loadMyProductOrThrow(productId, supplierId);
-        return skuDAO.findOptionsBySkuId(skuId);
+        return skuDAO.findOptionsBySkuIdV2(skuId);
     }
 
     public List<SkuDTO> getSkusWithEditable(Long productId, String supplierId) {
@@ -142,14 +174,29 @@ public class ProductOptionSkuService {
         sku.setSkuId(skuId);
         sku.setProductId(productId);
         sku.setStockQuantity(form.getStock() == null ? 0L : form.getStock());
+
         Long moq = (form.getMoq() == null ? 1L : form.getMoq());
         if (moq < 1) throw new IllegalArgumentException("MOQ는 1 이상이어야 합니다.");
         sku.setMoq(moq);
+
         sku.setStatus("ACTIVE");
         sku.setCreatedAt(LocalDate.now());
+
         if (form.getBasePrice() == null || form.getBasePrice() <= 0) {
             throw new IllegalArgumentException("기본 단가는 0보다 커야 합니다.");
         }
+
+        var chosen = form.getSelected().values().stream()
+                .filter(v -> v != null && !v.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
+
+        int dup = skuDAO.countDuplicateSkuCombination(productId, chosen, chosen.size());
+        if (dup > 0) {
+            throw new IllegalStateException("이미 동일한 옵션 조합 SKU가 존재합니다.");
+        }
+
         skuDAO.insert(sku);
         skuPriceDAO.insertPrice(skuId, 1, null, Math.toIntExact(form.getBasePrice()));
 
@@ -169,14 +216,39 @@ public class ProductOptionSkuService {
                 );
             }
         }
-        if (form.getOptionValueIds() != null) {
-            for (String optionValueId : form.getOptionValueIds()) {
-                skuDAO.insertLink(skuId, optionValueId);
+
+        var activeOptions = optionDAO.findByProductIdV2(productId);
+
+        int requiredGroups = (int) activeOptions.stream()
+                .map(OptionDTO::getOptionName)
+                .distinct()
+                .count();
+
+        if (form.getSelected() == null || form.getSelected().isEmpty()) {
+            throw new IllegalArgumentException("옵션을 선택하세요.");
+        }
+
+        if (form.getSelected().size() != requiredGroups) {
+            throw new IllegalArgumentException("옵션을 모두 선택해야 합니다.");
+        }
+
+        var allowed = activeOptions.stream()
+                .map(OptionDTO::getOptionValueId)
+                .collect(Collectors.toSet());
+
+        for (String optionValueId : form.getSelected().values()) {
+            if (optionValueId == null || optionValueId.isBlank()) {
+                throw new IllegalArgumentException("옵션을 모두 선택해야 합니다.");
             }
+            if (!allowed.contains(optionValueId)) {
+                throw new IllegalArgumentException("허용되지 않은 옵션값입니다.");
+            }
+            skuDAO.insertLink(skuId, optionValueId);
         }
 
         return skuId;
     }
+
 
     private String generateSkuId(Long productId) {
         int next = skuDAO.countByProductId(productId) + 1;
