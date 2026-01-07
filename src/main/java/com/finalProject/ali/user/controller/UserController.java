@@ -76,6 +76,41 @@ public class UserController {
 
         return ResponseEntity.ok("회원가입 성공");
     }
+    @PostMapping("/send-auth-code")
+    @ResponseBody
+    public ResponseEntity<String> sendAuthCode(@RequestParam String email, HttpSession session) {
+        // 1. 이메일 중복 체크 (선택 사항, 필요시 UserDAO로 확인)
+
+        // 2. 인증코드 생성 및 발송
+        try {
+            String authCode = emailService.sendVerificationEmail(email);
+
+            // 3. 세션에 인증코드와 이메일 저장 (나중에 verifyAuthCode에서 검증용)
+            session.setAttribute("emailAuthCode", authCode);
+            session.setAttribute("authEmail", email);
+            session.setAttribute("isEmailVerified", false); // 초기화
+
+            // 유효시간 설정이 필요하다면 세션 타임아웃이나 별도 로직 필요 (여기선 생략)
+
+            return ResponseEntity.ok("success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("fail");
+        }
+    }
+
+    @PostMapping("/verify-auth-code")
+    @ResponseBody
+    public ResponseEntity<String> verifyAuthCode(@RequestParam String code, HttpSession session) {
+        String serverCode = (String) session.getAttribute("emailAuthCode");
+
+        if (serverCode != null && serverCode.equals(code)) {
+            session.setAttribute("isEmailVerified", true); // 인증 완료 플래그
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
+        }
+    }
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData, HttpSession session) {
@@ -103,7 +138,15 @@ public class UserController {
 
             Map<String, String> response = new java.util.HashMap<>();
             response.put("status", "success");
-            response.put("role", user.getRole() != null ? user.getRole() : "ROLE_USER");
+            String mainRole = "ROLE_USER";
+            if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+                // 관리자 -> 판매자 -> 유저 순으로 우선순위 체크하거나, 단순히 0번째 가져오기
+                if (user.getRoles().contains("ROLE_ADMIN")) mainRole = "ROLE_ADMIN";
+                else if (user.getRoles().contains("ROLE_SUPPLIER")) mainRole = "ROLE_SUPPLIER";
+                else mainRole = user.getRoles().get(0);
+            }
+
+            response.put("role", mainRole);
 
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {

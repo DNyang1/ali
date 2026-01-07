@@ -34,17 +34,18 @@
           <input type="hidden" name="userId" th:value="${user.userId}">
 
           <select name="role" onchange="this.form.submit()" class="role-select"
-                  th:classappend="${user.role == 'ROLE_ADMIN' ? 'admin-role' : (user.role == 'BUYER,SUPPLIER' ? 'supplier-role' : '')}">
+                  th:classappend="${user.roles.contains('ROLE_ADMIN') ? 'admin-role' : (user.roles.contains('ROLE_SUPPLIER') ? 'supplier-role' : '')}">
 
-            <option value="ROLE_USER" th:selected="${user.role == 'ROLE_USER'}">
-              구매자
+            <option value="ROLE_USER"
+                    th:selected="${user.roles.contains('ROLE_USER') and !user.roles.contains('ROLE_SUPPLIER') and !user.roles.contains('ROLE_ADMIN')}">
+              일반 회원
             </option>
-
-            <option value="BUYER,SUPPLIER" th:selected="${user.role == 'BUYER,SUPPLIER'}">
-              구매자 & 판매자
+            <option value="ROLE_SUPPLIER"
+                    th:selected="${user.roles.contains('ROLE_SUPPLIER') and !user.roles.contains('ROLE_ADMIN')}">
+              판매자
             </option>
-
-            <option value="ROLE_ADMIN" th:selected="${user.role == 'ROLE_ADMIN'}">
+            <option value="ROLE_ADMIN"
+                    th:selected="${user.roles.contains('ROLE_ADMIN')}">
               관리자
             </option>
 

@@ -4,6 +4,10 @@ import com.finalProject.ali.user.dao.UserDAO;
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements org.springframework.security.core.userdetails.UserDetailsService {
@@ -27,48 +32,35 @@ public class UserService implements org.springframework.security.core.userdetail
 
 
     // 회원가입
+    @Transactional
     public void register(UserDTO userDTO) {
-        // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encodedPassword);
-        userDAO.insertUser(userDTO);
+
+        userDAO.insertUser(userDTO); // users 테이블 저장
+        userDAO.insertUserRole(userDTO.getUserId(), "ROLE_USER"); // user_roles 테이블에 권한 저장
     }
 
     public UserDTO findByUserId(String userId) {
         return userDAO.findByUserId(userId);
     }
     @Override
-    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String userId)
-            throws org.springframework.security.core.userdetails.UsernameNotFoundException {
-
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         UserDTO user = userDAO.findByUserId(userId);
+        if (user == null) throw new UsernameNotFoundException(userId);
 
-        if (user == null) {
-            throw new org.springframework.security.core.userdetails.UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId);
+        // 이제 roles가 이미 List<String>으로 들어있으므로 split 필요 없음!
+        List<String> roles = user.getRoles();
+        if (roles == null || roles.isEmpty()) {
+            roles = List.of("ROLE_USER"); // 안전장치
         }
 
-        // 1. DB에서 가져온 role 값이 있는지 확인 (예: "ROLE_ADMIN,ROLE_USER" 또는 "ROLE_ADMIN")
-        String rawRole = user.getRole();
-        if (rawRole == null || rawRole.isEmpty()) {
-            rawRole = "ROLE_USER"; // 권한이 없으면 기본 유저 권한 부여
-        }
-
-        // 2. 콤마(,)로 구분된 권한들을 리스트로 변환
-        String[] roles = rawRole.split(",");
-
-        // 3. roles() 대신 authorities()를 사용하여 "ROLE_" 접두사 수동 제어
-        // SimpleGrantedAuthority를 사용하면 DB에 있는 문자열 그대로 권한을 부여합니다.
-        return org.springframework.security.core.userdetails.User.builder()
+        return User.builder()
                 .username(user.getUserId())
                 .password(user.getPassword())
-                .authorities(java.util.Arrays.stream(roles)
-                        .map(role -> {
-                            // ROLE_ 접두사가 없으면 붙여줌
-                            String roleName = role.trim().startsWith("ROLE_") ? role.trim() : "ROLE_" + role.trim();
-                            return new org.springframework.security.core.authority.SimpleGrantedAuthority(roleName);
-                        })
-                        .toList())
-
+                .authorities(roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList()))
                 .build();
     }
     // 로그인 확인
@@ -102,12 +94,27 @@ public class UserService implements org.springframework.security.core.userdetail
 
     public boolean changePassword(String userId, String currentPassword, String newPassword) {
         // 1. DB에서 현재 유저 정보 가져오기
-        UserDTO user = userDAO.getUserById(userId);
+        UserDTO user = userDAO.findByUserId(userId);
+
+        if (user == null) {
+            System.out.println("❌ [비밀번호 변경 실패] 유저를 찾을 수 없음: " + userId);
+            return false;
+        }
+
+        // 디버깅 로그 (테스트 후 삭제하세요)
+        System.out.println("🔍 [비밀번호 변경 시도]");
+        System.out.println("   - 사용자 ID: " + userId);
+        System.out.println("   - 입력한 현재 비번: " + currentPassword);
+        System.out.println("   - DB 암호화된 비번: " + user.getPassword());
 
         // 2. 현재 비밀번호 일치 여부 확인
-        if (passwordEncoder.matches(currentPassword, user.getPassword())) {
-            return updatePassword(userId, newPassword); // 아래 공통 메서드 호출
+        boolean matches = passwordEncoder.matches(currentPassword, user.getPassword());
+        System.out.println("   - 일치 여부: " + matches);
+
+        if (matches) {
+            return updatePassword(userId, newPassword);
         }
+
         return false; // 비밀번호 불일치
     }
     // 새 비밀번호 암호화 및 업데이트
@@ -177,20 +184,15 @@ public class UserService implements org.springframework.security.core.userdetail
     }
 
     @Transactional
-    public void approveSupplier(String supplierId, String userId) { // 매개변수 이름을 userId로 인지
-        // 1. 상태 업데이트
+    public void approveSupplier(String supplierId, String userId) {
         userDAO.updateSupplierStatus(supplierId, "APPROVED", null);
 
-        // 2. 이메일 대신 ID로 유저 정보를 가져오도록 수정
-        UserDTO user = userDAO.findByUserId(userId);
-        if (user != null) {
-            String currentRole = user.getRole();
-            if (currentRole == null || !currentRole.contains("SUPPLIER")) {
-                // 기존 권한이 null일 경우를 대비해 처리
-                String newRole = (currentRole == null || currentRole.isEmpty()) ? "SUPPLIER" : currentRole + ",SUPPLIER";
-
-                userDAO.updateUserRole(userId, newRole);
-            }
+        // 이미 판매자 권한이 있는지 체크 후 없으면 추가 (중복 insert 방지 로직은 SQL이나 여기서 처리)
+        // 간단하게는 try-catch나 DAO의 INSERT IGNORE 사용 가능
+        try {
+            userDAO.insertUserRole(userId, "ROLE_SUPPLIER");
+        } catch (Exception e) {
+            // 이미 권한이 있으면 패스
         }
     }
     // 판매자 등록 상태
@@ -207,12 +209,37 @@ public class UserService implements org.springframework.security.core.userdetail
         userDAO.updateUserStatus(userId, status);
     }
     // 권한 변경 (기존 로직 활용)
-    public void changeUserRole(String userId, String role) {
-        userDAO.updateUserRole(userId, role);
+    @Transactional
+    public void changeUserRole(String userId, String roleName, boolean isAdd) {
+        if (isAdd) {
+            userDAO.insertUserRole(userId, roleName);
+        } else {
+            userDAO.deleteUserRole(userId, roleName);
+        }
     }
 
+    @Transactional
+    public void setAuthority(String userId, String targetRole) {
+        // 1. 일단 기본적으로 ROLE_USER는 무조건 있어야 함 (없으면 추가)
+        try {
+            userDAO.insertUserRole(userId, "ROLE_USER");
+        } catch (Exception e) {
+        }
+
+        // 2. 관리자가 선택한 권한에 따라 처리
+        if ("ROLE_ADMIN".equals(targetRole)) {
+            // 관리자로 승격 시: ROLE_ADMIN 추가
+            userDAO.insertUserRole(userId, "ROLE_ADMIN");
+        } else if ("ROLE_SUPPLIER".equals(targetRole) || "BUYER,SUPPLIER".equals(targetRole)) {
+            // 판매자로 변경 시: ROLE_SUPPLIER 추가, (관리자 권한은 뺄 수도 있음 정책에 따라)
+            userDAO.insertUserRole(userId, "ROLE_SUPPLIER");
+            userDAO.deleteUserRole(userId, "ROLE_ADMIN"); // 예: 판매자는 관리자 권한 회수
+        } else if ("ROLE_USER".equals(targetRole)) {
+            // 일반 유저로 강등 시: 나머지 권한 삭제
+            userDAO.deleteUserRole(userId, "ROLE_SUPPLIER");
+            userDAO.deleteUserRole(userId, "ROLE_ADMIN");
+        }
 
 
-
-
+    }
 }

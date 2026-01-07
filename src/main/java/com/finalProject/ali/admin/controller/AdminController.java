@@ -71,7 +71,9 @@ public class AdminController {
     @PostMapping("/users/role")
     public String updateUserRole(@RequestParam("userId") String userId,
                                  @RequestParam("role") String role) {
-        userService.changeUserRole(userId, role);
+
+        userService.setAuthority(userId, role);
+
         return "redirect:/admin/users";
     }
 

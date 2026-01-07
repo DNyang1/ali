@@ -19,7 +19,6 @@ public interface UserDAO {
     void updateSupplier(SupplierDTO supplierDTO);
 
     // 비밀번호 변경
-    UserDTO getUserById(String userId);
     int updatePassword(Map<String, String> params);
 
     // 구매자/판매자 찾기
@@ -48,6 +47,11 @@ public interface UserDAO {
     // 계정 상태 변경
     void updateUserStatus(@Param("userId") String userId, @Param("status") String status);
 
+    // 권한 추가 (예: 회원가입 시 ROLE_USER 부여)
+    void insertUserRole(@Param("userId") String userId, @Param("roleName") String roleName);
+
+    // 권한 삭제 (예: 판매자 권한 박탈)
+    void deleteUserRole(@Param("userId") String userId, @Param("roleName") String roleName);
 
 
 }

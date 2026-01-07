@@ -3,6 +3,7 @@ package com.finalProject.ali.user.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class UserDTO {
@@ -19,6 +20,6 @@ public class UserDTO {
     //프로필 이미지
     private String profileImg;
     //판매자 권한
-    private String role;
+    private List<String> roles;
     private String status;
 }

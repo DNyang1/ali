@@ -4,124 +4,113 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.finalProject.ali.user.dao.UserDAO">
 
+    <resultMap id="UserResultMap" type="com.finalProject.ali.user.dto.UserDTO">
+        <id property="userId" column="user_id"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="birth" column="birth"/>
+        <result property="address" column="address"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="profileImg" column="profile_img"/>
+        <result property="status" column="status"/>
+
+        <collection property="roles" ofType="string">
+            <result column="role_name"/>
+        </collection>
+    </resultMap>
+
     <insert id="insertUser" parameterType="com.finalProject.ali.user.dto.UserDTO">
-        INSERT INTO users (user_id, password, email, name, phone, birth, address, created_at)
-        VALUES (#{userId}, #{password}, #{email}, #{name}, #{phone}, #{birth}, #{address}, NOW())
+        INSERT INTO users (user_id, password, email, name, phone, birth, address, created_at, status)
+        VALUES (#{userId}, #{password}, #{email}, #{name}, #{phone}, #{birth}, #{address}, NOW(), 'ACTIVE')
     </insert>
 
-    <select id="findByUserId" resultType="com.finalProject.ali.user.dto.UserDTO">
-        SELECT * FROM users WHERE user_id = #{userId}
+    <select id="findByUserId" resultMap="UserResultMap">
+        SELECT u.*, r.role_name
+        FROM users u
+        LEFT JOIN user_roles ur ON u.user_id = ur.user_id
+        LEFT JOIN roles r ON ur.role_id = r.role_id
+        WHERE u.user_id = #{userId}
     </select>
+
+    <select id="findAllUsers" resultMap="UserResultMap">
+        SELECT u.*, r.role_name
+        FROM users u
+        LEFT JOIN user_roles ur ON u.user_id = ur.user_id
+        LEFT JOIN roles r ON ur.role_id = r.role_id
+        ORDER BY u.created_at DESC
+    </select>
+
+    <insert id="insertUserRole">
+        INSERT IGNORE INTO user_roles (user_id, role_id)
+        SELECT #{userId}, role_id FROM roles WHERE role_name = #{roleName}
+    </insert>
+
+    <delete id="deleteUserRole">
+        DELETE FROM user_roles
+        WHERE user_id = #{userId}
+        AND role_id = (SELECT role_id FROM roles WHERE role_name = #{roleName})
+    </delete>
+
+    <update id="updateUserStatus">
+        UPDATE users SET status = #{status}, updated_at = NOW() WHERE user_id = #{userId}
+    </update>
 
     <update id="updateUser" parameterType="com.finalProject.ali.user.dto.UserDTO">
         UPDATE users
-        SET
-        email = #{email},
-        name = #{name},
-        phone = #{phone},
-        address = #{address},
-        profile_img = #{profileImg},
-        updated_at = NOW()
+        SET email = #{email}, name = #{name}, phone = #{phone}, address = #{address},
+        profile_img = #{profileImg}, updated_at = NOW()
         WHERE user_id = #{userId}
     </update>
+
+    <select id="getUserById" resultMap="UserResultMap">
+        SELECT * FROM users WHERE user_id = #{userId}
+    </select>
+
+    <update id="updatePassword">
+        UPDATE users SET password = #{password}, updated_at = NOW() WHERE user_id = #{userId}
+    </update>
+
+    <select id="findIdByPhone" resultType="string">
+        SELECT user_id FROM users WHERE name = #{name} AND phone = #{phone}
+    </select>
+    <select id="findIdByEmail" resultType="string">
+        SELECT user_id FROM users WHERE name = #{name} AND email = #{email}
+    </select>
+
+    <insert id="insertResetToken">
+        INSERT INTO pw_reset_token (token, user_id, expiry_date) VALUES (#{token}, #{userId}, #{expiryDate})
+    </insert>
+    <select id="getUserIdByToken" resultType="string">
+        SELECT user_id FROM pw_reset_token WHERE token = #{token} AND expiry_date > #{now}
+    </select>
+    <delete id="deleteResetToken">
+        DELETE FROM pw_reset_token WHERE token = #{token}
+    </delete>
 
     <select id="findSupplierByUserId" resultType="com.finalProject.ali.user.dto.SupplierDTO">
         SELECT * FROM supplier WHERE user_id = #{userId}
     </select>
 
     <insert id="insertSupplier" parameterType="com.finalProject.ali.user.dto.SupplierDTO">
-        INSERT INTO supplier (
-        supplier_id, user_id, cp_number, cp_name, cp_phone, cp_address, status, memo, created_at
-        ) VALUES (
-        #{supplierId}, #{userId}, #{cpNumber}, #{cpName}, #{cpPhone}, #{cpAddress}, 'PENDING', NULL, NOW()
-        )
+        INSERT INTO supplier (supplier_id, user_id, cp_number, cp_name, cp_phone, cp_address, status, created_at)
+        VALUES (#{supplierId}, #{userId}, #{cpNumber}, #{cpName}, #{cpPhone}, #{cpAddress}, 'PENDING', NOW())
         ON DUPLICATE KEY UPDATE
-        cp_number = #{cpNumber},
-        cp_name = #{cpName},
-        cp_phone = #{cpPhone},
-        cp_address = #{cpAddress},
-        status = 'PENDING',  memo = NULL,         updated_at = NOW()
+        cp_number=#{cpNumber}, cp_name=#{cpName}, cp_phone=#{cpPhone}, cp_address=#{cpAddress}, status='PENDING', memo=NULL, updated_at=NOW()
     </insert>
 
-    <update id="updateSupplier" parameterType="com.finalProject.ali.user.dto.SupplierDTO">
-        UPDATE supplier
-        SET cp_name = #{cpName},
-        cp_number = #{cpNumber},
-        cp_phone = #{cpPhone},
-        cp_address = #{cpAddress},
-        updated_at = NOW()
-        WHERE user_id = #{userId}
+    <update id="updateSupplier">
+        UPDATE supplier SET cp_name=#{cpName}, cp_number=#{cpNumber}, cp_phone=#{cpPhone}, cp_address=#{cpAddress}, updated_at=NOW() WHERE user_id=#{userId}
     </update>
-
-    <select id="getUserById" resultType="com.finalProject.ali.user.dto.UserDTO">
-        SELECT * FROM users WHERE user_id = #{userId}
-    </select>
-    <update id="updatePassword" parameterType="map">
-        UPDATE users
-        SET password = #{password},
-        updated_at = NOW()
-        WHERE user_id = #{userId}
-    </update>
-
-    <select id="findIdByPhone" resultType="string">
-        SELECT user_id FROM users
-        WHERE name = #{name} AND phone = #{phone}
-    </select>
-
-    <select id="findIdByEmail" resultType="string">
-        SELECT user_id FROM users
-        WHERE name = #{name} AND email = #{email}
-    </select>
-
-
-    <insert id="insertResetToken">
-        INSERT INTO pw_reset_token (token, user_id, expiry_date)
-        VALUES (#{token}, #{userId}, #{expiryDate})
-    </insert>
-
-    <select id="getUserIdByToken" resultType="string">
-        SELECT user_id FROM pw_reset_token
-        WHERE token = #{token} AND expiry_date > #{now}
-    </select>
-
-    <delete id="deleteResetToken">
-        DELETE FROM pw_reset_token WHERE token = #{token}
-    </delete>
 
     <select id="findPendingSuppliers" resultType="com.finalProject.ali.user.dto.SupplierDTO">
-        SELECT * FROM supplier
-        WHERE status = 'PENDING'
-        ORDER BY created_at DESC
+        SELECT * FROM supplier WHERE status = 'PENDING' ORDER BY created_at DESC
     </select>
-
-    <select id="getUserRole" resultType="string">
-        SELECT role FROM users WHERE user_id = #{userId}
-    </select>
-
-    <update id="updateUserRole">
-        UPDATE users
-        SET role = #{role}, updated_at = NOW()
-        WHERE user_id = #{userId}
-    </update>
 
     <update id="updateSupplierStatus">
-        UPDATE supplier
-        SET
-        status = #{status},
-        memo = #{memo},
-        updated_at = NOW()
-        WHERE supplier_id = #{supplierId}
-    </update>
-
-    <select id="findAllUsers" resultType="com.finalProject.ali.user.dto.UserDTO">
-        SELECT * FROM users
-        ORDER BY created_at DESC
-    </select>
-
-    <update id="updateUserStatus">
-        UPDATE users
-        SET status = #{status}, updated_at = NOW()
-        WHERE user_id = #{userId}
+        UPDATE supplier SET status = #{status}, memo = #{memo}, updated_at = NOW() WHERE supplier_id = #{supplierId}
     </update>
 
 </mapper>
