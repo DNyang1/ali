@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>문의 작성</title>
+    <style>
+        .inquiry-wrap {
+            width: 600px;
+            margin: 40px auto;
+        }
+        .inquiry-wrap h2 {
+            margin-bottom: 20px;
+        }
+        .inquiry-wrap label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .inquiry-wrap input,
+        .inquiry-wrap textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        .inquiry-wrap textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .btn-group {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .btn {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .product-card{
+            display:flex;
+            gap:16px;
+            align-items:center;
+            padding:12px;
+            border:1px solid #ddd;
+            margin-bottom:16px;
+        }
+        .product-img{
+            width:96px;
+            height:96px;
+            object-fit:cover;
+            border-radius:8px;
+        }
+        .product-name{
+            font-weight:700;
+            margin-bottom:6px;
+        }
+        .product-link{
+            font-size:14px;
+            text-decoration:underline;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="inquiry-wrap">
+        <h2>상품 문의 작성</h2>
+
+        <div id="productCard" class="product-card" style="display:none;">
+            <img id="productImg" class="product-img" alt="상품 이미지" style="display:none;">
+            <div class="product-text">
+                <div id="productName" class="product-name"></div>
+            </div>
+        </div>
+
+
+        <form th:action="@{/inquiry}" method="post">
+            <!-- 상품 ID -->
+            <input type="hidden" id="productId" name="productId" th:value="${param.productId}" readonly/>
+
+            <!-- 문의 내용 -->
+            <label for="content">문의 내용</label>
+            <textarea id="content" name="content" placeholder="문의하실 내용을 입력해주세요." required></textarea>
+
+            <div class="btn-group">
+                <button type="button" class="btn" onclick="history.back()">취소</button>
+                <button type="submit" class="btn">문의 등록</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        async function hydrateProductSummary(pid) {
+            const cardEl = document.getElementById("productCard");
+            const nameEl = document.getElementById("productName");
+            const imgEl  = document.getElementById("productImg");
+            const linkEl = document.getElementById("productLink");
+
+            if (!pid || !cardEl) return;
+
+            try {
+                const res = await fetch(`/api/products/${encodeURIComponent(pid)}/summary`);
+                if (!res.ok) return;
+
+                const s = await res.json();
+
+                // 상품명
+                if (nameEl && s?.productName) nameEl.textContent = s.productName;
+
+                // 링크
+                if (linkEl) {
+                    linkEl.textContent = "상품으로 이동";
+                    linkEl.href = `/products/${encodeURIComponent(pid)}`;
+                }
+
+                // 썸네일
+                if (imgEl && s?.thumbnailUrl) {
+                    imgEl.src = s.thumbnailUrl;
+                    imgEl.alt = s.productName || "상품 이미지";
+                    imgEl.style.display = "block";
+                    imgEl.onerror = () => imgEl.style.display = "none";
+                }
+
+                cardEl.style.display = "flex";
+            } catch (e) {
+                console.log("[product summary] fail", e);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const pid = document.getElementById("productId")?.value || new URLSearchParams(location.search).get("productId");
+            hydrateProductSummary(pid);
+        });
+    </script>
+
+</body>
+</html>

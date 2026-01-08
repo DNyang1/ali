@@ -1,11 +1,9 @@
 package com.finalProject.ali.product.controller;
 
-import com.finalProject.ali.product.dto.OptionDTO;
-import com.finalProject.ali.product.dto.ProductDTO;
-import com.finalProject.ali.product.dto.SkuDTO;
-import com.finalProject.ali.product.dto.SkuPriceDTO;
+import com.finalProject.ali.product.dto.*;
 import com.finalProject.ali.product.service.OptionService;
 import com.finalProject.ali.product.service.ProductService;
+import com.finalProject.ali.product.service.SkuPriceService;
 import com.finalProject.ali.product.service.SkuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -27,6 +25,7 @@ public class ProductController {
     private final ProductService productService;
     private final OptionService optionService;
     private final SkuService skuService;
+    private final SkuPriceService skuPriceService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -70,37 +69,31 @@ public class ProductController {
     }
 
 
+    @GetMapping("/{productId:\\d+}")
+    public String productsDetail(
+            @PathVariable Long productId,
+            Model model
+    ) throws Exception {
 
+        ProductDTO product =
+                productService.productDetail(productId);
 
-
-    @GetMapping("/{productId}")
-    public String productsDetail(@PathVariable Long productId, Model model) throws Exception {
-
-        ProductDTO product = productService.productDetail(productId);
-
-        Map<String, List<OptionDTO>> options =
-                optionService.getGroupOptions(productId);
+        Map<String, List<StockOptionDTO>> options =
+                optionService.getStockOptions(productId);
 
         List<SkuDTO> skus =
                 skuService.getSkuWithPrices(productId);
 
         List<SkuPriceDTO> defaultPriceRules =
-                (!skus.isEmpty() && skus.get(0).getPriceRules() != null)
-                        ? skus.get(0).getPriceRules()
-                        : List.of();
+                skuPriceService.getPriceRulesByProductId(productId);
 
         model.addAttribute("product", product);
         model.addAttribute("options", options);
-        model.addAttribute(
-                "requiredOptionCount",
-                options == null ? 0 : options.size()
-        );
-
+        model.addAttribute("requiredOptionCount", options.size());
         model.addAttribute(
                 "skusJson",
                 objectMapper.writeValueAsString(skus)
         );
-
         model.addAttribute(
                 "defaultPriceRulesJson",
                 objectMapper.writeValueAsString(defaultPriceRules)
@@ -114,7 +107,9 @@ public class ProductController {
             @RequestParam String keyword,
             Model model
     ) {
-        List<ProductDTO> products = productService.searchProducts(keyword);
+
+        List<ProductDTO> products =
+                productService.searchProducts(keyword);
 
         model.addAttribute("products", products);
         model.addAttribute("keyword", keyword);

@@ -83,6 +83,10 @@ public class InquiryService {
 
         inquiryDAO.updateStatus(inquiryId, status);
     }
+
+    public List<InquiryDTO> findBySupplierAll(String supplierId) {
+        return inquiryDAO.findBySupplierAll(supplierId);
+    }
 }
 
 

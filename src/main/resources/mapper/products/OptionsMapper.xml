@@ -4,25 +4,25 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.product.dao.OptionDAO">
-
-    <select id="optionByProduct"
+    <select id="findOptionsByProductStock"
             parameterType="long"
-            resultType="com.finalProject.ali.product.dto.OptionDTO">
+            resultType="com.finalProject.ali.product.dto.StockOptionDTO">
 
         SELECT DISTINCT
-            SUBSTRING_INDEX(
-            SUBSTRING_INDEX(ovs.option_value_id, '@', 2),
-            '@',
-            -1
-            ) AS optionName,
-            ovs.option_value_id AS optionValueId,
-            SUBSTRING_INDEX(ovs.option_value_id, '@', -1) AS optionValue
+        SUBSTRING_INDEX(
+        SUBSTRING_INDEX(ovs.option_value_id, '@', 2),
+        '@',
+        -1
+        ) AS optionTypeName,
+        SUBSTRING_INDEX(ovs.option_value_id, '@', -1) AS optionValue
         FROM sku s
         JOIN option_value_sku ovs
         ON s.sku_id = ovs.sku_id
         WHERE s.product_id = #{productId}
-        ORDER BY optionName, optionValue
-
+        ORDER BY optionTypeName
     </select>
+
+
+
 
 </mapper>
