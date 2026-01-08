@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
+import java.util.List;
 
 
 @Service
@@ -77,13 +78,15 @@ public class SkuPriceService {
         }
     }
 
+    public List<SkuPriceDTO> getPriceRulesByProductId(Long productId) {
+        return skuPriceDAO.findPriceRulesByProductId(productId);
+    }
+
     @Transactional
     public void savePriceRules(String skuId, SkuPriceRequestDTO dto) {
 
-        // 1️⃣ 기존 가격 규칙 삭제
         skuPriceDAO.deleteAllBySkuId(skuId);
 
-        // 2️⃣ 가격 구간 insert
         if (dto.getRanges() != null) {
             dto.getRanges().forEach(range -> {
                 skuPriceDAO.insertPrice(
@@ -95,7 +98,6 @@ public class SkuPriceService {
             });
         }
 
-        // 3️⃣ MOQ 업데이트
         if (dto.getMoq() != null) {
             skuDAO.updateMoq(skuId, dto.getMoq());
         }

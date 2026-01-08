@@ -1,6 +1,7 @@
 package com.finalProject.ali.product.dao;
 
 import com.finalProject.ali.product.dto.OptionDTO;
+import com.finalProject.ali.product.dto.StockOptionDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -39,6 +40,9 @@ public interface OptionDAO {
     List<OptionDTO> optionByProduct(
             @Param("productId") Long productId
     );
+
+    List<StockOptionDTO> findOptionsByProductStock(@Param("productId") Long productId);
+
 
 }
 

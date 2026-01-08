@@ -40,8 +40,7 @@
             <div class="options readonly">
                 <span class="option-value"
                       th:each="opt, stat : ${entry.value}"
-                      th:text="${opt.optionValue}"
-                      th:if="${stat.index == 0}">
+                      th:text="${opt.optionValue}">
                 </span>
             </div>
 
@@ -55,47 +54,62 @@
         </div>
 
         <div class="action-buttons">
-            <button class="btn order" id="openOrderModal">주문 시작</button>
-            <button class="btn cart" id="openCartModal">장바구니</button>
-            <button class="btn chat" th:data-product-id="${product.productId}">채팅하기</button>
+            <th:block th:if="${product.isCustomizable == 0}">
+                <button class="btn order" id="openOrderModal">주문 시작</button>
+                <button class="btn cart" id="openCartModal">장바구니</button>
+            </th:block>
+
+            <th:block th:if="${product.isCustomizable == 1}">
+                <button class="btn inquiry"
+                        th:onclick="|location.href='/inquiry/write?productId=${product.productId}'|">
+                    문의 전송
+                </button>
+            </th:block>
+
+            <button class="btn chat"
+                    th:data-product-id="${product.productId}">
+                채팅하기
+            </button>
         </div>
 
     </div>
 </div>
 
-<div class="modal-overlay" id="orderModalOverlay"></div>
+<th:block th:if="${product.isCustomizable == 0}">
+    <div class="modal-overlay" id="orderModalOverlay"></div>
 
-<div class="order-modal" id="orderModal">
+    <div class="order-modal" id="orderModal">
 
-    <button class="modal-close" id="closeOrderModal">✕</button>
-    <h3 class="modal-title">옵션 및 수량을 선택하세요</h3>
+        <button class="modal-close" id="closeOrderModal">✕</button>
+        <h3 class="modal-title">옵션 및 수량을 선택하세요</h3>
 
-    <div class="moq-text">
-        최소 주문 수량: <strong th:text="${product.moq}">1</strong> 개
-    </div>
-
-    <div class="price-tier-box">
-        <h4 class="price-tier-title">가격 구간</h4>
-        <ul id="priceTiers" class="price-tier-list"></ul>
-    </div>
-
-    <div id="skuList" class="sku-list">
-    </div>
-
-    <div class="order-summary">
-        <div>
-            총 수량 :
-            <strong id="totalQty">0</strong>
+        <div class="moq-text">
+            최소 주문 수량: <strong th:text="${product.moq}">1</strong> 개
         </div>
-        <div>
-            총 금액 :
-            <strong id="totalPrice">0원</strong>
-        </div>
-    </div>
 
-    <button class="modal-submit" id="submitOrder">주문 시작</button>
-    <button class="modal-submit" id="submitCart">장바구니 담기</button>
-</div>
+        <div class="price-tier-box">
+            <h4 class="price-tier-title">가격 구간</h4>
+            <ul id="priceTiers" class="price-tier-list"></ul>
+        </div>
+
+        <div id="skuList" class="sku-list">
+        </div>
+
+        <div class="order-summary">
+            <div>
+                총 수량 :
+                <strong id="totalQty">0</strong>
+            </div>
+            <div>
+                총 금액 :
+                <strong id="totalPrice">0원</strong>
+            </div>
+        </div>
+
+        <button class="modal-submit" id="submitOrder">주문 시작</button>
+        <button class="modal-submit" id="submitCart">장바구니 담기</button>
+    </div>
+</th:block>
 
 <script th:inline="javascript">
     window.SKUS = /*[[${skusJson}]]*/ [];
