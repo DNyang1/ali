@@ -4,9 +4,9 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.inquiry.dao.InquiryDAO">
-    <insert id="insertInquiry" useGeneratedKeys="true" keyProperty="inquiryId">
-        INSERT INTO inquiry (user_id, supplier_id, product_id, quantity, content, status)
-        VALUES (#{userId}, #{supplierId}, #{productId}, #{quantity}, #{content}, #{status})
+    <insert id="insertInquiry" parameterType="com.finalProject.ali.inquiry.dto.InquiryDTO" useGeneratedKeys="true" keyProperty="inquiryId">
+        INSERT INTO inquiry (user_id, supplier_id, product_id, quantity, content, status, created_at)
+        VALUES (#{userId}, #{supplierId}, #{productId}, #{quantity}, #{content}, #{status}, now())
     </insert>
 
     <select id="findMyInquiries" resultType="com.finalProject.ali.inquiry.dto.InquiryDTO">
@@ -50,5 +50,13 @@
         SELECT supplier_id
         FROM products
         WHERE product_id = #{productId}
+    </select>
+
+    <select id="findBySupplierAll" resultType="com.finalProject.ali.inquiry.dto.InquiryDTO">
+        SELECT inquiry_id AS inquiryId, user_id AS userId, supplier_id AS supplierId,
+        product_id AS productId, quantity, content, status, created_at AS createdAt
+        FROM inquiry
+        WHERE supplier_id = #{supplierId}
+        ORDER BY created_at DESC
     </select>
 </mapper>

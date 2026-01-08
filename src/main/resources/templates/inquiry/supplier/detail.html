@@ -17,13 +17,15 @@
         <div style="display:flex; gap:10px;">
             <form th:action="@{/inquiry/supplier/{id}/status(id=${inquiry.inquiryId})}" method="post">
                 <input type="hidden" name="status" value="1"/>
-                <button type="submit">완료</button>
+                <button type="submit">승인</button>
             </form>
 
             <form th:action="@{/inquiry/supplier/{id}/status(id=${inquiry.inquiryId})}" method="post">
                 <input type="hidden" name="status" value="2"/>
                 <button type="submit">반려</button>
             </form>
+
+            <a href="" type="button">주문서 만들기</a>
         </div>
 
     </th:block>

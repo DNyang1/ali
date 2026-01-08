@@ -23,5 +23,6 @@ public interface SkuPriceDAO {
             @Param("skuId") String skuId,
             @Param("qty") Long qty
     );
+    List<SkuPriceDTO> getPriceRulesByProductId(Long productId);
 
 }
