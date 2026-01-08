@@ -19,5 +19,7 @@ public interface InquiryDAO {
     long countBySupplierAndStatus(@Param("supplierId") String supplierId, @Param("status") Long status);
 
     List<InquiryDTO> findBySupplierAndStatus(@Param("supplierId") String supplierId, @Param("status") Long status);
+
+    List<InquiryDTO> findBySupplierAll(@Param("supplierId") String supplierId);
 }
 
