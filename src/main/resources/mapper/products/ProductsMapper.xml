@@ -246,4 +246,10 @@
 
     </select>
 
+    <select id="findSupplierIdByProductId" parameterType="long" resultType="string">
+        SELECT supplier_id
+        FROM products
+        WHERE product_id = #{productId}
+    </select>
+
 </mapper>
