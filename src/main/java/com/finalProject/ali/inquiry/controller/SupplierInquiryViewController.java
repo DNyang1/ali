@@ -67,13 +67,20 @@ public class SupplierInquiryViewController {
         return supplierId;
     }
 
-    // 판매자 문의 목록 (기본 상태 = 0)
+    // 판매자 문의 목록 (기본 = 전체)
     @GetMapping("/list")
-    public String list(@RequestParam(defaultValue = "0") Long status, HttpSession session, Model model) {
+    public String list(@RequestParam(defaultValue = "-1") Long status,
+                       HttpSession session, Model model) {
 
         String supplierId = getSupplierId(session);
 
-        List<InquiryDTO> inquiries = inquiryService.findBySupplier(supplierId, status);
+        List<InquiryDTO> inquiries;
+        if (status == -1L) {
+            inquiries = inquiryService.findBySupplierAll(supplierId);
+        } else {
+            inquiries = inquiryService.findBySupplier(supplierId, status);
+        }
+
         model.addAttribute("inquiries", inquiries);
         model.addAttribute("status", status);
 
@@ -98,4 +105,17 @@ public class SupplierInquiryViewController {
         model.addAttribute("inquiry", inquiry);
         return "inquiry/supplier/detail";
     }
+
+    @PostMapping("/{id}/status")
+    public String updateInquiryStatus(@PathVariable("id") Long inquiryId,
+                                      @RequestParam("status") Long status,
+                                      HttpSession session) {
+
+        String supplierId = getSupplierId(session);
+
+        inquiryService.updateStatus(inquiryId, supplierId, status);
+
+        return "redirect:/inquiry/supplier/list";
+    }
+
 }
