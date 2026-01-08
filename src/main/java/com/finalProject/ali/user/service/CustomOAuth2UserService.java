@@ -5,13 +5,18 @@ import com.finalProject.ali.user.dao.UserDAO;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -67,7 +72,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         session.setAttribute("loginUser", user);
 
-        return oAuth2User;
+        List<SimpleGrantedAuthority> authorities;
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            authorities = user.getRoles().stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        } else {
+            // 권한이 없으면 기본 권한 부여 (안전장치)
+            authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+
+        // OAuth2User 객체를 생성할 때 DB 권한을 넣어서 반환
+        // (userNameAttributeName은 'sub', 'id' 등 공급자마다 다른 PK 키값)
+        String userNameAttributeName = userRequest.getClientRegistration()
+                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+
+        return new DefaultOAuth2User(
+                authorities,
+                oAuth2User.getAttributes(),
+                userNameAttributeName
+        );
 
     }
 }

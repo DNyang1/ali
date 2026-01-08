@@ -118,21 +118,18 @@ public class UserController {
         String password = loginData.get("password");
 
         try {
-            // 1. Spring Security 표준 인증 토큰 생성
+            // 1. 인증 토큰 생성
             UsernamePasswordAuthenticationToken authRequest =
                     new UsernamePasswordAuthenticationToken(userId, password);
 
-            // 2. AuthenticationManager를 통한 인증 시도 (이때 DB 비교가 내부적으로 일어남)
+            // 2. 인증 시도
             Authentication authentication = authenticationManager.authenticate(authRequest);
 
-            // 3. 인증 성공 시 SecurityContextHolder에 저장
+            // 3. 인증 성공 처리
             SecurityContextHolder.getContext().setAuthentication(authentication);
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-
-            // 4. 세션 레지스트리에 등록
             sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
 
-            // 5. DB에서 유저 정보를 가져와 세션에 저장 (UI 표시용)
             UserDTO user = userService.findByUserId(userId);
             session.setAttribute("loginUser", user);
 
@@ -140,18 +137,28 @@ public class UserController {
             response.put("status", "success");
             String mainRole = "ROLE_USER";
             if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-                // 관리자 -> 판매자 -> 유저 순으로 우선순위 체크하거나, 단순히 0번째 가져오기
                 if (user.getRoles().contains("ROLE_ADMIN")) mainRole = "ROLE_ADMIN";
                 else if (user.getRoles().contains("ROLE_SUPPLIER")) mainRole = "ROLE_SUPPLIER";
                 else mainRole = user.getRoles().get(0);
             }
-
             response.put("role", mainRole);
 
             return ResponseEntity.ok(response);
+
         } catch (AuthenticationException e) {
-            // 인증 실패 시 (아이디 없음, 비밀번호 틀림 등)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+            if (e instanceof org.springframework.security.authentication.LockedException ||
+                    e.getCause() instanceof org.springframework.security.authentication.LockedException) {
+
+                // 원인 예외(LockedException)를 찾아서 메시지 추출
+                String msg = (e instanceof org.springframework.security.authentication.LockedException) ?
+                        e.getMessage() : e.getCause().getMessage();
+
+                // 403 Forbidden과 함께 사유 리턴
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);
+            }
+
+            // 그 외 진짜 아이디/비번 틀림
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
     }
 

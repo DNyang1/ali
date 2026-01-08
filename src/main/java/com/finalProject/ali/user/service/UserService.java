@@ -49,6 +49,11 @@ public class UserService implements org.springframework.security.core.userdetail
         UserDTO user = userDAO.findByUserId(userId);
         if (user == null) throw new UsernameNotFoundException(userId);
 
+        if ("SUSPENDED".equals(user.getStatus())) {
+            // Spring Security의 LockedException 등을 활용하거나, 메시지를 담아 던짐
+            throw new org.springframework.security.authentication.LockedException("정지된 계정입니다. 사유: " + user.getSuspensionReason());
+        }
+
         // 이제 roles가 이미 List<String>으로 들어있으므로 split 필요 없음!
         List<String> roles = user.getRoles();
         if (roles == null || roles.isEmpty()) {
@@ -205,8 +210,8 @@ public class UserService implements org.springframework.security.core.userdetail
         return userDAO.findAllUsers();
     }
     // 계정 상태 변경 (정지/해제)
-    public void updateUserStatus(String userId, String status) {
-        userDAO.updateUserStatus(userId, status);
+    public void updateUserStatus(String userId, String status, String reason) {
+        userDAO.updateUserStatus(userId, status, reason);
     }
     // 권한 변경 (기존 로직 활용)
     @Transactional
@@ -238,8 +243,10 @@ public class UserService implements org.springframework.security.core.userdetail
             // 일반 유저로 강등 시: 나머지 권한 삭제
             userDAO.deleteUserRole(userId, "ROLE_SUPPLIER");
             userDAO.deleteUserRole(userId, "ROLE_ADMIN");
+            userDAO.deleteSupplier(userId);
         }
 
 
     }
+
 }

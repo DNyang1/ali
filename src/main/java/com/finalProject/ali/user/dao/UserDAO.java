@@ -45,7 +45,9 @@ public interface UserDAO {
     // 전체 회원 리스트 조회
     List<UserDTO> findAllUsers();
     // 계정 상태 변경
-    void updateUserStatus(@Param("userId") String userId, @Param("status") String status);
+    void updateUserStatus(@Param("userId") String userId,
+                          @Param("status") String status,
+                          @Param("reason") String reason);
 
     // 권한 추가 (예: 회원가입 시 ROLE_USER 부여)
     void insertUserRole(@Param("userId") String userId, @Param("roleName") String roleName);
@@ -53,5 +55,6 @@ public interface UserDAO {
     // 권한 삭제 (예: 판매자 권한 박탈)
     void deleteUserRole(@Param("userId") String userId, @Param("roleName") String roleName);
 
-
+    // 판매자 정보 삭제 (권한 해제 시)
+    void deleteSupplier(String userId);
 }
