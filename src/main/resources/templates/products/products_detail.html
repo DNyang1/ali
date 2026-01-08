@@ -61,7 +61,7 @@
 
             <th:block th:if="${product.isCustomizable == 1}">
                 <button class="btn inquiry"
-                        th:onclick="|location.href='/inquiry/write?productId=${product.productId}'|">
+                        th:onclick="|location.href='/inquiry/create?productId=${product.productId}'|">
                     문의 전송
                 </button>
             </th:block>
