@@ -44,7 +44,7 @@
             ci.sku_id,
             ci.quantity,
             GROUP_CONCAT(
-                pov.option_value
+                CONCAT(po.option_name, ': ', pov.option_value)
                 ORDER BY pov.sort_order
                 SEPARATOR ' / '
             ) AS option_summary
@@ -55,6 +55,8 @@
             ON ci.sku_id = ovs.sku_id
         LEFT JOIN product_option_value pov
             ON ovs.option_value_id = pov.option_value_id
+        LEFT JOIN product_option po
+            ON pov.option_id = po.option_id
         WHERE ci.cart_id = #{cartId}
         GROUP BY
             ci.cart_item_id,

@@ -39,9 +39,12 @@
             <hr/>
             ${data.items.map(i => `
                 <div>
+                    이름: ${i.productName}
+                    옵션: ${i.optionSummary ?? '-'}
                     SKU: ${i.skuId} /
                     수량: ${i.quantity} /
                     금액: ${i.lineAmount}원
+
                 </div>
             `).join('')}
         `;

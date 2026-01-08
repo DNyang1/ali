@@ -10,4 +10,6 @@ public class OrderItemResponse {
     private Long quantity;
     private Long unitPrice;
     private Long lineAmount;
+    private String productName;
+    private String optionSummary;
 }

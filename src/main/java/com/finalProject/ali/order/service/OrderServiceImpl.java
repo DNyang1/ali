@@ -8,7 +8,6 @@ import com.finalProject.ali.order.domain.OrderItem;
 import com.finalProject.ali.order.dto.*;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
-import com.finalProject.ali.product.dao.SkuPriceDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +37,8 @@ public class OrderServiceImpl implements OrderService{
             oi.setSkuId(item.getSkuId());
             oi.setQuantity(item.getQuantity());
             oi.setUnitPrice(item.getUnitPrice());
+            oi.setProductName(item.getProductName());
+            oi.setOptionSummary(item.getOptionSummary());
 
             orderItemMapper.insert(oi);
         });

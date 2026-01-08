@@ -14,4 +14,7 @@ public class OrderItem {
     private Long quantity;
     private Long unitPrice;
     private LocalDateTime createdAt;
+
+    private String productName;
+    private String optionSummary;
 }

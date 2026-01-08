@@ -11,6 +11,8 @@
         INSERT INTO order_item (
             order_id,
             sku_id,
+            product_name,
+            option_summary,
             quantity,
             unit_price,
             created_at
@@ -18,6 +20,8 @@
         VALUES (
             #{orderId},
             #{skuId},
+            #{productName},
+            #{optionSummary},
             #{quantity},
             #{unitPrice},
             NOW()
@@ -27,6 +31,8 @@
     <select id="findByOrderId"
             resultType="com.finalProject.ali.order.dto.OrderItemResponse">
         SELECT
+        product_name            AS productName,
+        option_summary          AS optionSummary,
         sku_id                  AS skuId,
         quantity                AS quantity,
         unit_price              AS unitPrice,
