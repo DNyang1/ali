@@ -5,8 +5,7 @@ import com.finalProject.ali.cart.dto.CartResponse;
 import com.finalProject.ali.cart.service.CartService;
 import com.finalProject.ali.order.domain.Order;
 import com.finalProject.ali.order.domain.OrderItem;
-import com.finalProject.ali.order.dto.OrderCreateRequest;
-import com.finalProject.ali.order.dto.OrderCreateResponse;
+import com.finalProject.ali.order.dto.*;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
 import com.finalProject.ali.product.dao.SkuPriceDAO;
@@ -20,8 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService{
 
-    private final CartService cartService;
-    private final SkuPriceDAO skuPriceDAO;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
 
@@ -51,5 +48,32 @@ public class OrderServiceImpl implements OrderService{
         res.setTotalAmount(order.getTotalAmount());
         return res;
     }
+
+    @Override
+    public List<OrderSummaryResponse> getMyOrders(String userId) {
+        return orderMapper.findMyOrders(userId);
+    }
+
+    @Override
+    public OrderDetailResponse getOrderDetail(Long orderId, String userId) {
+
+        Order order = orderMapper.findByIdAndUser(orderId, userId);
+
+        if (order == null) {
+            throw new IllegalArgumentException("주문을 찾을수 없음");
+        }
+
+        List<OrderItemResponse> items = orderItemMapper.findByOrderId(orderId);
+
+        OrderDetailResponse res = new OrderDetailResponse();
+        res.setOrderId(order.getOrderId());
+        res.setStatus(order.getStatus());
+        res.setTotalAmount(order.getTotalAmount());
+        res.setCreatedAt(order.getCreatedAt().toString());
+        res.setItems(items);
+
+        return res;
+    }
+
 
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/user/layout/base :: layout(~{::body}, ~{})">
+<head>
+    <meta charset="UTF-8">
+    <title>order-detail</title>
+</head>
+<body>
+
+<div id="order-detail"></div>
+
+<script th:inline="javascript">
+    const orderId = [[${orderId}]];
+    console.log('orderId:', orderId);
+
+    fetch(`/api/order/${orderId}/detail`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('주문 상세 조회 실패');
+            }
+            return res.json();
+        })
+        .then(render)
+        .catch(err => {
+            console.error(err);
+            document.getElementById('order-detail').innerHTML =
+                '<p>주문 정보를 불러올 수 없습니다.</p>';
+        });
+
+    function render(data) {
+        const el = document.getElementById('order-detail');
+
+        el.innerHTML = `
+            <h2>주문번호 ${data.orderId}</h2>
+            <div>상태: ${data.status}</div>
+            <div>금액: ${data.totalAmount}원</div>
+            <div>주문일: ${data.createdAt}</div>
+            <hr/>
+            ${data.items.map(i => `
+                <div>
+                    SKU: ${i.skuId} /
+                    수량: ${i.quantity} /
+                    금액: ${i.lineAmount}원
+                </div>
+            `).join('')}
+        `;
+    }
+</script>
+
+</body>
+</html>
