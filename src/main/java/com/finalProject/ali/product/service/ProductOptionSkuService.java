@@ -23,6 +23,7 @@ public class ProductOptionSkuService {
     private final CategoryDAO categoryDAO;
     private final CategoryOptionTemplateDAO templateDAO;
     private final SkuPriceDAO skuPriceDAO;
+    private final CustomOrderSheetDAO customOrderSheetDAO;
 
     private ProductDTO loadMyProductOrThrow(Long productId, String supplierId) {
         ProductDTO product = productDAO.findById(productId, supplierId);
@@ -312,7 +313,51 @@ public class ProductOptionSkuService {
         return optionDAO.findByProductIdV2All(productId);
 
     }
+    private String generateCustomSkuId(Long productId) {
+        String prefix = "P" + productId + "-CUST";
+        int next = skuDAO.countBySkuPrefix(prefix) + 1;
+        return prefix + String.format("%03d", next);
+    }
 
+    @Transactional
+    public String createCustomOrderSheet(Long productId, String supplierId, CustomOrderSheetForm form) {
+        ProductDTO product = loadMyProductOrThrow(productId, supplierId);
+
+        if (!product.isCustomizable()) {
+            throw new IllegalStateException("이 상품은 커스텀 주문이 불가능합니다.");
+        }
+
+        if (form.getQuantity() == null || form.getQuantity() < 1) {
+            throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
+        }
+        if (form.getUnitPrice() == null || form.getUnitPrice() <= 0) {
+            throw new IllegalArgumentException("가격은 0보다 커야 합니다.");
+        }
+        if (form.getOptionsText() == null || form.getOptionsText().isBlank()) {
+            throw new IllegalArgumentException("옵션/요청사항을 입력하세요.");
+        }
+
+        String skuId = generateCustomSkuId(productId);
+
+        SkuDTO sku = new SkuDTO();
+        sku.setSkuId(skuId);
+        sku.setProductId(productId);
+        sku.setStatus("CUSTOM");
+        sku.setCreatedAt(LocalDate.now());
+        skuDAO.insert(sku);
+
+        customOrderSheetDAO.insert(
+                productId,
+                form.getInquiryId(),
+                skuId,
+                form.getQuantity(),
+                form.getUnitPrice(),
+                form.getOptionsText(),
+                "SENT"
+        );
+
+        return skuId;
+    }
 
 
 }

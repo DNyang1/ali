@@ -170,6 +170,10 @@
         ) = #{cnt}
         ) t
     </select>
-
+    <select id="countBySkuPrefix" resultType="int">
+        SELECT COUNT(*)
+        FROM sku
+        WHERE sku_id LIKE CONCAT(#{prefix}, '%')
+    </select>
 
 </mapper>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
+<head>
+    <meta charset="UTF-8"/>
+    <title>커스텀 주문서 작성</title>
+    <link rel="stylesheet" href="/mypage/supplier/css/product.css">
+</head>
+
+<body>
+<section class="panel">
+    <header class="panel-head">
+        <h2 class="panel-title">커스텀 주문서 작성</h2>
+        <a class="panel-link" th:href="@{/mypage/supplier/product/{id}(id=${productId})}">상품 상세</a>
+    </header>
+
+    <div class="panel-body">
+
+        <div th:if="${saved}">
+            <p style="padding:10px; border:1px solid #e5e7eb; border-radius:10px;">
+                저장 완료! 생성된 커스텀 SKU :
+                <b th:text="${createdSkuId}">P118-CUST001</b>
+            </p>
+        </div>
+
+        <div th:if="${error}">
+            <p style="padding:10px; border:1px solid #fecaca; background:#fff1f2; border-radius:10px;">
+                <b th:text="${error}">에러</b>
+            </p>
+        </div>
+
+        <form th:action="@{/mypage/supplier/product/{pid}/custom-sheet(pid=${productId})}"
+              method="post" class="form">
+
+            <input type="hidden" name="inquiryId" th:value="${form.inquiryId}"/>
+
+            <div class="field">
+                <label>수량</label>
+                <input type="number" name="quantity" min="1" placeholder="수량" required>
+            </div>
+
+            <div class="field">
+                <label>단가</label>
+                <input type="number" name="unitPrice" min="1" placeholder="단가" required>
+            </div>
+
+            <div class="field">
+                <label>옵션/요청사항 (텍스트)</label>
+                <textarea name="optionsText" rows="6" placeholder="예) 색상:빨강 / 로고 각인: O / 포장: 개별" required></textarea>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="submit" class="primary">저장</button>
+            </div>
+        </form>
+
+    </div>
+</section>
+</body>
+</html>

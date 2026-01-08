@@ -28,7 +28,7 @@ public interface SkuDAO {
     int countDuplicateSkuCombination(Long productId, List<String> optionValueIds, int cnt);
     List<OptionDTO> findOptionsBySkuIdV2(@Param("skuId") String skuId);
     int countDuplicateSkuCombinationExcludingSku(Long productId, String skuId, List<String> optionValueIds, int cnt);
-
+    int countBySkuPrefix(@Param("prefix") String prefix);
 
     List<SkuRowDTO> findSkuRowsByProductId(Long productId);
 
