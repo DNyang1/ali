@@ -33,11 +33,17 @@
         }
 
         orders.forEach(o => {
+            const extra = o.itemCount - 1;
             const div = document.createElement('div');
             div.className = 'order-card';
 
             div.innerHTML = `
 
+            <div>
+            ${o.firstProductName}
+            ${o.firstOptionSummary}
+              ${extra > 0 ? ` 외 ${extra}개 상품` : ''}
+            </div>
             <div>주문번호: ${o.orderId}</div>
             <div>주문일: ${o.createdAt}</div>
             <div>금액: ${o.totalAmount}원</div>

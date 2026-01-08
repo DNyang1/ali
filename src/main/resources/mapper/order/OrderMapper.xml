@@ -41,20 +41,26 @@
         WHERE   order_id = #{orderId}
             AND user_id = #{userId}
     </select>
-    
-
 
     <select id="findMyOrders"
             parameterType="string"
             resultType="com.finalProject.ali.order.dto.OrderSummaryResponse">
         SELECT
-            order_id        AS orderId,
-            total_amount    AS totalAmount,
-            status          AS status,
-            created_at      AS createdAt
-        FROM orders
-        WHERE user_id = #{userId}
-        ORDER BY created_at DESC
+            o.order_id            AS orderId,
+            o.created_at          AS createdAt,
+            o.total_amount        AS totalAmount,
+            o.status              AS status,
+
+            MIN(oi.product_name)  AS firstProductName,
+            MIN(oi.option_summary) AS firstOptionSummary,
+            COUNT(*)              AS itemCount
+
+        FROM orders o
+        JOIN order_item oi
+            ON o.order_id = oi.order_id
+        WHERE o.user_id = #{userId}
+        GROUP BY o.order_id
+        ORDER BY o.created_at DESC
     </select>
 
     <update id="updateTotalAmount">
