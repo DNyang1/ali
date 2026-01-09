@@ -17,6 +17,8 @@
         <result property="profileImg" column="profile_img"/>
         <result property="status" column="status"/>
 
+        <result property="suspensionReason" column="suspension_reason"/>
+
         <collection property="roles" ofType="string">
             <result column="role_name"/>
         </collection>
@@ -55,7 +57,11 @@
     </delete>
 
     <update id="updateUserStatus">
-        UPDATE users SET status = #{status}, updated_at = NOW() WHERE user_id = #{userId}
+        UPDATE users
+        SET
+        status = #{status},
+        suspension_reason = #{reason}, updated_at = NOW()
+        WHERE user_id = #{userId}
     </update>
 
     <update id="updateUser" parameterType="com.finalProject.ali.user.dto.UserDTO">
@@ -118,4 +124,9 @@
         FROM users
         WHERE user_id = #{userId}
     </select>
+
+    <delete id="deleteSupplier">
+        DELETE FROM supplier WHERE user_id = #{userId}
+    </delete>
+
 </mapper>

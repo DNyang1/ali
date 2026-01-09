@@ -1,3 +1,5 @@
+/* login.js */
+
 function login() {
     const data = {
         userId: document.getElementById('userId').value,
@@ -9,24 +11,34 @@ function login() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
     })
-        .then(res => {
-            // 성공 시 JSON 형태로 파싱하여 다음 then으로 넘깁니다.
-            if (res.ok) return res.json();
-            else throw new Error('로그인 실패');
+        .then(async res => { // async 키워드 추가 (text() 대기를 위해)
+            // 1. 성공 시 (200 OK)
+            if (res.ok) {
+                return res.json();
+            }
+
+            // 2. 에러 메시지 본문 꺼내기
+            const msg = await res.text();
+
+            // 3. 정지된 계정 (403 Forbidden)
+            if (res.status === 403) {
+                throw new Error(msg); // 서버가 보낸 "정지된 계정입니다..." 메시지로 에러 발생
+            }
+
+            // 4. 일반 로그인 실패 (401 Unauthorized 등)
+            else {
+                throw new Error("아이디 또는 비밀번호가 틀렸습니다.");
+            }
         })
         .then(data => {
-            // 서버에서 보낸 response.put("status", "success") 확인
             if (data.status === "success") {
                 alert("로그인 성공!");
 
-                // 1. 관리자 권한 확인: DB에 ROLE_ADMIN으로 저장된 경우
-                // 문자열에 "ROLE_ADMIN"이 포함되어 있는지 체크합니다.
+                // 관리자 및 일반 유저 리다이렉트 로직 (기존 코드 유지)
                 if (data.role && data.role.includes("ROLE_ADMIN")) {
                     location.href = "/admin/adminpage";
-                    return; // 관리자면 여기서 로직 종료 (홈으로 이동 방지)
+                    return;
                 }
-
-                // 2. 일반 유저(ROLE_BUYER 등) 이동 로직
                 const prevPage = document.referrer;
                 if (prevPage && !prevPage.includes('/user/login')
                     && !prevPage.includes('/user/register')
@@ -39,6 +51,8 @@ function login() {
             }
         })
         .catch(err => {
-            alert("아이디 또는 비밀번호가 틀렸습니다.");
+            // 여기서 에러 메시지를 alert로 출력
+            // err.message에 서버에서 보낸 사유가 들어있음
+            alert(err.message);
         });
 }

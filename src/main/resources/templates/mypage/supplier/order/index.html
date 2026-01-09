@@ -1,10 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{})">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>공급자 주문 관리</title>
 </head>
+
 <body>
+
+<h2>공급자 주문 관리</h2>
+
+<div id="supplier-order-list">
+    주문을 불러오는 중...
+</div>
+
+<script>
+    fetch('/api/order/sup')
+        .then(res => {
+            if (!res.ok) throw new Error('주문 조회 실패');
+            return res.json();
+        })
+        .then(render)
+        .catch(err => {
+            console.error(err);
+            document.getElementById('supplier-order-list').innerText =
+                '주문 정보를 불러오지 못했습니다.';
+        });
+
+    function render(list) {
+        const el = document.getElementById('supplier-order-list');
+        el.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            el.innerText = '접수된 주문이 없습니다.';
+            return;
+        }
+
+        list.forEach(o => {
+            const div = document.createElement('div');
+
+            div.innerHTML = `
+                <hr/>
+                <div>주문번호: ${o.orderId}</div>
+                <div>주문일: ${o.orderedAt}</div>
+                <div>구매자: ${o.buyerId}</div>
+
+                <div>상품명: ${o.productName}</div>
+                <div>옵션: ${o.optionSummary || '-'}</div>
+                <div>수량: ${o.quantity}</div>
+                <div>단가: ${o.unitPrice}</div>
+
+                <div>주문상태: ${o.orderStatus}</div>
+                <button onclick="goDetail(${o.orderItemId})">상세보기</button>
+            `;
+
+            el.appendChild(div);
+        });
+    }
+    function goDetail(orderId) {
+        location.href = `/mypage/supplier/order/${orderId}`;
+    }
+</script>
 
 </body>
 </html>

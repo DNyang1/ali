@@ -47,7 +47,7 @@ function signup() {
         .then(res => res.text())
         .then(msg => {
             if (msg === '회원가입 성공' || msg === 'success') {
-                alert('가입 완료! 모든 정보가 DB에 저장되었습니다.');
+                alert('회원가입 완료!');
                 location.href = '/user/login'; // 가입 후 로그인 페이지로 이동
             } else {
                 alert('가입 실패: ' + msg);
