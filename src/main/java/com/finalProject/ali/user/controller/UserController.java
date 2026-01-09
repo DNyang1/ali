@@ -171,9 +171,14 @@ public class UserController {
     }
 
 
+    // UserController.java 수정
     @GetMapping("/update")
-    public String updatePage() {
-        return "user/update"; // s_update.html 반환
+    public String updatePage(HttpSession session) {
+        // 세션에 유저 정보가 없으면 로그인 창으로 보냄 (에러 방지)
+        if (session.getAttribute("loginUser") == null) {
+            return "redirect:/user/login";
+        }
+        return "user/update";
     }
 
 
