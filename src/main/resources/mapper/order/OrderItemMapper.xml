@@ -40,4 +40,32 @@
         FROM order_item
         WHERE order_id = #{orderId}
     </select>
+
+
+    <select id="findSupplierOrderItemDetail"
+            resultType="com.finalProject.ali.order.dto.SupplierOrderItemDetailResponse">
+        SELECT
+            oi.order_item_id        AS orderItemId,
+            oi.order_id             AS orderId,
+            o.created_at            AS orderAt,
+            o.user_id               AS buyerId,
+            oi.product_name         AS productName,
+            oi.option_summary       AS optionSummary,
+            oi.quantity             AS quantity,
+            oi.unit_price           AS unitPrice,
+            oi.supplier_status      AS supplierStatus,
+            oi.carrier              AS carrier,
+            oi.tracking_no          AS trackingNo,
+            o.status                AS orderStatus
+        FROM order_item oi
+        JOIN orders o
+            ON oi.order_id = o.order_id
+        JOIN sku s
+            ON oi.sku_id = s.sku_id
+        JOIN products p
+            ON s.product_id = p.product_id
+        WHERE oi.order_item_id = #{orderItemId}
+            AND p.supplier_id = #{supplierId}
+
+    </select>
 </mapper>
