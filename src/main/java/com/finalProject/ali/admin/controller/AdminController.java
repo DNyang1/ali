@@ -63,8 +63,9 @@ public class AdminController {
     // 2. 계정 상태 변경 (AJAX 또는 Form)
     @PostMapping("/users/status")
     public String updateUserStatus(@RequestParam("userId") String userId,
-                                   @RequestParam("status") String status) {
-        userService.updateUserStatus(userId, status);
+                                   @RequestParam("status") String status,
+                                   @RequestParam(value = "reason", required = false) String reason) {
+        userService.updateUserStatus(userId, status, reason);
         return "redirect:/admin/users";
     }
     // 3. 권한 변경

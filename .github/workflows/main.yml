@@ -1,0 +1,47 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 코드 가져오기
+      uses: actions/checkout@v3
+
+    - name: JDK 21 설치
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: gradlew 실행 권한 부여
+      run: chmod +x gradlew
+
+    - name: Gradle 빌드 (테스트 제외)
+      run: ./gradlew build -x test
+
+    - name: EC2로 jar 파일 전송 (SCP)
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        source: "./build/libs/*.jar"
+        target: "/home/ubuntu/app"
+
+    - name: 서버 재시작 (SSH)
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+          # 1. 실행 중인 기존 서버 종료 (없으면 패스)
+          fuser -k 80/tcp || true
+          
+          # 2. 새 파일 실행 (로그는 nohup.out에 저장)
+          # 기존 파일을 덮어쓰거나 최신 파일을 실행
+          nohup java -jar /home/ubuntu/app/build/libs/*.jar > /home/ubuntu/app/nohup.out 2>&1 &

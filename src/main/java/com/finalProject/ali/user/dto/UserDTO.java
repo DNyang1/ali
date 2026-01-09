@@ -22,4 +22,6 @@ public class UserDTO {
     //판매자 권한
     private List<String> roles;
     private String status;
+    // 정지 사유
+    private String suspensionReason;
 }
