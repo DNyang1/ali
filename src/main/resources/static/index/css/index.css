@@ -6,7 +6,9 @@
 body {
     margin: 0;
     background: #f5f5f5;
+    overflow-x: auto;
 }
+
 
 
 .header {
@@ -79,14 +81,22 @@ body {
 
 
 .main {
-    padding: 30px;
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    max-width: 100vw;
+    overflow: visible;
 }
+
 
 .category-box {
     width: 260px;
     background: #fff;
     border-radius: 12px;
     padding: 16px;
+
+    height: 420px;
+    overflow-y: auto;
 }
 
 .category-box h3 {
@@ -337,4 +347,110 @@ body {
 .hidden {
     display: none;
 }
+
+.all-category-wrap {
+    display: flex;
+    gap: 24px;
+}
+
+.all-category-right {
+    flex: 1;
+    overflow: hidden;
+    height: auto;
+}
+.recommend-wrapper {
+    width: 100%;
+    overflow: visible;
+    padding: 24px 0;
+    min-width: 0;
+}
+
+.recommend-horizontal {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 24px 12px;
+}
+
+.recommend-horizontal::-webkit-scrollbar {
+    height: 8px;
+}
+.recommend-horizontal::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 10px;
+}
+.recommend-horizontal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.recommend-block {
+    flex: 0 0 360px;
+    min-height: 380px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.recommend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.recommend-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.recommend-header span {
+    font-size: 13px;
+    color: #888;
+}
+
+.recommend-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    flex: 1;
+}
+
+.product-card {
+    cursor: pointer;
+}
+
+.product-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.product-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.product-card .price {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 8px;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+}
+
+
 
