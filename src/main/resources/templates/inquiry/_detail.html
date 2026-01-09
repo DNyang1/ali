@@ -8,7 +8,6 @@
   <div class="info">
     <div><b>문의번호:</b> <span th:text="${inq.inquiryId}">-</span></div>
     <div><b>상품ID:</b> <span th:text="${inq.productId}">-</span></div>
-    <div><b>수량:</b> <span th:text="${inq.quantity}">-</span></div>
 
     <div><b>상태:</b>
       <span th:if="${inq.status == 0}">답변대기</span>
