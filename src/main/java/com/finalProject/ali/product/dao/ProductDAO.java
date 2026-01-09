@@ -37,4 +37,10 @@ public interface ProductDAO {
     List<ProductDTO> findByCategoryId(String categoryId);
 
     String findSupplierIdByProductId(@Param("productId") Long productId);
+
+    List<ProductDTO> selectMainRecommendedByCategory(
+            @Param("categoryId") String categoryId,
+            @Param("limit") int limit
+    );
+
 }

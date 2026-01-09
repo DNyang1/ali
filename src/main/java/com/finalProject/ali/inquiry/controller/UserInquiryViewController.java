@@ -2,6 +2,7 @@ package com.finalProject.ali.inquiry.controller;
 
 import com.finalProject.ali.inquiry.dto.InquiryDTO;
 import com.finalProject.ali.inquiry.service.InquiryService;
+import com.finalProject.ali.product.dao.CustomOrderSheetDAO;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,8 @@ import java.util.List;
 public class UserInquiryViewController {
 
     private final InquiryService inquiryService;
+    private final CustomOrderSheetDAO customOrderSheetDAO;
+
 
     private String getLoginId(HttpSession session) {
         Object v = session.getAttribute("loginUser");
@@ -68,6 +71,9 @@ public class UserInquiryViewController {
         }
 
         model.addAttribute("inquiry", inquiry);
+        model.addAttribute("isUserView", true);
+
+        model.addAttribute("sheet", customOrderSheetDAO.findByInquiryId(inquiryId));
         return "inquiry/user/detail";
     }
 }

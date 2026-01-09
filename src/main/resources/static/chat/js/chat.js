@@ -181,7 +181,8 @@ function bindRoomClicks() {
             const hidden = document.getElementById("currentRoomId");
             if (hidden) hidden.value = String(rid);
 
-            setHeader(`Room #${rid}`, "");
+            const oppName = (el.dataset.opponentName || "").trim();
+            setHeader(oppName || `Room #${rid}`, "");
 
             // 메시지 로딩
             await loadMessages(rid);
@@ -279,24 +280,46 @@ function appendMessage(m) {
     const chatBody = document.getElementById("chatBody");
     if (!chatBody) return;
 
-    const div = document.createElement("div");
     const isMe = m.senderId === currentUserId;
-    div.className = "msg" + (isMe ? " me" : "");
-
-    if (m.chatId != null) div.dataset.chatId = String(m.chatId);
-
     const time = m.chatAt ? formatTime(m.chatAt) : "";
+    const senderLabel = !isMe ? (m.senderName || m.senderId || "") : "";
 
-    div.innerHTML = `
-      <div class="text">${renderMessageContent(m)}</div>
-      <div class="meta">
-        <span class="time">${escapeHtml(time)}</span>
-        <span class="read" style="display:none;">읽음</span>
-      </div>
-    `;
+    // wrapper: 정렬 담당
+    const wrap = document.createElement("div");
+    wrap.className = "msg-wrap" + (isMe ? " me" : "");
 
-    chatBody.appendChild(div);
-    enhanceProductCard(div);
+    // 이름(상대만)
+    if (!isMe && senderLabel) {
+        const nameEl = document.createElement("div");
+        nameEl.className = "sender";
+        nameEl.textContent = senderLabel;
+        wrap.appendChild(nameEl);
+    }
+
+    // bubble: 말풍선(여기엔 me 붙이지 말 것!)
+    const bubble = document.createElement("div");
+    bubble.className = "msg";
+    if (m.chatId != null) bubble.dataset.chatId = String(m.chatId);
+
+    bubble.innerHTML = `
+    <div class="text"></div>
+    <div class="meta">
+      <span class="time">${escapeHtml(time)}</span>
+      <span class="read" style="display:none;">읽음</span>
+    </div>
+  `;
+
+    // 상품 링크면 카드로, 아니면 텍스트
+    const textEl = bubble.querySelector(".text");
+    if (m.productId) {
+        textEl.innerHTML = renderMessageContent(m);
+        enhanceProductCard(bubble);
+    } else {
+        textEl.textContent = m.message || "";
+    }
+
+    wrap.appendChild(bubble);
+    chatBody.appendChild(wrap);
     chatBody.scrollTop = chatBody.scrollHeight;
 }
 
@@ -327,7 +350,7 @@ function applyReadMarks(lastReadChatId) {
     const chatBody = document.getElementById("chatBody");
     if (!chatBody) return;
 
-    const myMsgs = chatBody.querySelectorAll(`.msg.me[data-chat-id]`);
+    const myMsgs = chatBody.querySelectorAll(`.msg-wrap.me .msg[data-chat-id]`);
     myMsgs.forEach((el) => {
         const chatId = toNum(el.dataset.chatId);
         if (chatId && chatId <= lastReadChatId) {
@@ -611,7 +634,7 @@ function applyProductSummary(card, summary) {
     const imgEl = card.querySelector(".pc-thumb");
 
     if (nameEl && summary?.productName) {
-        nameEl.textContent = summary.productName; // ✅ 상품명으로 교체
+        nameEl.textContent = summary.productName;
     }
 
     if (imgEl && summary?.thumbnailUrl) {

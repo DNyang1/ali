@@ -10,6 +10,9 @@
         SELECT
         rm.room_id AS roomId,
 
+        u.user_id AS opponentId,
+        u.name    AS opponentName,
+
         (SELECT c.message
         FROM chat c
         WHERE c.room_id = rm.room_id
@@ -29,9 +32,15 @@
         AND c.sender_id != #{userId}) AS unreadCount
 
         FROM room_members rm
+        JOIN room_members rm2
+        ON rm.room_id = rm2.room_id
+        AND rm2.user_id != #{userId}
+        JOIN users u
+        ON u.user_id = rm2.user_id
         WHERE rm.user_id = #{userId}
         ORDER BY COALESCE(lastChatAt, '1970-01-01') DESC
     </select>
+
 
     <!-- 그룹 가능: 여러 user_id를 한 번에 insert -->
     <insert id="insertMembers">

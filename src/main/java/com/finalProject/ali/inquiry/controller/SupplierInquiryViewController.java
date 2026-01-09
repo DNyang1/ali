@@ -3,6 +3,8 @@ package com.finalProject.ali.inquiry.controller;
 import com.finalProject.ali.inquiry.dao.SupplierLookupDAO;
 import com.finalProject.ali.inquiry.dto.InquiryDTO;
 import com.finalProject.ali.inquiry.service.InquiryService;
+import com.finalProject.ali.inquiry.service.InquiryWorkflowService;
+import com.finalProject.ali.product.dao.CustomOrderSheetDAO;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,9 @@ public class SupplierInquiryViewController {
 
     private final InquiryService inquiryService;
     private final SupplierLookupDAO supplierLookupDAO;
+    //태민
+    private final CustomOrderSheetDAO customOrderSheetDAO;
+    private final InquiryWorkflowService inquiryWorkflowService;
 
     private String getLoginId(HttpSession session) {
         Object v = session.getAttribute("loginUser");
@@ -103,6 +108,10 @@ public class SupplierInquiryViewController {
         }
 
         model.addAttribute("inquiry", inquiry);
+        //태민
+        model.addAttribute("isUserView", false);
+
+        model.addAttribute("sheet", customOrderSheetDAO.findByInquiryId(inquiryId));
         return "inquiry/supplier/detail";
     }
 
@@ -117,5 +126,13 @@ public class SupplierInquiryViewController {
 
         return "redirect:/inquiry/supplier/list";
     }
+    // 태민
+    @PostMapping("/detail/{inquiryId}/cancel")
+    public String cancel(@PathVariable Long inquiryId, HttpSession session) {
+        String supplierId = getSupplierId(session);
+        inquiryWorkflowService.cancelInquiryBySupplier(inquiryId, supplierId);
+        return "redirect:/inquiry/supplier/detail/" + inquiryId;
+    }
+
 
 }

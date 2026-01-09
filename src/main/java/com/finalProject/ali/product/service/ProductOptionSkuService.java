@@ -1,8 +1,10 @@
 package com.finalProject.ali.product.service;
 
+import com.finalProject.ali.mypage.supplier.inquiry.dao.InquiryStatusDAO;
 import com.finalProject.ali.product.category.dao.CategoryDAO;
 import com.finalProject.ali.product.dao.*;
 import com.finalProject.ali.product.dto.*;
+import com.finalProject.ali.product.sheet.status.SheetStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,8 @@ public class ProductOptionSkuService {
     private final CategoryDAO categoryDAO;
     private final CategoryOptionTemplateDAO templateDAO;
     private final SkuPriceDAO skuPriceDAO;
+    private final CustomOrderSheetDAO customOrderSheetDAO;
+    private final InquiryStatusDAO inquiryStatusDAO;
 
     private ProductDTO loadMyProductOrThrow(Long productId, String supplierId) {
         ProductDTO product = productDAO.findById(productId, supplierId);
@@ -312,6 +316,116 @@ public class ProductOptionSkuService {
         return optionDAO.findByProductIdV2All(productId);
 
     }
+    private String generateCustomSkuId(Long productId) {
+        String prefix = "P" + productId + "-CUST";
+        int next = skuDAO.countBySkuPrefix(prefix) + 1;
+        return prefix + String.format("%03d", next);
+    }
+
+    @Transactional
+    public String createCustomOrderSheet(Long productId, String supplierId, CustomOrderSheetForm form) {
+        loadMyProductOrThrow(productId, supplierId);
+
+        if (form.getInquiryId() == null) throw new IllegalArgumentException("inquiryId가 필요합니다.");
+        if (form.getQuantity() == null || form.getQuantity() < 1) throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
+        if (form.getUnitPrice() == null || form.getUnitPrice() < 1) throw new IllegalArgumentException("단가는 1 이상이어야 합니다.");
+        if (form.getOptionsText() == null || form.getOptionsText().isBlank()) throw new IllegalArgumentException("옵션/요청사항을 입력하세요.");
+
+        Long qty = form.getQuantity().longValue();
+        Integer unitPrice = Math.toIntExact(form.getUnitPrice());
+
+        var existing = customOrderSheetDAO.findByInquiryId(form.getInquiryId());
+
+        if (existing != null) {
+            String st = existing.getStatus();
+
+            if (!SheetStatus.canEditOrSend(st)) {
+                throw new IllegalStateException("현재 상태에서는 주문서를 수정할 수 없습니다. (" + st + ")");
+            }
+
+
+
+            customOrderSheetDAO.updateContentByInquiryId(
+                    form.getInquiryId(),
+                    form.getQuantity(),
+                    form.getUnitPrice(),
+                    form.getOptionsText()
+            );
+
+            skuDAO.updateStock(existing.getSkuId(), qty);
+
+            int updated = skuPriceDAO.updateBasePrice(existing.getSkuId(), unitPrice);
+            if (updated == 0) {
+                skuPriceDAO.insertPrice(existing.getSkuId(), 1, null, unitPrice);
+            }
+
+            if (SheetStatus.REJECTED.equals(st)) {
+                customOrderSheetDAO.updateStatus(existing.getSheetId(), SheetStatus.DRAFT);
+            }
+
+            return existing.getSkuId();
+        }
+
+        String skuId = generateCustomSkuId(productId);
+
+        SkuDTO sku = new SkuDTO();
+        sku.setSkuId(skuId);
+        sku.setProductId(productId);
+        sku.setStockQuantity(form.getQuantity().longValue());
+
+        long moq = 1L;
+        if (moq < 1) throw new IllegalArgumentException("MOQ는 1 이상이어야 합니다.");
+        sku.setMoq(moq);
+
+        sku.setStatus("CUSTOM");
+        sku.setCreatedAt(LocalDate.now());
+        skuDAO.insert(sku);
+
+        skuPriceDAO.insertPrice(skuId, 1, null, unitPrice);
+        customOrderSheetDAO.insert(
+                productId,
+                form.getInquiryId(),
+                skuId,
+                form.getQuantity(),
+                form.getUnitPrice(),
+                form.getOptionsText(),
+                SheetStatus.DRAFT
+        );
+
+        return skuId;
+    }
+
+
+
+
+    @Transactional
+    public void sendCustomOrderSheet(Long productId, String supplierId, Long sheetId, Long inquiryId) {
+        loadMyProductOrThrow(productId, supplierId);
+
+        var sheet = customOrderSheetDAO.findById(sheetId);
+        if (sheet == null) throw new IllegalArgumentException("주문서가 없습니다.");
+
+        if (sheet.getProductId() == null || !sheet.getProductId().equals(productId)) {
+            throw new IllegalArgumentException("상품이 일치하지 않습니다.");
+        }
+
+        if (!SheetStatus.canEditOrSend(sheet.getStatus())) {
+            throw new IllegalStateException("현재 상태에서는 발송할 수 없습니다.");
+        }
+
+        int s1 = customOrderSheetDAO.updateStatus(sheetId, SheetStatus.SENT);
+        if (s1 != 1) throw new IllegalStateException("주문서 상태 변경 실패");
+
+        int s2 = inquiryStatusDAO.updateToInProgress(inquiryId);
+        if (s2 == 0) {
+            Integer cur = inquiryStatusDAO.findStatus(inquiryId);
+            if (cur == null) throw new IllegalArgumentException("문의가 없습니다.");
+            if (cur == 2) throw new IllegalStateException("종료된 문의는 진행중으로 변경할 수 없습니다.");
+        }
+        System.out.println("send done: sheetId=" + sheetId + ", inquiryId=" + inquiryId);
+
+    }
+
 
 
 

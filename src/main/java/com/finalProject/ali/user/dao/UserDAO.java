@@ -53,5 +53,6 @@ public interface UserDAO {
     // 권한 삭제 (예: 판매자 권한 박탈)
     void deleteUserRole(@Param("userId") String userId, @Param("roleName") String roleName);
 
+    String findNameByUserId(@Param("userId") String userId);
 
 }
