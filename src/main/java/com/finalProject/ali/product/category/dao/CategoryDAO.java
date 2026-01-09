@@ -23,5 +23,7 @@ public interface CategoryDAO {
     List<CategoryDTO> findByParentId(String parentId);
     List<CategoryDTO> selectMainCategories();
 
+
+
 }
 

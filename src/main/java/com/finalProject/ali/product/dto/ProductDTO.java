@@ -22,4 +22,5 @@ public class ProductDTO {
     private Long moq;
     private Long minPrice;
     private Long maxPrice;
+    private String thumbnail; // 나중에 img로 변경
 }
