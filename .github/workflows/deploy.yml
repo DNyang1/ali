@@ -42,7 +42,7 @@ jobs:
           script: |
             # 1. 기존 8080 포트 프로세스 종료
             sudo fuser -k 8080/tcp || true
-            sleep 2
+            sleep 3
             
             # 2. 파일 위치로 이동 (strip_components: 2 설정 기준)
             cd /home/ubuntu/app
@@ -51,7 +51,7 @@ jobs:
             nohup java -jar -Dspring.profiles.active=dev *.jar > nohup.out 2>&1 &
             
             # 4. 실행 확인을 위한 대기
-            sleep 5
+            sleep 10
             
             
 
