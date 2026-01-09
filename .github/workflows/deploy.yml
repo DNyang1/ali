@@ -48,7 +48,10 @@ jobs:
             cd /home/ubuntu/app
             
             # 3. 새 서버 실행
-            nohup java -jar *.jar > nohup.out 2>&1 &
+            nohup java -jar -Dspring.profiles.active=dev *.jar > nohup.out 2>&1 &
             
             # 4. 실행 확인을 위한 대기
             sleep 5
+            
+            
+
