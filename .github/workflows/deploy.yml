@@ -40,6 +40,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # 80번 포트 권한 부여 및 포워딩 (배포 시마다 실행)
+            sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080 || true
+            
             # 1. 기존 8080 포트 프로세스 종료
             sudo fuser -k 8080/tcp || true
             sleep 3
