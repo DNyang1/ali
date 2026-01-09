@@ -65,6 +65,40 @@
         <h3>고객님을 위한 카테고리</h3>
         <ul id="categoryList"></ul>
     </aside>
+
+    <section class="recommend-wrapper">
+
+        <!-- 이 안에서만 가로 스크롤 -->
+        <div class="recommend-horizontal">
+
+            <!-- 카테고리별 추천 박스 -->
+            <div class="recommend-block"
+                 th:each="entry : ${recommendByCategory}"
+                 th:if="${entry.value != null and #lists.size(entry.value) > 0}">
+
+                <div class="recommend-header">
+                    <h4>추천 더 보기</h4>
+                    <span th:text="${entry.key}"></span>
+                </div>
+
+                <div class="recommend-cards">
+                    <div class="product-card"
+                         th:each="p : ${entry.value}">
+                        <a class="product-link" th:href="@{/products/{id}(id=${p.productId})}">
+
+                        <img th:src="|https://picsum.photos/seed/${p.productId}/200/200|">
+                        <span class="price"
+                              th:text="${p.minPrice != null ? '₩' + #numbers.formatInteger(p.minPrice,3,'COMMA') : '가격문의'}">
+                         </span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
 </div>
 
 <section class="biz">
