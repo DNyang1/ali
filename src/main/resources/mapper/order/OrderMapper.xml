@@ -63,6 +63,33 @@
         ORDER BY o.created_at DESC
     </select>
 
+    <select id="findSupplierOrderItems"
+            parameterType="string"
+            resultType="com.finalProject.ali.order.dto.SupplierOrderItemResponse">
+
+        SELECT
+        oi.order_item_id    AS orderItemId,
+        oi.order_id         AS orderId,
+        o.created_at        AS orderedAt,
+        o.user_id           AS buyerId,
+        oi.product_name     AS productName,
+        oi.option_summary   AS optionSummary,
+        oi.quantity         AS quantity,
+        oi.unit_price       AS unitPrice,
+        o.status            AS orderStatus
+
+        FROM order_item oi
+        JOIN orders o
+        ON oi.order_id = o.order_id
+        JOIN sku s
+        ON oi.sku_id = s.sku_id
+        JOIN products p
+        ON s.product_id = p.product_id
+
+        WHERE p.supplier_id = #{supplierId}
+        ORDER BY o.created_at DESC
+    </select>
+
     <update id="updateTotalAmount">
         UPDATE orders
         SET total_amount = #{totalAmount}

@@ -1,8 +1,5 @@
 package com.finalProject.ali.order.service;
 
-import com.finalProject.ali.cart.dto.CartItemResponse;
-import com.finalProject.ali.cart.dto.CartResponse;
-import com.finalProject.ali.cart.service.CartService;
 import com.finalProject.ali.order.domain.Order;
 import com.finalProject.ali.order.domain.OrderItem;
 import com.finalProject.ali.order.dto.*;
@@ -11,7 +8,6 @@ import com.finalProject.ali.order.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -74,6 +70,26 @@ public class OrderServiceImpl implements OrderService{
         res.setItems(items);
 
         return res;
+    }
+
+    @Override
+    public List<SupplierOrderItemResponse> getSupOrders(String supplierId) {
+        return orderMapper.findSupplierOrderItems(supplierId);
+    }
+
+    @Override
+    public SupplierOrderItemDetailResponse getSupOrderDetail(Long orderItemId, String supplierId) {
+        return orderItemMapper.findSupplierOrderItemDetail(orderItemId, supplierId);
+    }
+
+    @Override
+    public void shipOrderItem(Long orderItemId, String supplierId, SupplierShipRequest request) {
+        orderItemMapper.updateSupplierShipping(
+                orderItemId,
+                supplierId,
+                request.getCarrier(),
+                request.getTrackingNo(),
+                "SHIPPED");
     }
 
 
