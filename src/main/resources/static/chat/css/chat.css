@@ -54,7 +54,8 @@
 
 .msg .read {
     font-size: 12px;
-    color: #888;
+    color: blue;
+    font-weight: bold;
 }
 
 .msg.me .read {
