@@ -36,7 +36,10 @@
         sku_id                  AS skuId,
         quantity                AS quantity,
         unit_price              AS unitPrice,
-        quantity * unit_price   AS lineAmount
+        quantity * unit_price   AS lineAmount,
+        supplier_status         AS status,
+        carrier                 AS carrier,
+        tracking_no             AS trackingNo
         FROM order_item
         WHERE order_id = #{orderId}
     </select>

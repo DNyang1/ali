@@ -79,12 +79,17 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     public SupplierOrderItemDetailResponse getSupOrderDetail(Long orderItemId, String supplierId) {
-        return null;
+        return orderItemMapper.findSupplierOrderItemDetail(orderItemId, supplierId);
     }
 
     @Override
-    public void shipOrderItem(Long orderItemId, String supplierId, String carrier, String trackingNo) {
-
+    public void shipOrderItem(Long orderItemId, String supplierId, SupplierShipRequest request) {
+        orderItemMapper.updateSupplierShipping(
+                orderItemId,
+                supplierId,
+                request.getCarrier(),
+                request.getTrackingNo(),
+                "SHIPPED");
     }
 
 

@@ -51,15 +51,14 @@
                 <div>단가: ${o.unitPrice}</div>
 
                 <div>주문상태: ${o.orderStatus}</div>
+                <button onclick="goDetail(${o.orderItemId})">상세보기</button>
             `;
-
-            // 👉 나중에 상세 페이지 연결 가능
-            // div.onclick = () => {
-            //     location.href = `/mypage/supplier/order/${o.orderItemId}`;
-            // };
 
             el.appendChild(div);
         });
+    }
+    function goDetail(orderId) {
+        location.href = `/mypage/supplier/order/${orderId}`;
     }
 </script>
 

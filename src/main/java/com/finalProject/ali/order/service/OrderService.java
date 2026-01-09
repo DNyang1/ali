@@ -10,5 +10,5 @@ public interface OrderService {
     OrderDetailResponse getOrderDetail(Long orderId, String userId);
     List<SupplierOrderItemResponse> getSupOrders(String supplierId);
     SupplierOrderItemDetailResponse getSupOrderDetail(Long orderItemId, String supplierId);
-    void shipOrderItem(Long orderItemId, String supplierId, String carrier, String trackingNo);
+    void shipOrderItem(Long orderItemId, String supplierId, SupplierShipRequest trackingNo);
 }

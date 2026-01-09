@@ -12,4 +12,9 @@ public class OrderItemResponse {
     private Long lineAmount;
     private String productName;
     private String optionSummary;
+
+    private String status;
+    private String carrier;
+    private String trackingNo;
+
 }

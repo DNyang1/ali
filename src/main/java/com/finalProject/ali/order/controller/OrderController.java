@@ -50,4 +50,29 @@ public class OrderController {
         String supplierId = supplier.getSupplierId();
         return orderService.getSupOrders(supplierId);
     }
+
+    @GetMapping("/sup/{orderItemId}")
+    public SupplierOrderItemDetailResponse supDetail(
+            @PathVariable Long orderItemId, HttpSession session) {
+
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
+        SupplierDTO supplier = userService.getSupplierInfo(userId);
+        String supplierId = supplier.getSupplierId();
+
+        return orderService.getSupOrderDetail(orderItemId, supplierId);
+    }
+
+    @PostMapping("/sup/{orderItemId}/ship")
+    public void ship (@PathVariable Long orderItemId,
+                      @RequestBody SupplierShipRequest request,
+                      HttpSession session) {
+
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
+        SupplierDTO supplier = userService.getSupplierInfo(userId);
+        String supplierId = supplier.getSupplierId();
+
+        orderService.shipOrderItem(orderItemId, supplierId, request);
+    }
 }
