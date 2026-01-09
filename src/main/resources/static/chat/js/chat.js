@@ -312,8 +312,8 @@ function appendMessage(m) {
     // 상품 링크면 카드로, 아니면 텍스트
     const textEl = bubble.querySelector(".text");
     if (m.productId) {
-        textEl.innerHTML = renderMessageContent(m);   // ✅ data-product-id + pc-thumb + pc-name 포함됨
-        enhanceProductCard(bubble);                   // ✅ 여기서 API 호출해서 이미지/상품명 채움
+        textEl.innerHTML = renderMessageContent(m);
+        enhanceProductCard(bubble);
     } else {
         textEl.textContent = m.message || "";
     }
@@ -350,7 +350,7 @@ function applyReadMarks(lastReadChatId) {
     const chatBody = document.getElementById("chatBody");
     if (!chatBody) return;
 
-    const myMsgs = chatBody.querySelectorAll(`.msg.me[data-chat-id]`);
+    const myMsgs = chatBody.querySelectorAll(`.msg-wrap.me .msg[data-chat-id]`);
     myMsgs.forEach((el) => {
         const chatId = toNum(el.dataset.chatId);
         if (chatId && chatId <= lastReadChatId) {
