@@ -41,7 +41,14 @@ public class CheckoutServiceImpl implements CheckoutService{
 
             resultItems.add(item);
             totalAmount += lineAmount;
+
+            System.out.println(
+                    "[CHECKOUT][ITEM] skuId=" + item.getSkuId()
+                            + ", productName=" + item.getProductName()
+                            + ", optionSummary=" + item.getOptionSummary()
+            );
         }
+
 
         return new CheckoutResponse(
                 resultItems,

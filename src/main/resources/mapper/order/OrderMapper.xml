@@ -4,11 +4,64 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.order.mapper.OrderMapper">
-    <insert id="insert" parameterType="com.finalProject.ali.order.domain.Order"
-            useGeneratedKeys="true" keyProperty="orderId">
-        INSERT INTO orders (user_id, total_amount, address_id, status, created_at)
-        VALUES (#{userId}, #{totalAmount}, #{addressId}, #{status}, NOW())
+
+    <insert id="insert"
+            parameterType="com.finalProject.ali.order.domain.Order"
+            useGeneratedKeys="true"
+            keyProperty="orderId">
+        INSERT INTO orders (
+            user_id,
+            total_amount,
+            address_id,
+            status,
+            created_at
+        )
+        VALUES (
+            #{userId},
+            #{totalAmount},
+            #{addressId},
+            #{status},
+            NOW()
+        )
     </insert>
+
+
+    <select id="findById"
+            parameterType="long"
+            resultType="com.finalProject.ali.order.domain.Order">
+        SELECT *
+        FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <select id="findByIdAndUser"
+            resultType="com.finalProject.ali.order.domain.Order">
+        SELECT *
+        FROM orders
+        WHERE   order_id = #{orderId}
+            AND user_id = #{userId}
+    </select>
+
+    <select id="findMyOrders"
+            parameterType="string"
+            resultType="com.finalProject.ali.order.dto.OrderSummaryResponse">
+        SELECT
+            o.order_id            AS orderId,
+            o.created_at          AS createdAt,
+            o.total_amount        AS totalAmount,
+            o.status              AS status,
+
+            MIN(oi.product_name)  AS firstProductName,
+            MIN(oi.option_summary) AS firstOptionSummary,
+            COUNT(*)              AS itemCount
+
+        FROM orders o
+        JOIN order_item oi
+            ON o.order_id = oi.order_id
+        WHERE o.user_id = #{userId}
+        GROUP BY o.order_id
+        ORDER BY o.created_at DESC
+    </select>
 
     <update id="updateTotalAmount">
         UPDATE orders
@@ -16,18 +69,12 @@
         WHERE order_id = #{orderId}
     </update>
 
-    <select id="findById"
-            parameterType="long"
-            resultType="com.finalProject.ali.order.domain.Order">
-        SELECT
-            *
-        FROM orders
-        WHERE order_id = #{orderId}
-    </select>
-    
     <update id="updateStatus">
         UPDATE orders
         SET status = #{status}
         WHERE order_id = #{orderId}
     </update>
+
+
+
 </mapper>

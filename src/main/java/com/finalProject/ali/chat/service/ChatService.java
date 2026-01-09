@@ -31,4 +31,6 @@ public interface ChatService {
 
     Long findRoomIdByTwoMembers(String userA, String userB);
 
+    String getUserName(String userId);
+
 }
