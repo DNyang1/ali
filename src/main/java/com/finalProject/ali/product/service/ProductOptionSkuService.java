@@ -1,5 +1,6 @@
 package com.finalProject.ali.product.service;
 
+import com.finalProject.ali.mypage.supplier.inquiry.dao.InquiryStatusDAO;
 import com.finalProject.ali.product.category.dao.CategoryDAO;
 import com.finalProject.ali.product.dao.*;
 import com.finalProject.ali.product.dto.*;
@@ -25,6 +26,7 @@ public class ProductOptionSkuService {
     private final CategoryOptionTemplateDAO templateDAO;
     private final SkuPriceDAO skuPriceDAO;
     private final CustomOrderSheetDAO customOrderSheetDAO;
+    private final InquiryStatusDAO inquiryStatusDAO;
 
     private ProductDTO loadMyProductOrThrow(Long productId, String supplierId) {
         ProductDTO product = productDAO.findById(productId, supplierId);
@@ -397,7 +399,7 @@ public class ProductOptionSkuService {
 
 
     @Transactional
-    public void sendCustomOrderSheet(Long productId, String supplierId, Long sheetId) {
+    public void sendCustomOrderSheet(Long productId, String supplierId, Long sheetId, Long inquiryId) {
         loadMyProductOrThrow(productId, supplierId);
 
         var sheet = customOrderSheetDAO.findById(sheetId);
@@ -411,8 +413,20 @@ public class ProductOptionSkuService {
             throw new IllegalStateException("현재 상태에서는 발송할 수 없습니다.");
         }
 
-        customOrderSheetDAO.updateStatus(sheetId, SheetStatus.SENT);
+        int s1 = customOrderSheetDAO.updateStatus(sheetId, SheetStatus.SENT);
+        if (s1 != 1) throw new IllegalStateException("주문서 상태 변경 실패");
+
+        int s2 = inquiryStatusDAO.updateToInProgress(inquiryId);
+        if (s2 == 0) {
+            Integer cur = inquiryStatusDAO.findStatus(inquiryId);
+            if (cur == null) throw new IllegalArgumentException("문의가 없습니다.");
+            if (cur == 2) throw new IllegalStateException("종료된 문의는 진행중으로 변경할 수 없습니다.");
+        }
+        System.out.println("send done: sheetId=" + sheetId + ", inquiryId=" + inquiryId);
+
     }
+
+
 
 
 }

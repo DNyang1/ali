@@ -79,13 +79,13 @@
 <th:block th:fragment="content">
 
     <div th:replace="inquiry/_detail :: inquiryDetail(${inquiry}, ${sheet})"></div>
+    <div th:if="${msg != null}" th:text="${msg}"></div>
+    <div th:if="${error != null}" th:text="${error}"></div>
+
 
     <hr style="margin:16px 0;" />
 
-    <!-- 종료 상태면 안내만 -->
-    <div th:if="${inquiry.status == 2}" class="hint">
-        이 문의는 종료된 상태입니다. (거절/취소/완료 등)
-    </div>
+
 
     <!-- 진행 중일 때만 액션 UI 노출 -->
     <div th:if="${inquiry.status != 2}"

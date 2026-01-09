@@ -77,11 +77,11 @@ public class SupplierCustomOrderSheetController {
                        @RequestParam Long inquiryId,
                        RedirectAttributes ra) {
         try {
-            service.sendCustomOrderSheet(productId, supplierId(), sheetId);
+            service.sendCustomOrderSheet(productId, supplierId(), sheetId, inquiryId);
             ra.addFlashAttribute("msg", "주문서를 발송했습니다.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/mypage/supplier/product/" + productId + "/custom-sheet/new?inquiryId=" + inquiryId; // ★ 포함
+        return "redirect:/inquiry/supplier/detail/" + inquiryId;
     }
 }
