@@ -6,6 +6,7 @@ import com.finalProject.ali.chat.dao.RoomMemberDAO;
 import com.finalProject.ali.chat.dto.ChatDTO;
 import com.finalProject.ali.chat.dto.RoomDTO;
 import com.finalProject.ali.chat.dto.RoomListDTO;
+import com.finalProject.ali.user.dao.UserDAO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class ChatServiceImpl implements ChatService {
     private final RoomDAO roomDAO;
     private final RoomMemberDAO roomMemberDAO;
     private final ChatDAO chatDAO;
+    private final UserDAO userDAO;
 
     @Override
     @Transactional
@@ -136,6 +138,14 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Long findRoomIdByTwoMembers(String userA, String userB) {
         return chatDAO.findRoomIdByTwoMembers(userA, userB);
+    }
+
+    @Override
+    public String getUserName(String userId) {
+        if (userId == null || userId.isBlank()) return null;
+
+        String normalized = userId.startsWith("s_") ? userId.substring(2) : userId;
+        return userDAO.findNameByUserId(normalized);
     }
 
 }

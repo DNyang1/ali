@@ -11,17 +11,18 @@
 
     <select id="findChatsByRoomId" resultType="com.finalProject.ali.chat.dto.ChatDTO">
         SELECT
-        chat_id AS chatId,
-        room_id AS roomId,
-        sender_id AS senderId,
-        message,
-        product_id AS productId,
-        chat_at AS chatAt
-        FROM chat
-        WHERE room_id = #{roomId}
-        ORDER BY chat_id ASC
+        c.chat_id   AS chatId,
+        c.room_id   AS roomId,
+        c.sender_id AS senderId,
+        u.name      AS senderName,
+        c.message   AS message,
+        c.product_id AS productId,
+        c.chat_at   AS chatAt
+        FROM chat c
+        JOIN users u ON u.user_id = c.sender_id
+        WHERE c.room_id = #{roomId}
+        ORDER BY c.chat_id ASC
     </select>
-
 
     <select id="findLastChatIdByRoomId" resultType="long">
         SELECT COALESCE(MAX(chat_id), 0)

@@ -113,4 +113,9 @@
         UPDATE supplier SET status = #{status}, memo = #{memo}, updated_at = NOW() WHERE supplier_id = #{supplierId}
     </update>
 
+    <select id="findNameByUserId" parameterType="string" resultType="string">
+        SELECT name
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
 </mapper>

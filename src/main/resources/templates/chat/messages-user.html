@@ -26,14 +26,15 @@
     <div class="room-list" id="roomList">
       <!-- rooms: List<RoomViewDTO> 같은 걸로 내려주면 좋음 -->
       <div class="room-item"
-           th:each="r : ${rooms}" th:classappend="${r.roomId} == ${currentRoomId} ? ' active' : ''" th:attr="data-room-id=${r.roomId}">
+           th:each="r : ${rooms}"
+           th:classappend="${r.roomId} == ${currentRoomId} ? ' active' : ''"
+           th:attr="data-room-id=${r.roomId}, data-opponent-name=${r.opponentName}">
         <div class="room-title">
-          <span th:text="'Room #' + ${r.roomId}">Room</span>
-
-          <!-- unread badge -->
-          <span class="badge" th:if="${r.unreadCount != null and r.unreadCount > 0}" th:text="${r.unreadCount}">0</span>
+          <span th:text="${r.opponentName} ?: ${r.opponentId}">상대</span>
+          <span class="badge"
+                th:if="${r.unreadCount != null and r.unreadCount > 0}"
+                th:text="${r.unreadCount}">0</span>
         </div>
-
         <div class="room-sub" th:text="${r.lastMessage} ?: '메시지가 없습니다.'">last</div>
       </div>
     </div>
@@ -41,7 +42,6 @@
 
   <!-- RIGHT: 채팅 화면 -->
   <section class="content">
-
     <header class="chat-header">
       <div>
         <div class="chat-title" th:text="${currentRoomTitle}">Room</div>
@@ -89,7 +89,6 @@
       <input id="messageInput" type="text" placeholder="Type your message..." style="flex:1;">
       <button id="sendBtn" type="button">Send</button>
     </footer>
-
   </section>
 </div>
 
