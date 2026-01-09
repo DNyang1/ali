@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ "main","feature/login_admin" ]
+    branches: [ "main", "feature/login_admin" ]
 
 jobs:
   deploy:
@@ -34,22 +34,21 @@ jobs:
           strip_components: 2
 
       - name: 서버 통합 실행 (SSH)
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ubuntu
-            key: ${{ secrets.EC2_KEY }}
-            script: |
-              # 1. 기존 8080 포트 프로세스 종료
-              sudo fuser -k 8080/tcp || true
-              sleep 2
-              
-              # 2. 파일 위치 확인 및 정리 (strip_components: 2 설정으로 인해 /home/ubuntu/app 바로 아래에 jar가 있음)
-              cd /home/ubuntu/app
-              
-              # 3. 새 서버 실행 (가장 최근에 생성된 jar 파일 실행)
-              # -Dspring.profiles.active=prod 설정이 필요 없다면 빼셔도 됩니다.
-              nohup java -jar *.jar > nohup.out 2>&1 &
-              
-              # 4. 실행 확인을 위해 5초 대기
-              sleep 5
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # 1. 기존 8080 포트 프로세스 종료
+            sudo fuser -k 8080/tcp || true
+            sleep 2
+            
+            # 2. 파일 위치로 이동 (strip_components: 2 설정 기준)
+            cd /home/ubuntu/app
+            
+            # 3. 새 서버 실행
+            nohup java -jar *.jar > nohup.out 2>&1 &
+            
+            # 4. 실행 확인을 위한 대기
+            sleep 5
