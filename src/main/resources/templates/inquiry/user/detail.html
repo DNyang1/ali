@@ -1,14 +1,47 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="mypage/user/layout/base :: layout(~{::content}, ~{::links})">
-
 <head>
     <th:block th:fragment="links"></th:block>
 </head>
 
 <body>
-    <th:block th:fragment="content">
-        <div th:replace="inquiry/_detail :: inquiryDetail(${inquiry})"></div>
-    </th:block>
+<th:block th:fragment="content">
+
+    <div th:replace="inquiry/_detail :: inquiryDetail(${inquiry}, ${sheet})"></div>
+
+    <hr style="margin:16px 0;"/>
+
+
+    <div th:if="${inquiry.status != 2}"
+                 style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+
+                <form th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+                      th:action="@{/inquiry/user/{inquiryId}/pay(inquiryId=${inquiry.inquiryId})}"
+                      method="post">
+                    <button type="submit">결제 진행</button>
+                </form>
+
+                <form th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+                      th:action="@{/inquiry/user/detail/{inquiryId}/reject(inquiryId=${inquiry.inquiryId})}"
+                      method="post">
+                    <button type="submit">견적 거절</button>
+                </form>
+
+        <form th:action="@{/inquiry/user/detail/{inquiryId}/cancel(inquiryId=${inquiry.inquiryId})}"
+              method="post"
+              th:onsubmit="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'} ?
+          'return confirm(\\'이미 견적이 도착했습니다. 문의를 취소(철회)하시겠습니까?\\');' :
+          'return confirm(\\'문의(견적 요청)를 취소(철회)하시겠습니까?\\');'">
+            <button type="submit">문의 취소</button>
+        </form>
+
+            </div>
+
+
+
+
+
+</th:block>
 </body>
 </html>

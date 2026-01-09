@@ -1,31 +1,69 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <div th:fragment="inquiryDetail(inq)">
+<div th:fragment="inquiryDetail(inq, sheet)">
 
-    <h2>문의 상세</h2>
+  <h2>문의 상세</h2>
 
-    <div style="margin-top:12px;">
-      <div><b>문의번호:</b> <span th:text="${inq.inquiryId}">1</span></div>
-      <div><b>상품ID:</b> <span th:text="${inq.productId}">10</span></div>
-      <div><b>수량:</b> <span th:text="${inq.quantity}">3</span></div>
+  <div class="info">
+    <div><b>문의번호:</b> <span th:text="${inq.inquiryId}">-</span></div>
+    <div><b>상품ID:</b> <span th:text="${inq.productId}">-</span></div>
+    <div><b>수량:</b> <span th:text="${inq.quantity}">-</span></div>
 
-      <div><b>상태:</b>
-        <span th:if="${inq.status == 0}">답변대기</span>
-        <span th:if="${inq.status == 1}">완료</span>
-        <span th:if="${inq.status == 2}">반려</span>
-      </div>
-
-      <div><b>작성일:</b> <span th:text="${inq.createdAt}">2026-01-07</span></div>
+    <div><b>상태:</b>
+      <span th:if="${inq.status == 0}">답변대기</span>
+      <span th:if="${inq.status == 1}">진행중</span>
+      <span th:if="${inq.status == 2}">종료</span>
     </div>
 
-    <hr style="margin:16px 0;" />
-
-    <div>
-      <b>문의 내용</b>
-      <pre th:text="${inq.content}" style="white-space:pre-wrap; margin-top:8px;">내용</pre>
-    </div>
-
+    <div><b>작성일:</b> <span th:text="${inq.createdAt}">-</span></div>
   </div>
+
+  <hr/>
+
+  <div>
+    <b>문의 내용</b>
+    <pre th:text="${inq.content}" style="white-space:pre-wrap;">-</pre>
+  </div>
+
+  <hr/>
+
+  <div th:if="${sheet != null}">
+    <h3>주문서(견적) 정보</h3>
+    <div><b>주문서 ID:</b> <span th:text="${sheet.sheetId}">-</span></div>
+    <div><b>상태:</b> <span th:text="${sheet.status}">-</span></div>
+    <div><b>SKU ID:</b> <span th:text="${sheet.skuId}">-</span></div>
+    <div><b>수량:</b> <span th:text="${sheet.quantity}">-</span></div>
+    <div><b>단가:</b> <span th:text="${sheet.unitPrice}">-</span></div>
+    <div><b>옵션/요청사항</b></div>
+    <pre th:text="${sheet.optionsText}" style="white-space:pre-wrap;">-</pre>
+  </div>
+
+  <div th:if="${sheet == null}" style="color:#6b7280;">
+    아직 주문서가 없습니다.
+  </div>
+
+  <div th:if="${inq.status == 2}"
+       style="margin-top:12px; padding:12px; border:1px solid #e5e7eb; border-radius:12px; color:#6b7280;">
+
+    <span th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'CANCELLED'}">
+      문의가 취소 되었습니다.
+    </span>
+    <span th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'PAID'}">
+      결제가 완료되었습니다.
+    </span>
+    <span th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'REJECTED'}">
+      견적이 거절되었습니다.
+    </span>
+
+    <span th:if="${sheet == null or sheet.status == null
+                  or !(sheet.status.toString() == 'CANCELLED'
+                       or sheet.status.toString() == 'PAID'
+                       or sheet.status.toString() == 'REJECTED')}">
+      문의가 종료되었습니다.
+    </span>
+  </div>
+
+</div>
 </body>
 </html>

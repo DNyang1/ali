@@ -18,6 +18,9 @@ public class ProductDTO {
     private LocalDate updatedAt;
     // 태민
     private String status;
+    public boolean isCustomizable() {
+        return this.isCustomizable == 1;
+    }
     // 현성
     private Long moq;
     private Long minPrice;
