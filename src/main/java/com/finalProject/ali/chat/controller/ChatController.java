@@ -43,6 +43,8 @@ public class ChatController {
         payload.setMessage(req.getMessage());
         payload.setProductId(req.getProductId());
         payload.setChatAt(LocalDateTime.now());
+        String senderName = chatService.getUserName(req.getSenderId()); // users에서 조회
+        payload.setSenderName(senderName);
 
         messagingTemplate.convertAndSend("/topic/rooms/" + req.getRoomId(), payload);
 //        log.info("WS sent => /topic/rooms/{}", req.getRoomId());
