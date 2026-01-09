@@ -4,16 +4,34 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.checkout.mapper.CheckoutMapper">
-    <select id="findItemInfo" parameterType="string" resultType="com.finalProject.ali.checkout.dto.CheckoutItem">
+    <select id="findItemInfo"
+            parameterType="string"
+            resultType="com.finalProject.ali.checkout.dto.CheckoutItem">
+
         SELECT
             s.sku_id       AS skuId,
             s.product_id   AS productId,
-            p.product_name AS productName
+            p.product_name AS productName,
+            GROUP_CONCAT(
+                CONCAT(po.option_name, ': ', pov.option_value)
+                ORDER BY pov.sort_order
+                SEPARATOR ' / '
+            ) AS optionSummary
         FROM sku s
         JOIN products p
             ON s.product_id = p.product_id
+        LEFT JOIN option_value_sku ovs
+            ON s.sku_id = ovs.sku_id
+        LEFT JOIN product_option_value pov
+            ON ovs.option_value_id = pov.option_value_id
+        LEFT JOIN product_option po
+            ON pov.option_id = po.option_id
         WHERE s.sku_id = #{skuId}
-        LIMIT 1
+        GROUP BY
+            s.sku_id,
+            s.product_id,
+            p.product_name
+
     </select>
 
 </mapper>

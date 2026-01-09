@@ -1,20 +1,15 @@
-package com.finalProject.ali.order.domain;
+package com.finalProject.ali.order.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
-public class OrderItem {
-    private Long orderItemId;
-    private Long orderId;
+public class OrderItemResponse {
     private String skuId;
     private Long quantity;
     private Long unitPrice;
-    private LocalDateTime createdAt;
-
+    private Long lineAmount;
     private String productName;
     private String optionSummary;
 }

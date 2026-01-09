@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,25 @@ public class ProductService {
         );
     }
 
+    public Map<String, List<ProductDTO>> getRecommendedProducts(int limitPerCategory) {
+
+        List<CategoryDTO> rootCategories = productDAO.selectRootCategories();
+
+        Map<String, List<ProductDTO>> result = new java.util.LinkedHashMap<>();
+
+        for (CategoryDTO category : rootCategories) {
+            List<ProductDTO> products =
+                    productDAO.selectMainRecommendedByCategory(
+                            category.getCategoryId(),
+                            limitPerCategory
+                    );
+
+            result.put(category.getCategoryName(), products);
+        }
+
+        return result;
+    }
+
     public List<CategoryDTO> getRootCategories() {
         return productDAO.selectRootCategories();
     }
@@ -49,6 +69,7 @@ public class ProductService {
     public List<ProductDTO> getProductsByCategory(String categoryId) {
         return productDAO.findByCategoryId(categoryId);
     }
+
 
     //태민
     public List<ProductDTO> list(String supplierId) {
