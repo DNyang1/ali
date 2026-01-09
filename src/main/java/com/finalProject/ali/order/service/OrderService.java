@@ -9,4 +9,6 @@ public interface OrderService {
     List<OrderSummaryResponse> getMyOrders(String userId);
     OrderDetailResponse getOrderDetail(Long orderId, String userId);
     List<SupplierOrderItemResponse> getSupOrders(String supplierId);
+    SupplierOrderItemDetailResponse getSupOrderDetail(Long orderItemId, String supplierId);
+    void shipOrderItem(Long orderItemId, String supplierId, String carrier, String trackingNo);
 }

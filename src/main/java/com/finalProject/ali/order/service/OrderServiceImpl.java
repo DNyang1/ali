@@ -77,5 +77,15 @@ public class OrderServiceImpl implements OrderService{
         return orderMapper.findSupplierOrderItems(supplierId);
     }
 
+    @Override
+    public SupplierOrderItemDetailResponse getSupOrderDetail(Long orderItemId, String supplierId) {
+        return null;
+    }
+
+    @Override
+    public void shipOrderItem(Long orderItemId, String supplierId, String carrier, String trackingNo) {
+
+    }
+
 
 }
