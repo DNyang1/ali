@@ -25,7 +25,7 @@ public class SupplierController {
 
         SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
         model.addAttribute("supplier", supplier);
-        return "/supplier/s_setting";
+        return "supplier/s_setting";
     }
 
     @GetMapping("/s_update")
@@ -35,7 +35,7 @@ public class SupplierController {
 
         SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
         model.addAttribute("supplier", supplier);
-        return "/supplier/s_update";
+        return "supplier/s_update";
     }
 
     @PostMapping("/s_update")
