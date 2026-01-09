@@ -1,4 +1,4 @@
-package com.finalProject.ali.mypage.supplier.product.controller;
+package com.finalProject.ali.mypage.supplier.inquiry.controller;
 
 import com.finalProject.ali.product.dao.SupplierDAO;
 import com.finalProject.ali.product.dto.CustomOrderSheetForm;
@@ -46,7 +46,8 @@ public class SupplierCustomOrderSheetController {
 
         model.addAttribute("productId", productId);
         model.addAttribute("form", form);
-        return "mypage/supplier/product/custom_sheet_form";
+        return "redirect:/inquiry/supplier/detail/" + inquiryId;
+
     }
 
     @PostMapping
@@ -58,10 +59,29 @@ public class SupplierCustomOrderSheetController {
             String skuId = service.createCustomOrderSheet(productId, supplierId(), form);
             ra.addFlashAttribute("createdSkuId", skuId);
             ra.addFlashAttribute("saved", true);
-            return "redirect:/mypage/supplier/product/" + productId + "/custom-sheet/new";
+
+            Long inquiryId = form.getInquiryId();
+            return "redirect:/mypage/supplier/product/" + productId + "/custom-sheet/new?inquiryId=" + inquiryId;
+
         } catch (IllegalStateException | IllegalArgumentException e) {
             ra.addFlashAttribute("error", e.getMessage());
-            return "redirect:/mypage/supplier/product/" + productId + "/custom-sheet/new";
+
+            Long inquiryId = form.getInquiryId();
+            return "redirect:/mypage/supplier/product/" + productId + "/custom-sheet/new?inquiryId=" + inquiryId;
         }
+    }
+
+    @PostMapping("/{sheetId}/send")
+    public String send(@PathVariable Long productId,
+                       @PathVariable Long sheetId,
+                       @RequestParam Long inquiryId,
+                       RedirectAttributes ra) {
+        try {
+            service.sendCustomOrderSheet(productId, supplierId(), sheetId);
+            ra.addFlashAttribute("msg", "주문서를 발송했습니다.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/mypage/supplier/product/" + productId + "/custom-sheet/new?inquiryId=" + inquiryId; // ★ 포함
     }
 }

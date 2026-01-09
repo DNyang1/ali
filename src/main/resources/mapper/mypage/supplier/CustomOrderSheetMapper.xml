@@ -12,4 +12,56 @@
             (#{productId}, #{inquiryId}, #{skuId}, #{quantity}, #{unitPrice}, #{optionsText}, #{status})
     </insert>
 
+    <select id="findByInquiryId"
+            resultType="com.finalProject.ali.product.dto.CustomOrderSheetDTO">
+        SELECT sheet_id AS sheetId,
+               product_id AS productId,
+               inquiry_id AS inquiryId,
+               sku_id AS skuId,
+               quantity,
+               unit_price AS unitPrice,
+               options_text AS optionsText,
+               status
+        FROM custom_order_sheet
+        WHERE inquiry_id = #{inquiryId}
+        ORDER BY sheet_id DESC
+            LIMIT 1
+    </select>
+
+    <select id="findById"
+            resultType="com.finalProject.ali.product.dto.CustomOrderSheetDTO">
+        SELECT sheet_id AS sheetId,
+               product_id AS productId,
+               inquiry_id AS inquiryId,
+               sku_id AS skuId,
+               quantity,
+               unit_price AS unitPrice,
+               options_text AS optionsText,
+               status
+        FROM custom_order_sheet
+        WHERE sheet_id = #{sheetId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE custom_order_sheet
+        SET status = #{status}
+        WHERE sheet_id = #{sheetId}
+    </update>
+    <update id="updateContentByInquiryId">
+        UPDATE custom_order_sheet
+        SET quantity = #{quantity},
+            unit_price = #{unitPrice},
+            options_text = #{optionsText}
+        WHERE inquiry_id = #{inquiryId}
+    </update>
+
+    <update id="updateContent">
+        UPDATE custom_order_sheet
+        SET quantity = #{quantity},
+            unit_price = #{unitPrice},
+            options_text = #{optionsText}
+        WHERE sheet_id = #{sheetId}
+    </update>
+
+
 </mapper>

@@ -39,10 +39,7 @@
         WHERE sku_id = #{skuId}
     </delete>
 
-    <insert id="insertPrice">
-        INSERT INTO sku_price (sku_id, min_qty, max_qty, price, created_at)
-        VALUES (#{skuId}, #{minQty}, #{maxQty}, #{price}, NOW())
-    </insert>
+
 
     <select id="findPriceBySkuAndQty"
             resultType="com.finalProject.ali.product.dto.SkuPriceDTO">
@@ -83,4 +80,20 @@
         ORDER BY min_qty DESC
         LIMIT 1
     </select>
+    <insert id="insertPrice">
+        INSERT INTO sku_price (sku_id, min_qty, max_qty, price, created_at)
+        VALUES (#{skuId},
+        #{minQty},
+        #{maxQty, jdbcType=INTEGER},
+        #{price},
+        NOW())
+    </insert>
+
+    <update id="updateBasePrice">
+        UPDATE sku_price
+        SET price = #{price}
+        WHERE sku_id = #{skuId}
+        AND min_qty = 1
+        AND max_qty IS NULL
+    </update>
 </mapper>
