@@ -20,6 +20,15 @@
     "<span th:text="${keyword}"></span>" 검색 결과
 </h2>
 
+<input type="hidden" id="search-keyword" th:value="${keyword}">
+<input type="hidden" id="search-products" th:value="${productsJson}">
+
+<div id="ai-search-box"
+     style="display:none; border:1px solid #ff6a00; padding:16px; margin-bottom:20px;">
+    <h4>✨ Deep Search 결과</h4>
+    <pre id="ai-result" style="white-space:pre-wrap;"></pre>
+</div>
+
 <div class="search-result-grid">
 
     <div class="product-card"
@@ -57,6 +66,6 @@
      th:if="${#lists.isEmpty(products)}">
     검색 결과가 없습니다.
 </div>
-
+<script src="/products/js/product_search.js"></script>
 </body>
 </html>

@@ -111,8 +111,12 @@ public class ProductController {
         List<ProductDTO> products =
                 productService.searchProducts(keyword);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        String productsJson = objectMapper.writeValueAsString(products);
+
         model.addAttribute("products", products);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("productsJson", productsJson);
 
         return "products/products_search";
     }

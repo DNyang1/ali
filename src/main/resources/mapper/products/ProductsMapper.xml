@@ -194,18 +194,21 @@
             resultType="com.finalProject.ali.product.dto.ProductDTO">
 
         SELECT
-            p.product_id,
-            p.category_id,
-            p.supplier_id,
-            p.product_name,
-            p.description,
-            p.is_customizable,
-            p.created_at,
-            p.updated_at,
-            pr.min_price AS minPrice,
-            pr.max_price AS maxPrice
+        p.product_id,
+        p.category_id,
+        p.supplier_id,
+        p.product_name,
+        p.description,
+        p.is_customizable,
+        p.created_at,
+        p.updated_at,
+        pr.min_price AS minPrice,
+        pr.max_price AS maxPrice
 
         FROM products p
+
+        JOIN category c
+        ON c.category_id = p.category_id
 
         LEFT JOIN (
         SELECT
@@ -224,7 +227,9 @@
         ) pr
         ON pr.product_id = p.product_id
 
-        WHERE p.product_name LIKE CONCAT('%', #{keyword}, '%')
+        WHERE
+        p.product_name LIKE CONCAT('%', #{keyword}, '%')
+        OR c.category_name LIKE CONCAT('%', #{keyword}, '%')
 
         ORDER BY p.created_at DESC
 
@@ -267,11 +272,11 @@
         JOIN cat_tree ct ON c.parent_id = ct.category_id
         )
         SELECT
-            p.product_id      AS productId,
-            p.product_name    AS productName,
-            p.category_id     AS categoryId,
-            p.is_customizable AS customYn,
-            p.created_at      AS createdAt,
+        p.product_id      AS productId,
+        p.product_name    AS productName,
+        p.category_id     AS categoryId,
+        p.is_customizable AS customYn,
+        p.created_at      AS createdAt,
 
         (
         SELECT MIN(sp.price)
