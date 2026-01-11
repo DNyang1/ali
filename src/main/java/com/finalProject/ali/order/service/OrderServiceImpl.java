@@ -5,6 +5,7 @@ import com.finalProject.ali.order.domain.OrderItem;
 import com.finalProject.ali.order.dto.*;
 import com.finalProject.ali.order.mapper.OrderItemMapper;
 import com.finalProject.ali.order.mapper.OrderMapper;
+import com.finalProject.ali.product.dao.SkuStockDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ public class OrderServiceImpl implements OrderService{
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final SkuStockDAO skuStockDAO;
 
     @Override
     public OrderCreateResponse createOrder(String userId, OrderCreateRequest request) {
@@ -90,6 +92,7 @@ public class OrderServiceImpl implements OrderService{
                 request.getCarrier(),
                 request.getTrackingNo(),
                 "SHIPPED");
+        skuStockDAO.deductOnShip(orderItemId);
     }
 
 

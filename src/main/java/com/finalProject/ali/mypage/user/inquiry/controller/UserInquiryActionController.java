@@ -1,10 +1,6 @@
 package com.finalProject.ali.mypage.user.inquiry.controller;
 
-import com.finalProject.ali.inquiry.dto.InquiryDTO;
-import com.finalProject.ali.inquiry.service.InquiryService;
 import com.finalProject.ali.inquiry.service.InquiryWorkflowService;
-import com.finalProject.ali.product.dao.CustomOrderSheetDAO;
-import com.finalProject.ali.product.sheet.status.SheetStatus;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +15,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/inquiry/user")
 public class UserInquiryActionController {
 
-    private final InquiryService inquiryService;
-    private final CustomOrderSheetDAO customOrderSheetDAO;
     private final InquiryWorkflowService inquiryWorkflowService;
 
     private String getLoginId(HttpSession session) {
@@ -67,10 +61,5 @@ public class UserInquiryActionController {
         return "redirect:/inquiry/user/detail/" + inquiryId;
     }
 
-    @PostMapping("/inquiry/user/{inquiryId}/pay")
-    public String pay(@PathVariable Long inquiryId) {
-        // TODO: 결제 처리 로직
-        return "redirect:/inquiry/user/detail/" + inquiryId;
-    }
 
 }
