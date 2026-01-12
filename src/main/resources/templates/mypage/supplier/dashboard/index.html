@@ -1,205 +1,241 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${pageTitle} ?: '공급자 대시보드'">공급자 대시보드</title>
-    <link rel="stylesheet" href="/mypage/supplier/css/dashboard.css">
-</head>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, null)">
 
-<body>
+    <th:block th:fragment="content">
 
-    <section class="page-header">
-        <h1 class="page-title">대시보드</h1>
-        <p class="page-desc">주문·문의·정산 현황을 한눈에 확인하고 빠르게 처리하세요.</p>
-    </section>
+        <!-- 헤더 -->
+        <section class="mb-6">
+            <h1 class="text-2xl font-bold text-slate-900">대시보드</h1>
+            <p class="mt-1 text-sm text-slate-500">주문·문의·정산 현황을 한눈에 확인하고 빠르게 처리하세요.</p>
+        </section>
 
-    <section class="kpi-grid" aria-label="요약 지표">
-        <article class="kpi-card">
-            <div class="kpi-head">
-                <h2 class="kpi-title">진행 중 주문</h2>
-                <a class="kpi-link" href="/mypage/supplier/order?status=IN_PROGRESS">바로가기</a>
-            </div>
-            <div class="kpi-body">
-                <strong class="kpi-value" th:text="${summary.inProgressOrders} ?: 0">0</strong>
-                <span class="kpi-unit">건</span>
-            </div>
-        </article>
+        <!-- KPI -->
+        <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="요약 지표">
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-slate-700">진행 중 주문</h2>
+                    <a class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-slate-50"
+                       href="/mypage/supplier/order?status=IN_PROGRESS">바로가기</a>
+                </div>
+                <div class="mt-4 flex items-end gap-1">
+                    <strong class="text-3xl font-extrabold tracking-tight text-slate-900"
+                            th:text="${summary.inProgressOrders} ?: 0">0</strong>
+                    <span class="pb-1 text-sm text-slate-500">건</span>
+                </div>
+            </article>
 
-        <article class="kpi-card">
-            <div class="kpi-head">
-                <h2 class="kpi-title">답변 대기 문의</h2>
-                <a class="kpi-link" href="/mypage/supplier/inquiry?status=OPEN">바로가기</a>
-            </div>
-            <div class="kpi-body">
-                <strong class="kpi-value" th:text="${summary.openInquiries} ?: 0">0</strong>
-                <span class="kpi-unit">건</span>
-            </div>
-        </article>
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-slate-700">답변 대기 문의</h2>
+                    <a class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-slate-50"
+                       href="/mypage/supplier/inquiry?status=OPEN">바로가기</a>
+                </div>
+                <div class="mt-4 flex items-end gap-1">
+                    <strong class="text-3xl font-extrabold tracking-tight text-slate-900"
+                            th:text="${summary.openInquiries} ?: 0">0</strong>
+                    <span class="pb-1 text-sm text-slate-500">건</span>
+                </div>
+            </article>
 
-        <article class="kpi-card">
-            <div class="kpi-head">
-                <h2 class="kpi-title">배송 미처리</h2>
-                <a class="kpi-link" href="/mypage/supplier/order?filter=SHIPPING_PENDING">바로가기</a>
-            </div>
-            <div class="kpi-body">
-                <strong class="kpi-value" th:text="${summary.shippingPending} ?: 0">0</strong>
-                <span class="kpi-unit">건</span>
-            </div>
-        </article>
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-slate-700">배송 미처리</h2>
+                    <a class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-slate-50"
+                       href="/mypage/supplier/order?filter=SHIPPING_PENDING">바로가기</a>
+                </div>
+                <div class="mt-4 flex items-end gap-1">
+                    <strong class="text-3xl font-extrabold tracking-tight text-slate-900"
+                            th:text="${summary.shippingPending} ?: 0">0</strong>
+                    <span class="pb-1 text-sm text-slate-500">건</span>
+                </div>
+            </article>
 
-        <article class="kpi-card">
-            <div class="kpi-head">
-                <h2 class="kpi-title">정산 미확정</h2>
-                <a class="kpi-link" href="/mypage/supplier/settlement?status=PENDING">바로가기</a>
-            </div>
-            <div class="kpi-body">
-                <strong class="kpi-value" th:text="${summary.settlementPending} ?: 0">0</strong>
-                <span class="kpi-unit">건</span>
-            </div>
-        </article>
-    </section>
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-slate-700">정산 미확정</h2>
+                    <a class="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-slate-50"
+                       href="/mypage/supplier/settlement?status=PENDING">바로가기</a>
+                </div>
+                <div class="mt-4 flex items-end gap-1">
+                    <strong class="text-3xl font-extrabold tracking-tight text-slate-900"
+                            th:text="${summary.settlementPending} ?: 0">0</strong>
+                    <span class="pb-1 text-sm text-slate-500">건</span>
+                </div>
+            </article>
+        </section>
 
-    <section class="panel" aria-label="처리 필요 항목">
-        <header class="panel-head">
-            <h2 class="panel-title">처리 필요 항목</h2>
-            <p class="panel-desc">지금 바로 처리하면 이슈를 줄일 수 있어요.</p>
-        </header>
-
-        <div class="panel-body">
-            <table class="table table-actions">
-                <thead>
-                <tr>
-                    <th>항목</th>
-                    <th>건수</th>
-                    <th>바로가기</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>구매확정 대기 주문</td>
-                    <td>0</td>
-                    <td><a class="btn-sm" th:href="@{/mypage/supplier/orders}">처리</a></td>
-                </tr>
-                <tr>
-                    <td>환불 / 취소 요청</td>
-                    <td>0</td>
-                    <td><a class="btn-sm" th:href="@{/mypage/supplier/claims}">확인</a></td>
-                </tr>
-                <tr>
-                    <td>견적 요청 대기</td>
-                    <td>0</td>
-                    <td><a class="btn-sm" th:href="@{/mypage/supplier/quotes}">답변</a></td>
-                </tr>
-                <tr>
-                    <td>재고 5개 이하 SKU</td>
-                    <td>0</td>
-                    <td><a class="btn-sm" th:href="@{/mypage/supplier/stock}">보충</a></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="grid-2">
-        <section class="panel">
-            <header class="panel-head">
-                <h2 class="panel-title">최근 주문</h2>
-                <a class="panel-link" href="/mypage/supplier/order">전체 보기</a>
+        <!-- 처리 필요 항목 -->
+        <section class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm" aria-label="처리 필요 항목">
+            <header class="border-b border-slate-100 px-5 py-4">
+                <h2 class="text-base font-bold text-slate-900">처리 필요 항목</h2>
+                <p class="mt-1 text-sm text-slate-500">지금 바로 처리하면 이슈를 줄일 수 있어요.</p>
             </header>
 
-            <div class="panel-body">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>주문번호</th>
-                        <th>상품</th>
-                        <th>구매자</th>
-                        <th>상태</th>
-                        <th>주문일</th>
-                        <th>옵션</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:if="${#lists.isEmpty(recentOrders)}">
-                        <td colspan="6">최근 주문이 없습니다.</td>
-                    </tr>
-
-                    <tr th:each="o : ${recentOrders}">
-                        <td th:text="${o.orderNo}">ORD-0001</td>
-                        <td th:text="${o.productName}">상품명</td>
-                        <td th:text="${o.buyerName}">구매자</td>
-                        <td th:text="${o.status}">PENDING</td>
-                        <td th:text="${o.createdAt}">2025-12-28</td>
-                        <td>
-                            <a th:href="@{/mypage/supplier/order/{id}(id=${o.id})}">상세</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="px-5 py-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                        <tr class="text-left text-slate-500">
+                            <th class="py-2 font-semibold">항목</th>
+                            <th class="py-2 font-semibold">건수</th>
+                            <th class="py-2 font-semibold">바로가기</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="py-3 text-slate-800">구매확정 대기 주문</td>
+                            <td class="py-3 text-slate-800">0</td>
+                            <td class="py-3">
+                                <a class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
+                                   th:href="@{/mypage/supplier/orders}">처리</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 text-slate-800">환불 / 취소 요청</td>
+                            <td class="py-3 text-slate-800">0</td>
+                            <td class="py-3">
+                                <a class="inline-flex items-center rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
+                                   th:href="@{/mypage/supplier/claims}">확인</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 text-slate-800">견적 요청 대기</td>
+                            <td class="py-3 text-slate-800">0</td>
+                            <td class="py-3">
+                                <a class="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+                                   th:href="@{/mypage/supplier/quotes}">답변</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 text-slate-800">재고 5개 이하 SKU</td>
+                            <td class="py-3 text-slate-800">0</td>
+                            <td class="py-3">
+                                <a class="inline-flex items-center rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600"
+                                   th:href="@{/mypage/supplier/stock}">보충</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-        <section class="panel">
-            <header class="panel-head">
-                <h2 class="panel-title">최근 문의</h2>
-                <a class="panel-link" href="/mypage/supplier/inquiry">전체 보기</a>
+        <!-- 최근 주문 / 최근 문의 -->
+        <section class="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <!-- 최근 주문 -->
+            <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                    <h2 class="text-base font-bold text-slate-900">최근 주문</h2>
+                    <a class="text-sm font-semibold text-blue-600 hover:underline" href="/mypage/supplier/order">전체 보기</a>
+                </header>
+
+                <div class="px-5 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                            <tr class="text-left text-slate-500">
+                                <th class="py-2 font-semibold">주문번호</th>
+                                <th class="py-2 font-semibold">상품</th>
+                                <th class="py-2 font-semibold">구매자</th>
+                                <th class="py-2 font-semibold">상태</th>
+                                <th class="py-2 font-semibold">주문일</th>
+                                <th class="py-2 font-semibold">옵션</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                <td class="py-3 text-slate-500" colspan="6">최근 주문이 없습니다.</td>
+                            </tr>
+
+                            <tr th:each="o : ${recentOrders}">
+                                <td class="py-3 text-slate-800" th:text="${o.orderNo}">ORD-0001</td>
+                                <td class="py-3 text-slate-800" th:text="${o.productName}">상품명</td>
+                                <td class="py-3 text-slate-800" th:text="${o.buyerName}">구매자</td>
+                                <td class="py-3">
+                  <span class="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700"
+                        th:text="${o.status}">PENDING</span>
+                                </td>
+                                <td class="py-3 text-slate-600" th:text="${o.createdAt}">2025-12-28</td>
+                                <td class="py-3">
+                                    <a class="text-blue-600 hover:underline"
+                                       th:href="@{/mypage/supplier/order/{id}(id=${o.id})}">상세</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 최근 문의 -->
+            <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                    <h2 class="text-base font-bold text-slate-900">최근 문의</h2>
+                    <a class="text-sm font-semibold text-blue-600 hover:underline" href="/mypage/supplier/inquiry">전체 보기</a>
+                </header>
+
+                <div class="px-5 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                            <tr class="text-left text-slate-500">
+                                <th class="py-2 font-semibold">문의번호</th>
+                                <th class="py-2 font-semibold">상품</th>
+                                <th class="py-2 font-semibold">구매자</th>
+                                <th class="py-2 font-semibold">상태</th>
+                                <th class="py-2 font-semibold">요청일</th>
+                                <th class="py-2 font-semibold">옵션</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                            <tr th:if="${#lists.isEmpty(recentInquiries)}">
+                                <td class="py-3 text-slate-500" colspan="6">최근 문의가 없습니다.</td>
+                            </tr>
+
+                            <tr th:each="r : ${recentInquiries}">
+                                <td class="py-3 text-slate-800" th:text="${r.inquiryNo}">INQ-0001</td>
+                                <td class="py-3 text-slate-800" th:text="${r.productName}">상품명</td>
+                                <td class="py-3 text-slate-800" th:text="${r.buyerName}">구매자</td>
+                                <td class="py-3">
+                  <span class="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700"
+                        th:text="${r.status}">OPEN</span>
+                                </td>
+                                <td class="py-3 text-slate-600" th:text="${r.createdAt}">2025-12-28</td>
+                                <td class="py-3 space-x-2">
+                                    <a class="text-blue-600 hover:underline"
+                                       th:href="@{/mypage/supplier/inquiry/{id}(id=${r.id})}">상세</a>
+                                    <a class="text-emerald-600 hover:underline"
+                                       th:href="@{/mypage/supplier/inquiry/{id}/reply(id=${r.id})}">답변</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- 알림 -->
+        <section class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                <h2 class="text-base font-bold text-slate-900">알림</h2>
+                <a class="text-sm font-semibold text-blue-600 hover:underline" href="/mypage/supplier/notification">전체 보기</a>
             </header>
 
-            <div class="panel-body">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>문의번호</th>
-                        <th>상품</th>
-                        <th>구매자</th>
-                        <th>상태</th>
-                        <th>요청일</th>
-                        <th>옵션</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:if="${#lists.isEmpty(recentInquiries)}">
-                        <td colspan="6">최근 문의가 없습니다.</td>
-                    </tr>
+            <div class="px-5 py-4">
+                <ul class="space-y-3">
+                    <li th:if="${#lists.isEmpty(notifications)}" class="text-sm text-slate-500">새 알림이 없습니다.</li>
 
-                    <tr th:each="r : ${recentInquiries}">
-                        <td th:text="${r.inquiryNo}">INQ-0001</td>
-                        <td th:text="${r.productName}">상품명</td>
-                        <td th:text="${r.buyerName}">구매자</td>
-                        <td th:text="${r.status}">OPEN</td>
-                        <td th:text="${r.createdAt}">2025-12-28</td>
-                        <td>
-                            <a th:href="@{/mypage/supplier/inquiry/{id}(id=${r.id})}">상세</a>
-                            <span> / </span>
-                            <a th:href="@{/mypage/supplier/inquiry/{id}/reply(id=${r.id})}">답변</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                    <li th:each="n : ${notifications}"
+                        class="flex items-start justify-between gap-4 rounded-xl border border-slate-100 p-4">
+                        <div>
+                            <div class="text-sm font-semibold text-slate-900" th:text="${n.title}">알림 제목</div>
+                            <small class="mt-1 block text-xs text-slate-500" th:text="${n.createdAt}">2025-12-28</small>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </section>
-    </section>
 
-    <section class="panel">
-        <header class="panel-head">
-            <h2 class="panel-title">알림</h2>
-            <a class="panel-link" href="/mypage/supplier/notification">전체 보기</a>
-        </header>
-
-        <div class="panel-body">
-            <ul class="notifications">
-                <li th:if="${#lists.isEmpty(notifications)}">새 알림이 없습니다.</li>
-
-                <li th:each="n : ${notifications}">
-                    <div th:text="${n.title}">알림 제목</div>
-                    <small th:text="${n.createdAt}">2025-12-28</small>
-                </li>
-            </ul>
-        </div>
-    </section>
-
-</main>
-</body>
-</html>
+    </th:block>
+</th:block>

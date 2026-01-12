@@ -41,7 +41,7 @@
     </div>
 
 
-
+    <th:block th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}">
     <script th:inline="javascript">
         //태민
         async function orderFromSheet(btn) {
@@ -68,14 +68,14 @@
                 alert('결제 준비에 실패했습니다.');
                 return;
             }
-
+            sessionStorage.setItem('checkoutSheetId', String(sheetId));
             // ✅ checkout 공통 규칙
             localStorage.setItem('checkoutItems', JSON.stringify(items));
 
             location.href = '/order/checkout';
         }
     </script>
-
+    </th:block>
 </th:block>
 
 </body>

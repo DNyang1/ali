@@ -1,29 +1,71 @@
-<header th:fragment="header" class="topbar">
-    <div class="topbar-left">
-        <a th:href="@{/}" class="brand">ALI</a>
-        <span class="page-title" th:text="${pageTitle} ?: '공급자 마이페이지'">공급자 마이페이지</span>
-    </div>
+<header th:fragment="header"
+        class="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
 
-    <div class="topbar-right">
+    <div class="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-3 lg:px-6">
 
-        <div th:if="${session.loginUser == null}" class="auth">
-            <a th:href="@{/mypage/user/cart}" class="pill">
-                장바구니 <span th:text="${cartCount} ?: 0">0</span>
+        <!-- LEFT -->
+        <div class="flex items-center gap-4">
+            <a th:href="@{/}"
+               class="text-xl font-black tracking-tight text-blue-600 hover:opacity-80">
+                ALI
             </a>
-            <a th:href="@{/user/login}" class="link">로그인</a>
-            <a th:href="@{/user/register}" class="btn">회원가입</a>
+
+            <span class="hidden text-sm font-semibold text-slate-700 sm:inline"
+                  th:text="${pageTitle} ?: '공급자 마이페이지'">
+        공급자 마이페이지
+      </span>
         </div>
 
-        <div th:if="${session.loginUser != null}" class="auth">
+        <!-- RIGHT -->
+        <div class="flex items-center gap-2 text-sm">
 
-            <a th:href="@{/chat/messages}" class="pill">
-                안읽은 메시지 <span th:text="${unreadChatCount} ?: 0">0</span>
-            </a>
-            <a th:href="@{/mypage/user/notification}" class="pill">
-                알림 <span th:text="${notificationCount} ?: 0">0</span>
-            </a>
-                <span class="username" th:text="${loginUser?.name} ?: '공급자'">공급자</span>
-                <a th:href="@{/user/logout}" class="logout">로그아웃</a>
+            <!-- 비로그인 -->
+            <div th:if="${session.loginUser == null}" class="flex items-center gap-2">
+                <a th:href="@{/mypage/user/cart}"
+                   class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
+                    장바구니
+                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs"
+                          th:text="${cartCount} ?: 0">0</span>
+                </a>
+
+                <a th:href="@{/user/login}"
+                   class="font-semibold text-slate-600 hover:text-slate-900">
+                    로그인
+                </a>
+
+                <a th:href="@{/user/register}"
+                   class="rounded-lg bg-blue-600 px-4 py-1.5 font-semibold text-white hover:bg-blue-700">
+                    회원가입
+                </a>
+            </div>
+
+            <!-- 로그인 -->
+            <div th:if="${session.loginUser != null}" class="flex items-center gap-2">
+                <a th:href="@{/chat/messages}"
+                   class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
+                    안읽은 메시지
+                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700"
+                          th:text="${unreadChatCount} ?: 0">0</span>
+                </a>
+
+                <a th:href="@{/mypage/user/notification}"
+                   class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
+                    알림
+                    <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700"
+                          th:text="${notificationCount} ?: 0">0</span>
+                </a>
+
+                <span class="hidden text-sm font-semibold text-slate-700 md:inline"
+                      th:text="${loginUser?.name} ?: '공급자'">
+          공급자
+        </span>
+
+                <a th:href="@{/user/logout}"
+                   class="font-semibold text-rose-600 hover:text-rose-700">
+                    로그아웃
+                </a>
+            </div>
+
         </div>
     </div>
 </header>

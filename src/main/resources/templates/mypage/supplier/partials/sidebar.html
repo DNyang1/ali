@@ -1,47 +1,66 @@
-<nav th:fragment="sidebar" class="sidebar">
-    <div class="sidebar-title">공급자 메뉴</div>
+<nav th:fragment="sidebar" class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+    <div class="px-3 py-2 text-xs font-bold tracking-wide text-slate-500">
+        공급자 메뉴
+    </div>
 
-    <a th:href="@{/mypage/supplier/dashboard}"
-       th:classappend="${activeMenu=='dashboard'} ? ' active' : ''">
-        대시보드
-    </a>
+    <div class="mt-1 space-y-1">
+        <!-- 공통: 기본 링크 클래스 + activeMenu면 강조 -->
+        <a th:href="@{/mypage/supplier/dashboard}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+           th:classappend="${activeMenu=='dashboard'} ? ' bg-blue-50 text-blue-700 ring-1 ring-blue-100' : ''">
+            대시보드
+        </a>
 
-    <a th:href="@{/mypage/supplier/product}"
-       th:classappend="${activeMenu=='product'} ? ' active' : ''">
-        상품
-    </a>
+        <a th:href="@{/mypage/supplier/product}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+           th:classappend="${activeMenu=='product'} ? ' bg-blue-50 text-blue-700 ring-1 ring-blue-100' : ''">
+            상품
+        </a>
 
-    <a th:href="@{/mypage/supplier/order}"
-       th:classappend="${activeMenu=='order'} ? ' active' : ''">
-        주문
-    </a>
+        <a th:href="@{/mypage/supplier/order}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+           th:classappend="${activeMenu=='order'} ? ' bg-blue-50 text-blue-700 ring-1 ring-blue-100' : ''">
+            주문
+        </a>
 
-    <a th:href="@{/inquiry/supplier/list}"
-       th:classappend="${activeMenu=='inquiry'} ? ' active' : ''">
-        문의
-    </a>
+        <a th:href="@{/inquiry/supplier/list}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+           th:classappend="${activeMenu=='inquiry'} ? ' bg-blue-50 text-blue-700 ring-1 ring-blue-100' : ''">
+            문의
+        </a>
 
-    <a th:href="@{/chat/messages-supplier}"
-       th:classappend="${activeMenu=='chat'} ? ' active' : ''">
-        채팅
-    </a>
+        <a th:href="@{/chat/messages-supplier}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+           th:classappend="${activeMenu=='chat'} ? ' bg-blue-50 text-blue-700 ring-1 ring-blue-100' : ''">
+            채팅
+        </a>
 
-    <a th:href="@{/mypage/supplier/settlement}"
-       th:classappend="${activeMenu=='settlement'} ? ' active' : ''">
-        정산
-    </a>
+        <a th:href="@{/mypage/supplier/settlement}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+           th:classappend="${activeMenu=='settlement'} ? ' bg-blue-50 text-blue-700 ring-1 ring-blue-100' : ''">
+            정산
+        </a>
 
-    <a th:href="@{/supplier/s_setting}"
-       th:classappend="${activeMenu=='company'} ? ' active' : ''">
-        회사정보
-    </a>
+        <a th:href="@{/supplier/s_setting}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+           th:classappend="${activeMenu=='company'} ? ' bg-blue-50 text-blue-700 ring-1 ring-blue-100' : ''">
+            회사정보
+        </a>
+    </div>
 
-    <hr class="sidebar-sep"/>
+    <!-- 구분선 -->
+    <div class="my-3 h-px bg-slate-200"></div>
 
-    <!-- 전환 -->
-    <a th:href="@{/mypage/user/dashboard}" class="sidebar-sub">
-        유저로 전환
-    </a>
+    <!-- 전환/하단 링크 -->
+    <div class="space-y-1">
+        <a th:href="@{/mypage/user/dashboard}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+            유저로 전환
+        </a>
 
-    <a th:href="@{/}" class="sidebar-sub">메인으로</a>
+        <a th:href="@{/}"
+           class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+            메인으로
+        </a>
+    </div>
 </nav>
