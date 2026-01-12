@@ -32,19 +32,12 @@
             <p class="moq">MOQ: <span th:text="${product.moq}"></span> 개</p>
         </div>
 
-        <div class="option-box" th:each="entry : ${options}">
-            <div class="option-header">
-                <span class="option-title" th:text="${entry.key}">옵션</span>
+        <div class="sku-selected-box">
+            <div class="sku-all-list" id="mainSkuList">
             </div>
-
-            <div class="options readonly">
-                <span class="option-value"
-                      th:each="opt, stat : ${entry.value}"
-                      th:text="${opt.optionValue}">
-                </span>
-            </div>
-
         </div>
+
+
 
         <div class="custom">
             <span th:if="${product.isCustomizable == 1}" class="custom-yes">

@@ -15,12 +15,13 @@
 
     <div th:if="${inquiry.status != 2}"
                  style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-
-                <form th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
-                      th:action="@{/inquiry/user/{inquiryId}/pay(inquiryId=${inquiry.inquiryId})}"
-                      method="post">
-                    <button type="submit">결제 진행</button>
-                </form>
+        <button
+                th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+                type="button"
+                th:attr="data-sheet-id=${sheet.sheetId}, data-inquiry-id=${inquiry.inquiryId}"
+                onclick="orderFromSheet(this)">
+            결제 진행
+        </button>
 
                 <form th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
                       th:action="@{/inquiry/user/detail/{inquiryId}/reject(inquiryId=${inquiry.inquiryId})}"
@@ -30,18 +31,52 @@
 
         <form th:action="@{/inquiry/user/detail/{inquiryId}/cancel(inquiryId=${inquiry.inquiryId})}"
               method="post"
-              th:onsubmit="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'} ?
-          'return confirm(\\'이미 견적이 도착했습니다. 문의를 취소(철회)하시겠습니까?\\');' :
-          'return confirm(\\'문의(견적 요청)를 취소(철회)하시겠습니까?\\');'">
+              th:onsubmit="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}
+        ? 'return confirm(&quot;이미 견적이 도착했습니다. 문의를 취소(철회)하시겠습니까?&quot;);'
+        : 'return confirm(&quot;문의(견적 요청)를 취소(철회)하시겠습니까?&quot;);'">
             <button type="submit">문의 취소</button>
         </form>
 
-            </div>
+
+    </div>
 
 
 
+    <script th:inline="javascript">
+        //태민
+        async function orderFromSheet(btn) {
+            const sheetId = btn.dataset.sheetId;
+            const inquiryId = btn.dataset.inquiryId;
 
+            const items = [{
+                skuId: /*[[${sheet.skuId}]]*/ '',
+                quantity: /*[[${sheet.quantity}]]*/ 0
+            }];
+
+            if (!items[0].skuId || items[0].quantity <= 0) {
+                alert('견적 정보가 올바르지 않습니다.');
+                return;
+            }
+            // 태민 - 서버에 "이번 checkout은 sheet 결제"라고 알려서 세션에 저장
+            const res = await fetch(`/inquiry/user/${inquiryId}/pay-start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sheetId: Number(sheetId) })
+            });
+
+            if (!res.ok) {
+                alert('결제 준비에 실패했습니다.');
+                return;
+            }
+
+            // ✅ checkout 공통 규칙
+            localStorage.setItem('checkoutItems', JSON.stringify(items));
+
+            location.href = '/order/checkout';
+        }
+    </script>
 
 </th:block>
+
 </body>
 </html>

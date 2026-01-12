@@ -9,4 +9,6 @@ public interface SkuService {
     List<SkuDTO> getSkuWithPrices(Long productId);
 
     SkuDTO findSkuByOptionValues(List<String> optionValueIds);
+
+    List<SkuDTO> getProductDetailSkus(Long productId);
 }
