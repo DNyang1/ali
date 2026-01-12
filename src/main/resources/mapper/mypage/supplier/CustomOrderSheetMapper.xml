@@ -64,4 +64,32 @@
     </update>
 
 
+    <update id="linkOrderId">
+        UPDATE custom_order_sheet
+        SET order_id = #{orderId}
+        WHERE sheet_id = #{sheetId}
+    </update>
+
+    <update id="markPaidByOrderId">
+        UPDATE custom_order_sheet
+        SET status = 'PAID'
+        WHERE order_id = #{orderId}
+          AND status NOT IN ('CANCELLED', 'REJECTED')
+    </update>
+
+    <select id="findPayableBySheetAndInquiry" resultType="com.finalProject.ali.product.dto.CustomOrderSheetDTO">
+        SELECT sheet_id, inquiry_id, sku_id, quantity, unit_price, status
+        FROM custom_order_sheet
+        WHERE sheet_id = #{sheetId}
+          AND inquiry_id = #{inquiryId}
+          AND status = 'SENT'
+    </select>
+
+    <select id="findInquiryIdByOrderId" resultType="long">
+        SELECT inquiry_id
+        FROM custom_order_sheet
+        WHERE order_id = #{orderId}
+            LIMIT 1
+    </select>
+
 </mapper>

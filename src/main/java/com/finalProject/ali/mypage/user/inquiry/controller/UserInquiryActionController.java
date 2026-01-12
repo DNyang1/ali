@@ -1,6 +1,7 @@
 package com.finalProject.ali.mypage.user.inquiry.controller;
 
 import com.finalProject.ali.inquiry.service.InquiryWorkflowService;
+import com.finalProject.ali.product.dao.CustomOrderSheetDAO;
 import com.finalProject.ali.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/inquiry/user")
 public class UserInquiryActionController {
 
     private final InquiryWorkflowService inquiryWorkflowService;
+    private final CustomOrderSheetDAO customOrderSheetDAO;
 
     private String getLoginId(HttpSession session) {
         Object v = session.getAttribute("loginUser");
@@ -59,6 +63,21 @@ public class UserInquiryActionController {
             ra.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/inquiry/user/detail/" + inquiryId;
+    }
+
+    @PostMapping("/{inquiryId}/pay-start")
+    @ResponseBody
+    public void payStart(@PathVariable Long inquiryId,
+                         @RequestBody Map<String, Long> body,
+                         HttpSession session) {
+
+        Long sheetId = body.get("sheetId");
+        if (sheetId == null) throw new IllegalArgumentException("sheetId 없음");
+
+        var sheet = customOrderSheetDAO.findPayableBySheetAndInquiry(sheetId, inquiryId);
+        if (sheet == null) throw new IllegalStateException("결제 가능한 주문서가 아닙니다.");
+
+        session.setAttribute("checkoutSheetId", sheetId);
     }
 
 
