@@ -145,12 +145,16 @@
             location.href = '/cart';
             return;
         }
-
+        //태민
+        const sheetId = sessionStorage.getItem('checkoutSheetId');
         try {
+            //태민
+            const body = { items, addressId: null };
+            if (sheetId) body.sheetId = Number(sheetId);
             const response = await fetch('/api/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items, addressId: null })
+                body: JSON.stringify(body)
             });
             if (!response.ok) throw new Error('Checkout data fetch failed.');
             
@@ -309,12 +313,14 @@
             alert('배송지를 선택해주세요.');
             return;
         }
-
+        const sheetId = sessionStorage.getItem('checkoutSheetId');
         try {
+            const payload = { ...currentCheckoutData, addressId: selectedAddressId };
+            if (sheetId) payload.sheetId = Number(sheetId);
             const orderRes = await fetch('/api/order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...currentCheckoutData, addressId: selectedAddressId })
+                body: JSON.stringify(payload)
             });
             if (!orderRes.ok) throw new Error('주문 생성 실패');
             
@@ -330,6 +336,9 @@
             const paymentData = await paymentRes.json();
             
             if (paymentData.status === 'SUCCESS') {
+                //태민
+                sessionStorage.removeItem('checkoutSheetId');
+                localStorage.removeItem('checkoutItems');
                 alert(`결제 성공! 주문번호: ${orderData.orderId}`);
                 location.href = `/order/complete?orderId=${orderData.orderId}`;
             } else {

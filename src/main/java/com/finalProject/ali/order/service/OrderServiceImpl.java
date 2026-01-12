@@ -9,6 +9,7 @@ import com.finalProject.ali.product.dao.SkuStockDAO;
 //태민
 import com.finalProject.ali.product.dao.CustomOrderSheetDAO;
 
+import com.finalProject.ali.product.dto.CustomOrderSheetDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +35,14 @@ public class OrderServiceImpl implements OrderService{
         order.setTotalAmount(request.getTotalAmount());
         order.setStatus("CREATED");
         orderMapper.insert(order);
-
         //태민
+        CustomOrderSheetDTO tmpSheet = null;
         if (request.getSheetId() != null) {
             customOrderSheetDAO.linkOrderId(request.getSheetId(), order.getOrderId());
+            tmpSheet = customOrderSheetDAO.findById(request.getSheetId());
         }
+        final CustomOrderSheetDTO sheet = tmpSheet;
+        final String sheetOptionsText = (sheet == null ? null : sheet.getOptionsText());
 
         request.getItems().forEach(item -> {
             OrderItem oi = new OrderItem();
@@ -48,6 +52,12 @@ public class OrderServiceImpl implements OrderService{
             oi.setUnitPrice(item.getUnitPrice());
             oi.setProductName(item.getProductName());
             oi.setOptionSummary(item.getOptionSummary());
+            //태민
+            if (sheet != null) {
+                oi.setOptionSummary(sheetOptionsText);
+            } else {
+                oi.setOptionSummary(item.getOptionSummary());
+            }
 
             orderItemMapper.insert(oi);
         });

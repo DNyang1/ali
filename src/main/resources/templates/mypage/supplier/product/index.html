@@ -1,72 +1,102 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="${pageTitle} ?: '상품 관리'">상품 관리</title>
-    <link rel="stylesheet" href="/mypage/supplier/css/product.css">
-</head>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, null)">
 
-<body>
+    <th:block th:fragment="content">
 
-    <section class="panel">
-        <header class="panel-head">
-            <h2 class="panel-title">상품 목록</h2>
-            <a class="panel-link" href="/mypage/supplier/product/new">상품 등록</a>
-        </header>
+        <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-        <div class="panel-body">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>상품명</th>
-                    <th>커스터마이즈</th>
-                    <th>상태</th>
-                </tr>
-                </thead>
+            <!-- 헤더 -->
+            <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">상품 목록</h2>
+                    <p class="mt-1 text-sm text-slate-500">등록된 상품을 관리하고 상태를 변경할 수 있어요.</p>
+                </div>
 
-                <tbody>
-                <tr th:if="${#lists.isEmpty(products)}">
-                    <td colspan="5">등록된 상품이 없습니다.</td>
-                </tr>
+                <a href="/mypage/supplier/product/new"
+                   class="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
+                    상품 등록
+                </a>
+            </header>
 
-                <tr th:each="p : ${products}">
-                    <td th:text="${p != null ? p.productId : '-'}">1</td>
+            <!-- 테이블 -->
+            <div class="px-5 py-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                        <tr class="text-left text-slate-500">
+                            <th class="py-2 font-semibold">ID</th>
+                            <th class="py-2 font-semibold">상품명</th>
+                            <th class="py-2 font-semibold">커스터마이즈</th>
+                            <th class="py-2 font-semibold">상태</th>
+                            <th class="py-2 font-semibold text-right">액션</th>
+                        </tr>
+                        </thead>
 
-                    <td>
-                        <a th:if="${p != null}"
-                           th:href="@{/mypage/supplier/product/{id}(id=${p.productId})}"
-                           th:text="${p.productName}">
-                            상품명
-                        </a>
-                        <span th:if="${p == null}">-</span>
-                    </td>
+                        <tbody class="divide-y divide-slate-100">
 
-                    <td th:text="${p != null ? (p.isCustomizable == 1 ? '가능' : '불가') : '-'}">
-                        가능
-                    </td>
+                        <tr th:if="${#lists.isEmpty(products)}">
+                            <td colspan="5" class="py-6 text-center text-slate-500">
+                                등록된 상품이 없습니다.
+                            </td>
+                        </tr>
 
-                    <td>
+                        <tr th:each="p : ${products}" class="hover:bg-slate-50">
+                            <!-- ID -->
+                            <td class="py-3 text-slate-800" th:text="${p != null ? p.productId : '-'}">1</td>
 
-                    <span class="status" th:classappend="${p.status}">
-                        <span th:text="${p.status}">ACTIVE</span>
-                    </span>
-                        <form th:action="@{/mypage/supplier/product/{id}/toggle(id=${p.productId})}"
-                              method="post"
-                              style="display:inline; margin-left:8px;">
-                            <button type="submit"
-                                    class="danger"
-                                    th:text="${p.status == 'ACTIVE' ? '비활성화' : '활성화'}">
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+                            <!-- 상품명 -->
+                            <td class="py-3">
+                                <a th:if="${p != null}"
+                                   th:href="@{/mypage/supplier/product/{id}(id=${p.productId})}"
+                                   th:text="${p.productName}"
+                                   class="font-semibold text-slate-900 hover:underline">
+                                    상품명
+                                </a>
+                                <span th:if="${p == null}" class="text-slate-400">-</span>
+                            </td>
 
-</body>
-</html>
+                            <!-- 커스터마이즈 -->
+                            <td class="py-3 text-slate-800"
+                                th:text="${p != null ? (p.isCustomizable == 1 ? '가능' : '불가') : '-'}">
+                                가능
+                            </td>
+
+                            <!-- 상태 -->
+                            <td class="py-3">
+                <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-bold"
+                      th:classappend="${p.status == 'ACTIVE'
+                        ? ' bg-emerald-100 text-emerald-700'
+                        : ' bg-slate-100 text-slate-700'}">
+                  <span th:text="${p.status}">ACTIVE</span>
+                </span>
+                            </td>
+
+                            <!-- 액션 -->
+                            <td class="py-3 text-right">
+                                <form th:if="${p != null}"
+                                      th:action="@{/mypage/supplier/product/{id}/toggle(id=${p.productId})}"
+                                      method="post"
+                                      class="inline">
+
+                                    <button type="submit"
+                                            class="inline-flex items-center rounded-xl px-3 py-2 text-xs font-bold text-white"
+                                            th:classappend="${p.status == 'ACTIVE'
+                            ? ' bg-rose-600 hover:bg-rose-700'
+                            : ' bg-slate-900 hover:bg-slate-800'}"
+                                            th:text="${p.status == 'ACTIVE' ? '비활성화' : '활성화'}">
+                                        비활성화
+                                    </button>
+
+                                </form>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </th:block>
+</th:block>

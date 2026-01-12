@@ -7,25 +7,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${pageTitle} ?: '공급자 마이페이지'">공급자 마이페이지</title>
 
-    <link rel="stylesheet" href="/mypage/common/css/layout.css"/>
-    <link rel="stylesheet" href="/mypage/supplier/css/layout.css"/>
-
-    <th:block th:if="${extraCss != null}" th:insert="${extraCss}"></th:block>
+    <!-- Tailwind (DEV용: CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
 </head>
 
-<body class="supplier-layout">
-<div class="mypage-layout">
+<body class="min-h-screen bg-slate-50 text-slate-900">
+<div class="min-h-screen">
 
+    <!-- Header -->
     <div th:replace="mypage/supplier/partials/header :: header"></div>
 
-    <div class="mypage-body">
-        <aside th:replace="mypage/supplier/partials/sidebar :: sidebar"></aside>
+    <!-- Layout -->
+    <div class="mx-auto max-w-[1400px] px-4 py-6 lg:px-6">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
 
-        <main class="mypage-content">
-            <th:block th:replace="${content}"></th:block>
-        </main>
+            <!-- Sidebar -->
+            <aside class="lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
+                <div th:replace="mypage/supplier/partials/sidebar :: sidebar"></div>
+            </aside>
+
+            <!-- Content -->
+            <main class="min-w-0">
+                <th:block th:replace="${content}"></th:block>
+            </main>
+
+        </div>
     </div>
 
+    <!-- Footer -->
     <footer th:replace="layout/footer :: footer"></footer>
 </div>
 </body>
