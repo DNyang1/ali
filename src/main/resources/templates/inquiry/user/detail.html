@@ -16,11 +16,12 @@
     <div th:if="${inquiry.status != 2}"
                  style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
 
-                <form th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
-                      th:action="@{/inquiry/user/{inquiryId}/pay(inquiryId=${inquiry.inquiryId})}"
-                      method="post">
-                    <button type="submit">결제 진행</button>
-                </form>
+                <button
+                        th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+                        type="button"
+                        onclick="orderFromSheet()">
+                    결제 진행
+                </button>
 
                 <form th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
                       th:action="@{/inquiry/user/detail/{inquiryId}/reject(inquiryId=${inquiry.inquiryId})}"
@@ -40,8 +41,26 @@
 
 
 
+    <script th:inline="javascript">
+        function orderFromSheet() {
+            const items = [{
+                skuId: /*[[${sheet.skuId}]]*/ '',
+                quantity: /*[[${sheet.quantity}]]*/ 0
+            }];
 
+            if (!items[0].skuId || items[0].quantity <= 0) {
+                alert('견적 정보가 올바르지 않습니다.');
+                return;
+            }
+
+            // ✅ checkout 공통 규칙
+            localStorage.setItem('checkoutItems', JSON.stringify(items));
+
+            location.href = '/order/checkout';
+        }
+    </script>
 
 </th:block>
+
 </body>
 </html>
