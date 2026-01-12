@@ -32,8 +32,8 @@
         <!-- 상태 라벨 -->
         <td style="border-bottom:1px solid #eee; padding:8px;">
           <span th:if="${inq.status == 0}">답변대기</span>
-          <span th:if="${inq.status == 1}">완료</span>
-          <span th:if="${inq.status == 2}">반려</span>
+          <span th:if="${inq.status == 1}">진행중</span>
+          <span th:if="${inq.status == 2}">종료</span>
         </td>
 
         <td style="border-bottom:1px solid #eee; padding:8px;" th:text="${inq.createdAt}">2026-01-07</td>

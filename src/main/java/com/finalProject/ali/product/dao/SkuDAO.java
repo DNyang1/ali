@@ -24,11 +24,12 @@ public interface SkuDAO {
     SkuRowDTO findBySkuId(@Param("skuId") String skuId);
     int updateStatus(@Param("skuId") String skuId, @Param("status") String status);
     int updateMoq(@Param("skuId") String skuId, @Param("moq") Long moq);
-    void updateStock(@Param("skuId") String skuId, @Param("stock") long stock);
+    void updateStock(@Param("skuId") String skuId,
+                     @Param("stock") Long stock);
     int countDuplicateSkuCombination(Long productId, List<String> optionValueIds, int cnt);
     List<OptionDTO> findOptionsBySkuIdV2(@Param("skuId") String skuId);
     int countDuplicateSkuCombinationExcludingSku(Long productId, String skuId, List<String> optionValueIds, int cnt);
-
+    int countBySkuPrefix(@Param("prefix") String prefix);
 
     List<SkuRowDTO> findSkuRowsByProductId(Long productId);
 

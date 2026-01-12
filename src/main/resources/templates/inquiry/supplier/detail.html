@@ -3,31 +3,183 @@
       th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{::links})">
 
 <head>
-    <th:block th:fragment="links"></th:block>
-    <title>inquiry</title>
+    <th:block th:fragment="links">
+        <title>inquiry</title>
+
+        <style>
+            .modal-backdrop{
+                position:fixed; inset:0;
+                background:rgba(0,0,0,.35);
+                display:flex; align-items:center; justify-content:center;
+                z-index:9999;
+            }
+            .modal{
+                width:min(620px, 92vw);
+                background:#fff;
+                border:1px solid #e5e7eb;
+                border-radius:14px;
+                box-shadow:0 6px 20px rgba(15,23,42,.12);
+                overflow:hidden;
+            }
+            .modal-head{
+                display:flex; align-items:center; justify-content:space-between;
+                padding:14px 16px;
+                border-bottom:1px solid #e5e7eb;
+            }
+            .modal-body{ padding:16px; }
+            .ghost{
+                background:transparent;
+                border:1px solid #e5e7eb;
+                border-radius:12px;
+                height:36px; width:36px;
+                cursor:pointer;
+            }
+            .field{ margin-bottom:12px; }
+            .field label{ display:block; margin-bottom:6px; font-weight:600; }
+            .field input, .field textarea{
+                width:100%;
+                border:1px solid #e5e7eb;
+                border-radius:12px;
+                padding:10px;
+                box-sizing:border-box;
+            }
+            .hint{
+                padding:10px;
+                border:1px solid #e5e7eb;
+                border-radius:12px;
+                color:#6b7280;
+                background:#fafafa;
+            }
+        </style>
+
+        <script>
+            function openSheetModal(){
+                const m = document.getElementById('sheetModal');
+                if(!m) return;
+                m.style.display = 'flex';
+            }
+            function closeSheetModal(){
+                const m = document.getElementById('sheetModal');
+                if(!m) return;
+                m.style.display = 'none';
+            }
+            document.addEventListener('click', function(e){
+                const m = document.getElementById('sheetModal');
+                if(!m || m.style.display === 'none') return;
+                if(e.target === m) closeSheetModal();
+            });
+            document.addEventListener('keydown', function(e){
+                if(e.key === 'Escape') closeSheetModal();
+            });
+        </script>
+    </th:block>
 </head>
 
 <body>
-    <th:block th:fragment="content">
+<th:block th:fragment="content">
 
-        <div th:replace="inquiry/_detail :: inquiryDetail(${inquiry})"></div>
+    <div th:replace="inquiry/_detail :: inquiryDetail(${inquiry}, ${sheet})"></div>
+    <div th:if="${msg != null}" th:text="${msg}"></div>
+    <div th:if="${error != null}" th:text="${error}"></div>
 
-        <hr style="margin:16px 0;" />
 
-        <div style="display:flex; gap:10px;">
-            <form th:action="@{/inquiry/supplier/{id}/status(id=${inquiry.inquiryId})}" method="post">
-                <input type="hidden" name="status" value="1"/>
-                <button type="submit">승인</button>
-            </form>
+    <hr style="margin:16px 0;" />
 
-            <form th:action="@{/inquiry/supplier/{id}/status(id=${inquiry.inquiryId})}" method="post">
-                <input type="hidden" name="status" value="2"/>
-                <button type="submit">반려</button>
-            </form>
 
-            <a href="" type="button">주문서 만들기</a>
+
+    <!-- 진행 중일 때만 액션 UI 노출 -->
+    <div th:if="${inquiry.status != 2}"
+         style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+
+        <!-- 문의 거절 -->
+        <form th:action="@{/inquiry/supplier/detail/{id}/cancel(id=${inquiry.inquiryId})}"
+              method="post"
+              onsubmit="return confirm('이 문의를 거절 처리하시겠습니까?');">
+            <button type="submit">문의 거절</button>
+        </form>
+
+        <!-- 주문서 작성/수정 -->
+        <button type="button"
+                th:disabled="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+                onclick="openSheetModal()">
+            <span th:if="${sheet == null}">주문서 작성</span>
+            <span th:if="${sheet != null and sheet.status != null and (sheet.status.toString() == 'DRAFT' or sheet.status.toString() == 'REJECTED')}">주문서 수정</span>
+            <span th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}">주문서(발송됨)</span>
+        </button>
+
+        <!-- 주문서 보내기 -->
+        <form th:if="${sheet != null and sheet.status != null and (sheet.status.toString() == 'DRAFT' or sheet.status.toString() == 'REJECTED')}"
+              th:action="@{/mypage/supplier/product/{pid}/custom-sheet/{sid}/send(pid=${inquiry.productId}, sid=${sheet.sheetId}, inquiryId=${inquiry.inquiryId})}"
+              method="post"
+              onsubmit="return confirm('주문서를 발송하시겠습니까? 발송 후 수정이 제한될 수 있습니다.');">
+            <button type="submit">주문서 보내기</button>
+        </form>
+
+        <!-- 발송됨 뱃지 -->
+        <span th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+              style="padding:6px 10px; border:1px solid #e5e7eb; border-radius:10px;">
+      발송됨(수정 불가)
+    </span>
+    </div>
+
+    <!-- 모달도 진행 중일 때만 존재 -->
+    <div th:if="${inquiry.status != 2}">
+        <div id="sheetModal" class="modal-backdrop" style="display:none;">
+            <div class="modal">
+                <div class="modal-head">
+                    <h3 style="margin:0;">커스텀 주문서</h3>
+                    <button type="button" class="ghost" onclick="closeSheetModal()">✕</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div th:if="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+                         style="padding:10px; border:1px solid #e5e7eb; border-radius:10px; margin-bottom:10px;">
+                        이미 발송된 주문서는 수정할 수 없습니다.
+                    </div>
+
+                    <form th:action="@{/mypage/supplier/product/{pid}/custom-sheet(pid=${inquiry.productId})}"
+                          method="post">
+
+                        <input type="hidden" name="inquiryId" th:value="${inquiry.inquiryId}"/>
+                        <input type="hidden" name="sheetId" th:value="${sheet != null ? sheet.sheetId : ''}"/>
+
+                        <div class="field">
+                            <label>수량</label>
+                            <input type="number" name="quantity" min="1" required
+                                   th:value="${sheet != null ? sheet.quantity : ''}"
+                                   th:disabled="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}">
+                        </div>
+
+                        <div class="field">
+                            <label>단가</label>
+                            <input type="number" name="unitPrice" min="1" required
+                                   th:value="${sheet != null ? sheet.unitPrice : ''}"
+                                   th:disabled="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}">
+                        </div>
+
+                        <div class="field">
+                            <label>옵션/요청사항</label>
+                            <textarea name="optionsText" rows="6" required
+                                      th:disabled="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}"
+                                      th:text="${sheet != null ? sheet.optionsText : ''}"></textarea>
+                        </div>
+
+                        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+                            <button type="button" onclick="closeSheetModal()">닫기</button>
+                            <button type="submit"
+                                    th:disabled="${sheet != null and sheet.status != null and sheet.status.toString() == 'SENT'}">
+                                저장
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
         </div>
+    </div>
 
-    </th:block>
+</th:block>
 </body>
 </html>

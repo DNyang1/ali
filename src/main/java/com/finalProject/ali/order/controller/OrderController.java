@@ -1,13 +1,13 @@
 package com.finalProject.ali.order.controller;
 
-import com.finalProject.ali.order.dto.OrderCreateRequest;
-import com.finalProject.ali.order.dto.OrderCreateResponse;
-import com.finalProject.ali.order.dto.OrderDetailResponse;
-import com.finalProject.ali.order.dto.OrderSummaryResponse;
+import com.finalProject.ali.order.dto.*;
 import com.finalProject.ali.order.service.OrderService;
+import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
+import com.finalProject.ali.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +18,8 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping
     public OrderCreateResponse create(@RequestBody OrderCreateRequest request, HttpSession session) {
@@ -38,5 +40,39 @@ public class OrderController {
         UserDTO user = (UserDTO) session.getAttribute("loginUser");
         String userId = user.getUserId();
         return orderService.getOrderDetail(orderId, userId);
+    }
+
+    @GetMapping("/sup")
+    public List<SupplierOrderItemResponse> supOrders(HttpSession session) {
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
+        SupplierDTO supplier = userService.getSupplierInfo(userId);
+        String supplierId = supplier.getSupplierId();
+        return orderService.getSupOrders(supplierId);
+    }
+
+    @GetMapping("/sup/{orderItemId}")
+    public SupplierOrderItemDetailResponse supDetail(
+            @PathVariable Long orderItemId, HttpSession session) {
+
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
+        SupplierDTO supplier = userService.getSupplierInfo(userId);
+        String supplierId = supplier.getSupplierId();
+
+        return orderService.getSupOrderDetail(orderItemId, supplierId);
+    }
+
+    @PostMapping("/sup/{orderItemId}/ship")
+    public void ship (@PathVariable Long orderItemId,
+                      @RequestBody SupplierShipRequest request,
+                      HttpSession session) {
+
+        UserDTO user = (UserDTO) session.getAttribute("loginUser");
+        String userId = user.getUserId();
+        SupplierDTO supplier = userService.getSupplierInfo(userId);
+        String supplierId = supplier.getSupplierId();
+
+        orderService.shipOrderItem(orderItemId, supplierId, request);
     }
 }

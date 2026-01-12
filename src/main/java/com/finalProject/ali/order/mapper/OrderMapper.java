@@ -2,6 +2,7 @@ package com.finalProject.ali.order.mapper;
 
 import com.finalProject.ali.order.domain.Order;
 import com.finalProject.ali.order.dto.OrderSummaryResponse;
+import com.finalProject.ali.order.dto.SupplierOrderItemResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,5 +17,6 @@ public interface OrderMapper {
     void updateStatus(Long orderId, String status);
     List<OrderSummaryResponse> findMyOrders(String userId);
     Order findByIdAndUser(Long orderId, String userId);
+    List<SupplierOrderItemResponse> findSupplierOrderItems(String supplierId);
 
 }

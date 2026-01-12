@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{})">
+<head>
+    <meta charset="UTF-8">
+    <title>공급자 주문 상세</title>
+</head>
+
+<body>
+
+<h2>공급자 주문 상세</h2>
+
+<div id="detail">
+    불러오는 중...
+</div>
+
+<hr/>
+
+<h3>배송 처리</h3>
+
+<div>
+    <label>
+        택배사:
+        <input type="text" id="carrier" placeholder="예: CJ대한통운">
+    </label>
+</div>
+
+<div>
+    <label>
+        송장번호:
+        <input type="text" id="trackingNo" placeholder="예: 1234-5678-9012">
+    </label>
+</div>
+
+<div>
+    <button type="button" onclick="ship()">배송 완료 처리</button>
+</div>
+
+<script th:inline="javascript">
+    const orderItemId = [[${orderItemId}]];
+</script>
+
+<script>
+    // 1) 상세 조회
+    fetch(`/api/order/sup/${orderItemId}`)
+        .then(res => {
+            if (!res.ok) throw new Error('상세 조회 실패');
+            return res.json();
+        })
+        .then(data => {
+            render(data);
+            // 기존 값 있으면 입력칸에 세팅
+            document.getElementById('carrier').value = data.carrier || '';
+            document.getElementById('trackingNo').value = data.trackingNo || '';
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('detail').innerText = '상세 정보를 불러오지 못했습니다.';
+        });
+
+    function render(d) {
+        const el = document.getElementById('detail');
+
+        el.innerHTML = `
+            <div>orderItemId: ${d.orderItemId}</div>
+            <div>orderId: ${d.orderId}</div>
+            <div>주문일: ${d.orderedAt}</div>
+            <div>구매자: ${d.buyerId}</div>
+
+            <hr/>
+
+            <div>상품명: ${d.productName}</div>
+            <div>옵션: ${d.optionSummary || '-'}</div>
+            <div>수량: ${d.quantity}</div>
+            <div>단가: ${d.unitPrice}</div>
+            <div>주문상태: ${d.orderStatus}</div>
+            <div>공급자상태: ${d.supplierStatus || '-'}</div>
+
+            <hr/>
+
+            <div>택배사: ${d.carrier || '-'}</div>
+            <div>송장번호: ${d.trackingNo || '-'}</div>
+        `;
+    }
+
+    // 2) 배송 처리(송장 저장 + 상태 변경)
+    async function ship() {
+        const carrier = document.getElementById('carrier').value.trim();
+        const trackingNo = document.getElementById('trackingNo').value.trim();
+
+        if (!carrier || !trackingNo) {
+            alert('택배사와 송장번호를 입력해주세요.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/order/sup/${orderItemId}/ship`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ carrier, trackingNo })
+            });
+
+            if (!res.ok) throw new Error('배송 처리 실패');
+
+            alert('배송 처리 완료');
+
+            // 갱신
+            const detailRes = await fetch(`/api/order/sup/${orderItemId}`);
+            const data = await detailRes.json();
+            render(data);
+
+        } catch (e) {
+            console.error(e);
+            alert('배송 처리 중 오류가 발생했습니다.');
+        }
+    }
+</script>
+
+</body>
+</html>

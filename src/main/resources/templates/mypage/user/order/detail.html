@@ -39,12 +39,14 @@
             <hr/>
             ${data.items.map(i => `
                 <div>
-                    이름: ${i.productName}
-                    옵션: ${i.optionSummary ?? '-'}
-                    SKU: ${i.skuId} /
-                    수량: ${i.quantity} /
-                    금액: ${i.lineAmount}원
-
+                    이름: ${i.productName}</br>
+                    옵션: ${i.optionSummary ?? '-'}</br>
+                    SKU: ${i.skuId} </br>
+                    수량: ${i.quantity} </br>
+                    금액: ${i.lineAmount}원</br>
+                    상태: ${i.status}</br>
+                    배송사: ${i.carrier}</br>
+                    송장번호: ${i.trackingNo}</br>
                 </div>
             `).join('')}
         `;
