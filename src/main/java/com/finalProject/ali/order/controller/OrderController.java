@@ -2,6 +2,8 @@ package com.finalProject.ali.order.controller;
 
 import com.finalProject.ali.order.dto.*;
 import com.finalProject.ali.order.service.OrderService;
+//태민
+import com.finalProject.ali.product.dao.CustomOrderSheetDAO;
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import com.finalProject.ali.user.service.UserService;
@@ -18,6 +20,8 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    //태민
+    private final CustomOrderSheetDAO customOrderSheetDAO;
     @Autowired
     private UserService userService;
 
@@ -25,7 +29,18 @@ public class OrderController {
     public OrderCreateResponse create(@RequestBody OrderCreateRequest request, HttpSession session) {
         UserDTO user = (UserDTO) session.getAttribute("loginUser");
         String userId = user.getUserId();
-        return orderService.createOrder(userId, request);
+
+        //태민
+        Long sheetId = (Long) session.getAttribute("checkoutSheetId");
+
+        OrderCreateResponse res = orderService.createOrder(userId, request);
+
+        if (sheetId != null) {
+            customOrderSheetDAO.linkOrderId(sheetId, res.getOrderId());
+            session.removeAttribute("checkoutSheetId");
+        }
+
+        return res;
     }
 
     @GetMapping("/my")

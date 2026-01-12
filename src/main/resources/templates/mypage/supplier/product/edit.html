@@ -1,115 +1,232 @@
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, null)">
 
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="${pageTitle} ?: '상품 수정'">상품 수정</title>
-    <link rel="stylesheet" href="/mypage/supplier/css/product.css">
+    <th:block th:fragment="content">
 
-    
+        <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-</head>
-<body>
-
-<section class="panel">
-    <header class="panel-head">
-        <h2 class="panel-title">상품 수정</h2>
-        <a class="panel-link" th:href="@{/mypage/supplier/product/{id}(id=${form.productId})}">상세</a>
-    </header>
-
-    <div class="panel-body">
-        <form th:action="@{/mypage/supplier/product/{id}/edit(id=${form.productId})}"
-              method="post" th:object="${form}">
-
-            <label>카테고리</label>
-
-            <select id="cat1">
-                <option value="">대분류 선택</option>
-                <option th:each="c : ${rootCategories}"
-                        th:value="${c.categoryId}"
-                        th:text="${c.categoryName}"
-                        th:selected="${cat1Selected != null and c.categoryId == cat1Selected}">
-                </option>
-            </select>
-
-            <select id="cat2" th:disabled="${cat2Options == null}">
-                <option value="">중분류 선택</option>
-                <option th:if="${cat2Options != null}"
-                        th:each="c : ${cat2Options}"
-                        th:value="${c.categoryId}"
-                        th:text="${c.categoryName}"
-                        th:selected="${cat2Selected != null and c.categoryId == cat2Selected}">
-                </option>
-            </select>
-
-            <select id="cat3" th:disabled="${cat3Options == null}">
-                <option value="">소분류 선택</option>
-                <option th:if="${cat3Options != null}"
-                        th:each="c : ${cat3Options}"
-                        th:value="${c.categoryId}"
-                        th:text="${c.categoryName}"
-                        th:selected="${cat3Selected != null and c.categoryId == cat3Selected}">
-                </option>
-            </select>
-            <input type="hidden" th:field="*{categoryId}" id="categoryId"/>
-
-            <hr style="margin:16px 0;">
-
-            <div class="image-section">
-                <h3>이미지 관리</h3>
-
-                <div style="margin-bottom:16px;">
-                    <p><b>대표 이미지</b></p>
-                    <img id="thumbPreview"
-                         th:src="${thumbImagePath ?: ''}"
-                         th:style="${thumbImagePath != null} ? 'display:block; width:180px; height:180px; object-fit:cover; border:1px solid #ddd; border-radius:8px;' : 'display:none;'"
-                         style="display:none; width:180px; height:180px; object-fit:cover; border:1px solid #ddd; border-radius:8px;">
-                    <input type="file" id="thumbFile" accept="image/*" onchange="previewThumb(this)">
-                    <button type="button" class="primary"
-                            th:attr="onclick=|uploadThumb(${form.productId})|">대표 저장</button>
+            <!-- 헤더 -->
+            <header class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">상품 수정</h2>
+                    <p class="mt-1 text-sm text-slate-500">카테고리/정보 수정 및 이미지 관리를 할 수 있어요.</p>
                 </div>
 
-                <div>
-                    <p><b>상세 이미지</b></p>
-                    <input type="file" id="detailFile" accept="image/*" multiple onchange="onSelectDetailFiles(this)">
-                    <button type="button" class="primary"
-                            th:attr="onclick=|uploadDetails(${form.productId})|">상세 추가</button>
+                <a th:href="@{/mypage/supplier/product/{id}(id=${form.productId})}"
+                   class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                    상세
+                </a>
+            </header>
 
-                    <div id="detailServerImages" style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <div th:each="img : ${detailImages}" style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-                            <img th:src="${img.imagePath}"
-                                 style="width:120px; height:120px; object-fit:cover; border:1px solid #ddd; border-radius:8px;">
-                            <button type="button" class="danger"
-                                    th:attr="onclick=|deleteDetailImage(${img.imageId})|">삭제</button>
+            <div class="px-5 py-6">
+                <form th:action="@{/mypage/supplier/product/{id}/edit(id=${form.productId})}"
+                      method="post"
+                      th:object="${form}"
+                      class="space-y-8">
+
+                    <!-- 카테고리 -->
+                    <section class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-900">카테고리</label>
+                            <p class="mt-1 text-sm text-slate-500">대분류 → 중분류 → 소분류 순서로 선택하세요.</p>
                         </div>
+
+                        <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                            <!-- ✅ JS hook 유지: id=cat1 -->
+                            <select id="cat1"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500">
+                                <option value="">대분류 선택</option>
+                                <option th:each="c : ${rootCategories}"
+                                        th:value="${c.categoryId}"
+                                        th:text="${c.categoryName}"
+                                        th:selected="${cat1Selected != null and c.categoryId == cat1Selected}">
+                                </option>
+                            </select>
+
+                            <!-- ✅ JS hook 유지: id=cat2 -->
+                            <select id="cat2"
+                                    th:disabled="${cat2Options == null}"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500
+                             disabled:bg-slate-50 disabled:text-slate-400">
+                                <option value="">중분류 선택</option>
+                                <option th:if="${cat2Options != null}"
+                                        th:each="c : ${cat2Options}"
+                                        th:value="${c.categoryId}"
+                                        th:text="${c.categoryName}"
+                                        th:selected="${cat2Selected != null and c.categoryId == cat2Selected}">
+                                </option>
+                            </select>
+
+                            <!-- ✅ JS hook 유지: id=cat3 -->
+                            <select id="cat3"
+                                    th:disabled="${cat3Options == null}"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500
+                             disabled:bg-slate-50 disabled:text-slate-400">
+                                <option value="">소분류 선택</option>
+                                <option th:if="${cat3Options != null}"
+                                        th:each="c : ${cat3Options}"
+                                        th:value="${c.categoryId}"
+                                        th:text="${c.categoryName}"
+                                        th:selected="${cat3Selected != null and c.categoryId == cat3Selected}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- ✅ JS hook 유지 -->
+                        <input type="hidden" th:field="*{categoryId}" id="categoryId"/>
+                    </section>
+
+                    <div class="h-px w-full bg-slate-100"></div>
+
+                    <!-- 이미지 관리 -->
+                    <section class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">이미지 관리</h3>
+                            <p class="mt-1 text-sm text-slate-500">대표/상세 이미지를 업로드하고 삭제할 수 있어요.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+                            <!-- 대표 이미지 -->
+                            <div class="rounded-2xl border border-slate-200 bg-white p-5">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-bold text-slate-900">대표 이미지</p>
+                                    <button type="button"
+                                            class="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700"
+                                            th:attr="onclick=|uploadThumb(${form.productId})|">
+                                        대표 저장
+                                    </button>
+                                </div>
+
+                                <div class="mt-4 flex items-start gap-4">
+                                    <!-- ✅ JS hook 유지: thumbPreview -->
+                                    <img id="thumbPreview"
+                                         th:src="${thumbImagePath ?: ''}"
+                                         th:style="${thumbImagePath != null}
+                         ? 'display:block; width:180px; height:180px; object-fit:cover;'
+                         : 'display:none;'"
+                                         style="display:none; width:180px; height:180px; object-fit:cover;"
+                                         class="rounded-xl border border-slate-200 shadow-sm"
+                                         alt="대표 이미지 미리보기"/>
+
+                                    <div class="flex-1">
+                                        <!-- ✅ JS hook 유지: thumbFile + onchange -->
+                                        <input type="file"
+                                               id="thumbFile"
+                                               accept="image/*"
+                                               onchange="previewThumb(this)"
+                                               class="block w-full text-sm
+                                  file:mr-3 file:rounded-xl file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-xs file:font-bold file:text-white
+                                  hover:file:bg-slate-800"/>
+                                        <p class="mt-2 text-xs text-slate-500">
+                                            권장: 정사각형(예: 800x800), JPG/PNG
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 상세 이미지 -->
+                            <div class="rounded-2xl border border-slate-200 bg-white p-5">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-bold text-slate-900">상세 이미지</p>
+                                    <button type="button"
+                                            class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800"
+                                            th:attr="onclick=|uploadDetails(${form.productId})|">
+                                        상세 추가
+                                    </button>
+                                </div>
+
+                                <div class="mt-4">
+                                    <!-- ✅ JS hook 유지: detailFile + onchange -->
+                                    <input type="file"
+                                           id="detailFile"
+                                           accept="image/*"
+                                           multiple
+                                           onchange="onSelectDetailFiles(this)"
+                                           class="block w-full text-sm
+                                file:mr-3 file:rounded-xl file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-xs file:font-bold file:text-white
+                                hover:file:bg-slate-800"/>
+                                    <p class="mt-2 text-xs text-slate-500">여러 장 선택 가능</p>
+                                </div>
+
+                                <!-- 서버에 이미 저장된 이미지들 -->
+                                <div class="mt-4">
+                                    <p class="text-xs font-semibold text-slate-500">저장된 상세 이미지</p>
+
+                                    <!-- ✅ JS hook 유지: detailServerImages -->
+                                    <div id="detailServerImages" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                        <div th:each="img : ${detailImages}" class="flex flex-col items-center gap-2">
+                                            <img th:src="${img.imagePath}"
+                                                 class="h-28 w-full rounded-xl border border-slate-200 object-cover"
+                                                 alt="상세 이미지"/>
+                                            <button type="button"
+                                                    class="inline-flex items-center rounded-xl bg-rose-600 px-3 py-2 text-xs font-bold text-white hover:bg-rose-700"
+                                                    th:attr="onclick=|deleteDetailImage(${img.imageId})|">
+                                                삭제
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 새로 선택한 파일 미리보기 -->
+                                <!-- ✅ JS hook 유지: detailPreview -->
+                                <div id="detailPreview" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3"></div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <div class="h-px w-full bg-slate-100"></div>
+
+                    <!-- 기본 정보 -->
+                    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-900">상품명</label>
+                            <input type="text"
+                                   th:field="*{productName}"
+                                   required
+                                   class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+                                   placeholder="상품명을 입력하세요"/>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-900">커스터마이즈</label>
+                            <select th:field="*{isCustomizable}"
+                                    class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500">
+                                <option value="0">불가</option>
+                                <option value="1">가능</option>
+                            </select>
+                            <p class="mt-2 text-xs text-slate-500">견적/주문서 기반 커스터마이즈 허용 여부</p>
+                        </div>
+
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-bold text-slate-900">설명</label>
+                            <textarea th:field="*{description}"
+                                      rows="6"
+                                      class="mt-2 w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+                                      placeholder="상품 설명을 입력하세요."></textarea>
+                        </div>
+                    </section>
+
+                    <!-- 저장 버튼 -->
+                    <div class="flex items-center justify-end gap-2 pt-2">
+                        <a th:href="@{/mypage/supplier/product/{id}(id=${form.productId})}"
+                           class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                            취소
+                        </a>
+                        <button type="submit"
+                                class="inline-flex items-center rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700">
+                            저장
+                        </button>
                     </div>
 
-                    <div id="detailPreview" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;"></div>
-
-                </div>
+                </form>
             </div>
+        </section>
 
-            <label>상품명</label>
-            <input type="text" th:field="*{productName}" required/><br/><br/>
+        <!-- ✅ 기존 JS 유지 -->
+        <script src="/mypage/supplier/js/category-select.js"></script>
+        <script src="/mypage/supplier/js/product_images.js"></script>
 
-            <label>설명</label>
-            <textarea th:field="*{description}" rows="5"></textarea><br/><br/>
-
-
-            <label>커스터마이즈</label>
-            <select th:field="*{isCustomizable}">
-                <option value="0">불가</option>
-                <option value="1">가능</option>
-            </select><br/><br/>
-
-            <button type="submit">저장</button>
-        </form>
-    </div>
-</section>
-
-<script src="/mypage/supplier/js/category-select.js"></script>
-<script src="/mypage/supplier/js/product_images.js"></script>
-</body>
-</html>
+    </th:block>
+</th:block>

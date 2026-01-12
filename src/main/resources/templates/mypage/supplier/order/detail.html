@@ -1,40 +1,50 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{})">
-<head>
-    <meta charset="UTF-8">
-    <title>공급자 주문 상세</title>
-</head>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{})">
 
-<body>
+    <th:block th:fragment="content">
 
-<h2>공급자 주문 상세</h2>
+        <section class="space-y-6">
 
-<div id="detail">
-    불러오는 중...
-</div>
+            <section>
+                <h1 class="text-2xl font-bold text-slate-900">공급자 주문 상세</h1>
+                <p class="mt-1 text-sm text-slate-500">
+                    주문 정보 확인 및 배송 처리를 진행하세요.
+                </p>
+            </section>
 
-<hr/>
+            <div id="detail">불러오는 중...</div>
 
-<h3>배송 처리</h3>
+            <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <header class="flex items-center justify-between">
+                    <h2 class="text-base font-bold text-slate-900">배송 처리</h2>
+                    <span class="text-xs text-slate-500">송장 입력 후 배송 완료 처리</span>
+                </header>
 
-<div>
-    <label>
-        택배사:
-        <input type="text" id="carrier" placeholder="예: CJ대한통운">
-    </label>
-</div>
+                <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-700">택배사</span>
+                        <input type="text" id="carrier" placeholder="예: CJ대한통운"
+                               class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                          outline-none focus:border-blue-500">
+                    </label>
 
-<div>
-    <label>
-        송장번호:
-        <input type="text" id="trackingNo" placeholder="예: 1234-5678-9012">
-    </label>
-</div>
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-700">송장번호</span>
+                        <input type="text" id="trackingNo" placeholder="예: 1234-5678-9012"
+                               class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
+                          outline-none focus:border-blue-500">
+                    </label>
+                </div>
 
-<div>
-    <button type="button" onclick="ship()">배송 완료 처리</button>
-</div>
+                <div class="mt-4 flex justify-end">
+                    <button type="button" onclick="ship()"
+                            class="rounded-lg bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700">
+                        배송 완료 처리
+                    </button>
+                </div>
+            </section>
+
+        </section>
 
 <script th:inline="javascript">
     const orderItemId = [[${orderItemId}]];
@@ -62,25 +72,80 @@
         const el = document.getElementById('detail');
 
         el.innerHTML = `
-            <div>orderItemId: ${d.orderItemId}</div>
-            <div>orderId: ${d.orderId}</div>
-            <div>주문일: ${d.orderedAt}</div>
-            <div>구매자: ${d.buyerId}</div>
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">주문 상세</h2>
+          <p class="mt-1 text-xs text-slate-500">orderItemId: ${d.orderItemId}</p>
+        </div>
 
-            <hr/>
+        <div class="flex flex-col items-end gap-2">
+          <span class="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+            주문상태: ${d.orderStatus}
+          </span>
+          <span class="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+            공급자상태: ${d.supplierStatus || '-'}
+          </span>
+        </div>
+      </div>
 
-            <div>상품명: ${d.productName}</div>
-            <div>옵션: ${d.optionSummary || '-'}</div>
-            <div>수량: ${d.quantity}</div>
-            <div>단가: ${d.unitPrice}</div>
-            <div>주문상태: ${d.orderStatus}</div>
-            <div>공급자상태: ${d.supplierStatus || '-'}</div>
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div class="rounded-xl border border-slate-100 p-4">
+          <div class="text-xs font-semibold text-slate-500">주문정보</div>
+          <dl class="mt-2 space-y-1 text-sm">
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">orderId</dt>
+              <dd class="font-semibold text-slate-900">${d.orderId}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">주문일</dt>
+              <dd class="text-slate-800">${d.orderedAt}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">구매자</dt>
+              <dd class="text-slate-800">${d.buyerId}</dd>
+            </div>
+          </dl>
+        </div>
 
-            <hr/>
+        <div class="rounded-xl border border-slate-100 p-4">
+          <div class="text-xs font-semibold text-slate-500">상품정보</div>
+          <dl class="mt-2 space-y-1 text-sm">
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">상품명</dt>
+              <dd class="font-semibold text-slate-900">${d.productName}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">옵션</dt>
+              <dd class="text-slate-800">${d.optionSummary || '-'}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">수량</dt>
+              <dd class="text-slate-800">${d.quantity}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+              <dt class="text-slate-500">단가</dt>
+              <dd class="text-slate-800">${Number(d.unitPrice).toLocaleString()}원</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
 
-            <div>택배사: ${d.carrier || '-'}</div>
-            <div>송장번호: ${d.trackingNo || '-'}</div>
-        `;
+      <div class="mt-4 rounded-xl border border-slate-100 p-4">
+        <div class="text-xs font-semibold text-slate-500">배송정보</div>
+        <dl class="mt-2 space-y-1 text-sm">
+          <div class="flex justify-between gap-3">
+            <dt class="text-slate-500">택배사</dt>
+            <dd class="text-slate-800">${d.carrier || '-'}</dd>
+          </div>
+          <div class="flex justify-between gap-3">
+            <dt class="text-slate-500">송장번호</dt>
+            <dd class="text-slate-800">${d.trackingNo || '-'}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  `;
     }
 
     // 2) 배송 처리(송장 저장 + 상태 변경)
@@ -116,5 +181,5 @@
     }
 </script>
 
-</body>
-</html>
+    </th:block>
+</th:block>
