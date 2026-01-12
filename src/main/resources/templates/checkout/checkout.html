@@ -85,6 +85,48 @@
     </div>
 </div>
 
+<!-- ====== 주소 추가 모달 ====== -->
+<div id="address-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>새 배송지 추가</h2>
+            <button class="close-btn" onclick="closeAddressModal()">&times;</button>
+        </div>
+        <form id="address-form" class="address-form" onsubmit="saveNewAddress(event)">
+            <div class="form-group">
+                <label for="rName">받는 분</label>
+                <input type="text" id="rName" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="rPhone">연락처</label>
+                <input type="tel" id="rPhone" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>주소</label>
+                <div class="zipcode-group">
+                    <input type="text" id="zipcode" class="form-control" placeholder="우편번호" readonly required>
+                    <button type="button" class="btn btn-secondary" onclick="execDaumPostcode()">검색</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="address1" class="form-control" placeholder="기본 주소" readonly required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="address2" class="form-control" placeholder="상세 주소 입력">
+            </div>
+            <div class="form-group form-checkbox">
+                <input type="checkbox" id="isDefault">
+                <label for="isDefault">기본 배송지로 설정</label>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeAddressModal()">취소</button>
+                <button type="submit" class="btn btn-primary">저장하기</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
     let selectedAddressId = null;
     let selectedPaymentMethod = 'MOCK';
@@ -144,11 +186,12 @@
 
     function renderSummary(data) {
         document.getElementById('subtotal').innerText = `${data.totalAmount.toLocaleString()} 원`;
-        document.getElementById('shipping-fee').innerText = `0 원`; // 기본값, 필요시 로직 추가
+        document.getElementById('shipping-fee').innerText = `0 원`;
         document.getElementById('total-amount').innerText = `${data.totalAmount.toLocaleString()} 원`;
     }
 
     async function loadAddresses() {
+        document.getElementById('address-list').innerHTML = '<div class="loader"></div>';
         try {
             const response = await fetch('/address');
             if (!response.ok) throw new Error('Address fetch failed.');
@@ -194,10 +237,62 @@
         selectedAddressId = id;
     }
     
+    // --- Address Modal Functions ---
+    const addressModal = document.getElementById('address-modal');
+
     function addNewAddress() {
-        alert('새 배송지 추가 기능은 현재 준비중입니다.');
-        // location.href = '/mypage/address/new';
+        addressModal.classList.add('visible');
     }
+
+    function closeAddressModal() {
+        addressModal.classList.remove('visible');
+        document.getElementById('address-form').reset();
+    }
+
+    async function saveNewAddress(event) {
+        event.preventDefault();
+        
+        const newAddress = {
+            rName: document.getElementById('rName').value,
+            rPhone: document.getElementById('rPhone').value,
+            zipcode: document.getElementById('zipcode').value,
+            address1: document.getElementById('address1').value,
+            address2: document.getElementById('address2').value,
+            isDefault: document.getElementById('isDefault').checked
+        };
+
+        try {
+            const response = await fetch('/address', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newAddress)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save address.');
+            }
+            
+            closeAddressModal();
+            await loadAddresses(); // Refresh the address list
+
+        } catch (error) {
+            console.error('Error saving address:', error);
+            alert('배송지 저장에 실패했습니다. 다시 시도해주세요.');
+        }
+    }
+
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                document.getElementById('zipcode').value = data.zonecode;
+                document.getElementById("address1").value = data.address;
+                document.getElementById("address2").focus();
+            }
+        }).open();
+    }
+
+    // --- End of Address Modal Functions ---
+
 
     function setupPaymentMethodSelector() {
         document.querySelectorAll('.payment-method').forEach(method => {
