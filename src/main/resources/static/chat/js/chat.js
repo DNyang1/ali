@@ -6,6 +6,8 @@ const roomSubs = new Map();
 let currentRoomId = null;
 let currentUserId = null;
 
+let aiSelectedPurpose = null; // 마지막으로 선택한 칩 purpose (예: "MOQ")
+
 // Draft(LocalStorage) Utils
 const DRAFT_KEY_PREFIX = "chatDraftProductId:"; // roomId별 저장
 
@@ -55,6 +57,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     // 드래프트 바인딩(새로고침 복원 포함)
     bindProductDraft();
+
+    // AI UI
+    bindAiUI();          // 이벤트 바인딩(한 번만)
+    await refreshAiBar(); // 최초 진입 시 AI칩 로딩
 
     // WS 연결
     connect();
@@ -200,6 +206,9 @@ function bindRoomClicks() {
 
             // 새 방의 드래프트 복원(있으면)
             bindProductDraft();
+
+            // 방 이동 후 AI칩도 해당 방 기준으로 갱신
+            await refreshAiBar();
         });
     });
 }
@@ -588,7 +597,7 @@ function bindProductDraft() {
     }
 
     // X 버튼: 드래프트 숨기기 + 저장된 draft도 제거
-    removeBtn.onclick = () => {
+    removeBtn.onclick = async () => {
         draftEl.style.display = "none";
         draftProductId = null;
 
@@ -599,6 +608,8 @@ function bindProductDraft() {
 
         // localStorage에서도 제거
         if (rid) clearDraft(rid);
+
+        await refreshAiBar();
     };
 }
 
@@ -641,5 +652,164 @@ function applyProductSummary(card, summary) {
         imgEl.src = summary.thumbnailUrl;
         imgEl.style.display = "";
         imgEl.onerror = () => { imgEl.style.display = "none"; };
+    }
+}
+
+/** =========================
+ *  AI (suggestions + draft)
+ *  ========================= */
+
+function bindAiUI() {
+    const draftBtn = document.getElementById("aiDraftBtn");
+    if (!draftBtn) return;
+
+    draftBtn.addEventListener("click", async () => {
+        if (!currentRoomId) return;
+
+        // 선택한 칩이 없으면 기본값
+        const purpose = aiSelectedPurpose || "PRICE";
+        const pid = draftProductId || null;
+
+        try {
+            const res = await fetch(`/chat/api/rooms/${currentRoomId}/ai/draft`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ productId: pid, purpose })
+            });
+
+            if (!res.ok) {
+                console.log("[AI] draft fail", res.status);
+                return;
+            }
+
+            const data = await res.json();
+            const draft = (data?.draft || "").trim();
+            if (!draft) return;
+
+            const input = document.getElementById("messageInput");
+            if (!input) return;
+
+            // 입력창에 초안 채우기
+            if (input) {
+                input.value = draft;
+                input.focus();
+            }
+
+        } catch (e) {
+            console.log("[AI] draft error", e);
+        }
+    });
+}
+
+async function refreshAiBar() {
+    const bar = document.getElementById("aiBar");
+    const chipsEl = document.getElementById("aiChips");
+    if (!bar || !chipsEl) return;
+
+    // 방이 없으면 숨김
+    if (!currentRoomId) {
+        bar.style.display = "none";
+        return;
+    }
+
+    const pid = draftProductId || null;
+    const url = pid
+        ? `/chat/api/rooms/${currentRoomId}/ai/suggestions?productId=${encodeURIComponent(pid)}`
+        : `/chat/api/rooms/${currentRoomId}/ai/suggestions`;
+
+    try {
+        const res = await fetch(url, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+
+        if (!res.ok) {
+            console.log("[AI] suggestions fail", res.status);
+            bar.style.display = "none";
+            return;
+        }
+
+        const data = await res.json();
+        const list = data?.suggestions || [];
+
+        if (!Array.isArray(list) || list.length === 0) {
+            bar.style.display = "none";
+            return;
+        }
+
+        // 칩 렌더링
+        chipsEl.innerHTML = "";
+        list.forEach((it, idx) => {
+            const key = (it?.key || "").trim();
+            const text = (it?.text || "").trim();
+            if (!key || !text) return;
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "ai-chip";
+            btn.dataset.purpose = key;
+            btn.textContent = text;
+
+            // 첫 칩을 기본 선택(원하면)
+            if (idx === 0 && !aiSelectedPurpose) {
+                aiSelectedPurpose = key;
+                btn.classList.add("active");
+            }
+
+            btn.addEventListener("click", () => {
+                chipsEl.querySelectorAll(".ai-chip").forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                aiSelectedPurpose = key;
+
+                const input = document.getElementById("messageInput");
+                if (input) {
+                    input.value = text;  // ✅ 추천 질문(짧은 문장)
+                    input.focus();
+                }
+            });
+
+            chipsEl.appendChild(btn);
+        });
+
+        bar.style.display = "flex";
+
+    } catch (e) {
+        console.log("[AI] suggestions error", e);
+        bar.style.display = "none";
+    }
+}
+
+async function autoDraftFromPurpose(purpose) {
+    if (!currentRoomId) return;
+    const pid = draftProductId || null;
+
+    try {
+        const res = await fetch(`/chat/api/rooms/${currentRoomId}/ai/draft`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({ productId: pid, purpose })
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const draft = (data?.draft || "").trim();
+        if (!draft) return;
+
+        const input = document.getElementById("messageInput");
+        if (!input) return;
+
+        input.value = draft;
+        input.focus();
+
+    } catch (e) {
+        console.log("[AI] autoDraft error", e);
     }
 }
