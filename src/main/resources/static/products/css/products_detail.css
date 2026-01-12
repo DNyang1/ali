@@ -268,4 +268,20 @@ body {
     color: #222;
 }
 
+.sku-info {
+    margin-top: 12px;
+}
+
+.sku-id {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.sku-options {
+    margin-top: 4px;
+    font-size: 15px;
+    color: #333;
+}
+
+
 

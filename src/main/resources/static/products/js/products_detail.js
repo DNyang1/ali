@@ -29,9 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const openCartBtn = document.getElementById('openCartModal');
     const closeBtn = document.getElementById('closeOrderModal');
 
-    const rules = normalizePriceRules(DEFAULT_PRICE_RULES);
+    const rules = getRepresentativePriceRules(PARSED_SKUS);
 
     renderMainPriceTiers(rules);
+    renderAllSkuInfo();
 
     openBtn?.addEventListener('click', () => {
         modalMode = 'ORDER';
@@ -90,6 +91,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+function getRepresentativePriceRules(skus) {
+    if (!Array.isArray(skus) || skus.length === 0) return [];
+
+    const baseSku = skus[0];
+
+    return normalizePriceRules(baseSku.priceRules || []);
+}
+
+
 function renderSkuList(skus) {
     const container = document.getElementById('skuList');
     if (!container) return;
@@ -97,8 +107,8 @@ function renderSkuList(skus) {
     container.innerHTML = '';
 
     skus.forEach(sku => {
-        const priceRules = sku.priceRules || [];
-        const unitPrice = findUnitPriceByQty(priceRules, MOQ);
+        const unitPrice = findUnitPriceByQty(sku.priceRules || [], MOQ);
+        const optionText = sku.optionSummary?.trim() || '옵션 없음';
 
         const row = document.createElement('div');
         row.className = 'sku-row';
@@ -108,13 +118,16 @@ function renderSkuList(skus) {
         row.innerHTML = `
             <div class="sku-left">
                 <div class="sku-id">${sku.skuId}</div>
+                <div class="sku-options">${optionText}</div>
                 <div class="sku-stock">재고 ${sku.stockQuantity ?? 0}개</div>
             </div>
+
             <div class="sku-right">
-                <span class="sku-price">₩${unitPrice.toLocaleString()}</span>
+                <div class="sku-price">₩${unitPrice.toLocaleString()}</div>
+
                 <div class="qty-box">
                     <button class="qty-minus">-</button>
-                    <span class="qty">0</span>
+                    <input class="qty-input" type="number" min="0" value="0">
                     <button class="qty-plus">+</button>
                 </div>
             </div>
@@ -127,37 +140,87 @@ function renderSkuList(skus) {
 }
 
 
+function renderAllSkuInfo() {
+    const container = document.getElementById('mainSkuList');
+    if (!container) return;
+    if (!Array.isArray(PARSED_SKUS) || PARSED_SKUS.length === 0) return;
+
+    container.innerHTML = PARSED_SKUS
+        .map(sku => {
+            const option =
+                sku.optionSummary && sku.optionSummary.trim() !== ''
+                    ? sku.optionSummary
+                    : '옵션 없음';
+
+            return `
+                <div class="sku-all-item">
+                    <span class="sku-all-id">${sku.skuId}</span>
+                    <span class="sku-all-option">${option}</span>
+                </div>
+            `;
+        })
+        .join('');
+}
+
+
+function resolveUnitPriceByQty(skuId, qty) {
+    const sku = PARSED_SKUS.find(s => s.skuId === skuId);
+    if (!sku || !Array.isArray(sku.priceRules)) return 0;
+
+    return [...sku.priceRules]
+        .sort((a, b) => b.minQty - a.minQty) // 큰 구간부터
+        .find(r =>
+            qty >= r.minQty &&
+            (r.maxQty == null || qty <= r.maxQty)
+        )?.unitPrice || 0;
+}
+
 function bindSkuQtyEvents() {
     document.querySelectorAll('.sku-row').forEach(row => {
         const minus = row.querySelector('.qty-minus');
         const plus = row.querySelector('.qty-plus');
-        const qtyEl = row.querySelector('.qty');
+        const input = row.querySelector('.qty-input');
+        const priceEl = row.querySelector('.sku-price');
 
-        minus.addEventListener('click', () => {
-            let q = Number(qtyEl.innerText);
-            if (q > 0) q--;
-            qtyEl.innerText = q;
-            updateSummary();
-        });
+        const skuId = row.dataset.skuId;
+        const stock =
+            PARSED_SKUS.find(s => s.skuId === skuId)?.stockQuantity ?? 0;
 
-        plus.addEventListener('click', () => {
-            let q = Number(qtyEl.innerText);
-            const stock = Number(
-                PARSED_SKUS.find(s => s.skuId === row.dataset.skuId)?.stockQuantity || 0
-            );
-            if (q < stock) q++;
-            qtyEl.innerText = q;
+        function sync(qty) {
+            if (qty < 0) qty = 0;
+            if (qty > stock) qty = stock;
+
+            input.value = qty;
+
+            const unitPrice = resolveUnitPriceByQty(skuId, qty);
+            row.dataset.unitPrice = unitPrice;
+            priceEl.innerText = `₩${unitPrice.toLocaleString()}`;
+
             updateSummary();
-        });
+        }
+
+        minus.onclick = () => {
+            sync(Number(input.value) - 1);
+        };
+
+        plus.onclick = () => {
+            sync(Number(input.value) + 1);
+        };
+
+        input.oninput = () => {
+            sync(Number(input.value));
+        };
     });
 }
+
+
 
 function updateSummary() {
     let totalQty = 0;
     let totalPrice = 0;
 
     document.querySelectorAll('.sku-row').forEach(row => {
-        const qty = Number(row.querySelector('.qty').innerText);
+        const qty = Number(row.querySelector('.qty-input')?.value || 0);
         const unitPrice = Number(row.dataset.unitPrice);
 
         totalQty += qty;
@@ -173,7 +236,8 @@ function collectSkuItems() {
     const items = [];
 
     document.querySelectorAll('.sku-row').forEach(row => {
-        const qty = Number(row.querySelector('.qty').innerText);
+        const qty = Number(row.querySelector('.qty-input')?.value || 0);
+
         if (qty > 0) {
             items.push({
                 skuId: row.dataset.skuId,
@@ -185,9 +249,36 @@ function collectSkuItems() {
     return items;
 }
 
-function normalizePriceRules(data) {
-    if (Array.isArray(data)) return data;
-    try { return JSON.parse(data); } catch { return []; }
+
+function normalizePriceRules(rules) {
+    if (!Array.isArray(rules)) {
+        console.error("PRICE RULES IS NOT ARRAY", rules);
+        return [];
+    }
+
+    const map = new Map();
+
+    rules.forEach(r => {
+        const minQty = r.minQty ?? 1;
+        const maxQty = r.maxQty ?? null;
+        const key = `${minQty}-${maxQty}`;
+
+        if (!map.has(key)) {
+            map.set(key, r.unitPrice);
+        }
+    });
+
+    return [...map.entries()].map(([key, unitPrice]) => {
+        const [minQty, maxQty] = key.split("-").map(v =>
+            v === 'null' ? null : Number(v)
+        );
+
+        return {
+            minQty,
+            maxQty,
+            unitPrice
+        };
+    });
 }
 
 function findUnitPriceByQty(priceRules, qty) {
@@ -226,26 +317,6 @@ function renderMainPriceTiers(priceRules) {
         container.appendChild(div);
     });
 }
-
-function resolveSkuId() {
-    const selectedValueIds = Object.values(selectedOptions);
-
-    if (selectedValueIds.length === 0) return null;
-
-    for (const sku of PARSED_SKUS) {
-        const skuOptionIds = sku.optionValueIds || [];
-
-        const matched = skuOptionIds.every(id =>
-            selectedValueIds.includes(id)
-        );
-
-        if (matched) {
-            return sku.skuId;
-        }
-    }
-    return null;
-}
-
 
 /* ======================================================
    🔧 DEV ONLY : SKU 직접 선택 블록 (ORDER / CART 공통)
