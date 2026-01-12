@@ -88,4 +88,19 @@ public class SkuServiceImpl implements SkuService {
         );
     }
 
+    @Override
+    public List<SkuDTO> getProductDetailSkus(Long productId) {
+
+        List<SkuDTO> skus =
+                skuDAO.findProductDetailSkus(productId);
+
+        for (SkuDTO sku : skus) {
+            sku.setPriceRules(
+                    skuPriceDAO.findBySkuId(sku.getSkuId())
+            );
+        }
+
+        return skus;
+    }
+
 }
