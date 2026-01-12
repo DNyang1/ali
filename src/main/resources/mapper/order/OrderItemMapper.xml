@@ -71,7 +71,12 @@
             AND p.supplier_id = #{supplierId}
 
     </select>
-    
+    <select id="findById" resultType="com.finalProject.ali.order.dto.OrderItemResponse">
+        SELECT *
+        FROM order_item
+        WHERE order_item_id = #{orderItemId}
+    </select>
+
     <update id="updateSupplierShipping">
         UPDATE order_item oi
         JOIN sku s

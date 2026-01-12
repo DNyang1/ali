@@ -11,6 +11,7 @@ import java.util.List;
 public interface OrderItemMapper {
     int insert(OrderItem item);
     List<OrderItemResponse> findByOrderId(Long orderId);
+    OrderItemResponse findById(Long orderItemId);
 
      SupplierOrderItemDetailResponse findSupplierOrderItemDetail(
              Long orderItemId, String supplierId);
