@@ -38,4 +38,7 @@ public interface SkuDAO {
             @Param("optionCount") int optionCount
     );
 
+    List<SkuDTO> findProductDetailSkus(@Param("productId") Long productId);
+
+
 }
