@@ -1,6 +1,7 @@
 package com.finalProject.ali.image.service;
 
-import org.springframework.beans.factory.annotation.Value; // lombok.Value가 아닌 이 패키지여야 합니다!
+import net.coobird.thumbnailator.Thumbnails; // [추가] 썸네일 라이브러리
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
@@ -10,31 +11,45 @@ import java.util.UUID;
 @Service
 public class ImageService {
 
-    // 1. properties에서 경로 주입 (하드코딩 제거)
     @Value("${file.upload.path}")
     private String uploadPath;
+
+    // [추가] 경로 끝에 '/'가 없으면 붙여주는 안전장치 (리눅스 경로 에러 방지용)
+    private String getUploadPath() {
+        return uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+    }
 
     public String uploadImage(MultipartFile file, String folderName) {
         if (file == null || file.isEmpty()) return null;
 
-        // 2. 물리적 저장 경로 생성 (예: D:/upload/ali_uploads/profiles/)
-        String fullPath = uploadPath + folderName + "/";
+        // 1. 경로 생성 (getUploadPath 사용으로 안전성 강화)
+        String fullPath = getUploadPath() + folderName + "/";
         File folder = new File(fullPath);
         if (!folder.exists()) folder.mkdirs();
 
-        // 3. 파일명 중복 방지
+        // 2. UUID 파일명 생성 (기존 방식 유지)
         String originalName = file.getOriginalFilename();
-        String extension = originalName.substring(originalName.lastIndexOf("."));
+        String extension = originalName != null && originalName.contains(".")
+                ? originalName.substring(originalName.lastIndexOf("."))
+                : ".jpg";
         String savedName = UUID.randomUUID().toString() + extension;
 
-        try {
-            // 4. 실제 파일 저장
-            file.transferTo(new File(fullPath + savedName));
+        File targetFile = new File(fullPath + savedName);
 
-            // 5. DB에 저장할 웹 경로 반환 (예: /upload/profiles/uuid.jpg)
+        try {
+            // [수정] file.transferTo(...) 대신 Thumbnailator 사용
+            // 메모리에서 이미지를 읽어 리사이징 후 저장합니다.
+            Thumbnails.of(file.getInputStream())
+                    .size(800, 800)        // 최대 크기 800x800 (비율 유지됨)
+                    .outputQuality(0.8)    // 화질 80% (용량 대폭 감소)
+                    .toFile(targetFile);   // 저장
+
+            // 성공 시 경로 반환
             return "/upload/" + folderName + "/" + savedName;
+
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("❌ [ImageService] 이미지 변환 저장 실패");
             return null;
         }
     }
@@ -42,9 +57,9 @@ public class ImageService {
     public void deleteActualFile(String webPath) {
         if (webPath == null || webPath.isEmpty()) return;
 
-        // 6. 웹 경로를 물리 경로로 변환하여 삭제
+        // 웹 경로를 물리 경로로 변환 (getUploadPath 사용)
         String relativePath = webPath.replace("/upload/", "");
-        File file = new File(uploadPath + relativePath);
+        File file = new File(getUploadPath() + relativePath);
 
         if (file.exists()) {
             file.delete();
