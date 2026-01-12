@@ -3,6 +3,7 @@ package com.finalProject.ali.product.service;
 import com.finalProject.ali.product.category.dto.CategoryDTO;
 import com.finalProject.ali.product.dao.ProductDAO;
 import com.finalProject.ali.product.dto.ProductDTO;
+import com.finalProject.ali.product.dto.ProductSearchSummaryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +69,24 @@ public class ProductService {
 
     public List<ProductDTO> getProductsByCategory(String categoryId) {
         return productDAO.findByCategoryId(categoryId);
+    }
+
+    private boolean isCategorySearch(List<ProductSearchSummaryDTO> products) {
+
+        if (products == null || products.isEmpty()) {
+            return false;
+        }
+
+        String firstCategory = products.get(0).getCategoryName();
+
+        // 🔒 null 방어
+        if (firstCategory == null) {
+            return false;
+        }
+
+        return products.stream()
+                .map(ProductSearchSummaryDTO::getCategoryName)
+                .allMatch(c -> firstCategory.equals(c));
     }
 
 

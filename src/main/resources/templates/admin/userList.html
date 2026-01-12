@@ -54,31 +54,54 @@
       </td>
 
       <td>
-        <span th:if="${user.status == 'ACTIVE'}" class="badge active">활동중</span>
-        <span th:if="${user.status == 'SUSPENDED'}" class="badge suspended">정지됨</span>
+        <div th:if="${user.status == 'ACTIVE'}">
+          <span class="badge active">활동중</span>
+        </div>
+
+        <div th:if="${user.status == 'SUSPENDED'}">
+          <span class="badge suspended">정지됨</span>
+          <div style="font-size: 11px; color: red; margin-top: 4px;"
+               th:text="${user.suspensionReason}"></div>
+        </div>
       </td>
 
       <td>
-        <form th:action="@{/admin/users/status}" method="post" style="display:inline;">
+        <form th:if="${user.status == 'ACTIVE'}"
+              th:action="@{/admin/users/status}" method="post"
+              style="display:inline;"
+              onsubmit="return promptReason(this);">
           <input type="hidden" name="userId" th:value="${user.userId}">
+          <input type="hidden" name="status" value="SUSPENDED">
+          <input type="hidden" name="reason" id="reasonInput">
 
-          <button th:if="${user.status == 'ACTIVE'}"
-                  type="submit" name="status" value="SUSPENDED"
-                  class="btn-suspend"
-                  onclick="return confirm('정말 이 계정을 정지시키겠습니까?');">
-            정지
-          </button>
+          <button type="submit" class="btn-suspend">정지</button>
+        </form>
 
-          <button th:if="${user.status == 'SUSPENDED'}"
-                  type="submit" name="status" value="ACTIVE"
-                  class="btn-activate">
-            해제
-          </button>
+        <form th:if="${user.status == 'SUSPENDED'}"
+              th:action="@{/admin/users/status}" method="post"
+              style="display:inline;">
+          <input type="hidden" name="userId" th:value="${user.userId}">
+          <button type="submit" name="status" value="ACTIVE" class="btn-activate">해제</button>
         </form>
       </td>
     </tr>
     </tbody>
   </table>
+
+  <script>
+    function promptReason(form) {
+      const reason = prompt("정지 사유를 입력해주세요:");
+      if (reason === null) return false; // 취소
+      if (reason.trim() === "") {
+        alert("사유를 반드시 입력해야 합니다.");
+        return false;
+      }
+
+      // form 안에 있는 hidden input(name="reason")에 값 넣기
+      form.reason.value = reason;
+      return true; // 전송 진행
+    }
+  </script>
 </section>
 </body>
 </html>
