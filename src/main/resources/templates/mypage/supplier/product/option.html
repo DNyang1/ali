@@ -1,72 +1,80 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="${pageTitle} ?: '옵션 관리'">옵션 관리</title>
-    <link rel="stylesheet" href="/mypage/supplier/css/product.css">
-</head>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, null)">
 
-<body>
+    <th:block th:fragment="content">
 
-<section class="panel">
-    <header class="panel-head">
-        <h2 class="panel-title">옵션 관리</h2>
-        <a class="panel-link" th:href="@{/mypage/supplier/product/{id}(id=${productId})}">상품 상세</a>
-    </header>
+        <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-    <div class="panel-body">
-        <p style="font-size:12px; opacity:.8; margin:0 0 12px;">
-            * SKU가 등록되기 전까지만 옵션을 비활성화할 수 있습니다.
-        </p>
+            <!-- 헤더 -->
+            <header class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">옵션 관리</h2>
+                    <p class="mt-1 text-sm text-slate-500">
+                        * SKU가 등록되기 전까지만 옵션을 비활성화할 수 있습니다.
+                    </p>
+                </div>
 
-        <table class="table">
-            <thead>
-            <tr>
-                <th>optionId</th>
-                <th>name</th>
-                <th>value</th>
-                <th>status</th>
-                <th>토글</th>
-            </tr>
-            </thead>
+                <a th:href="@{/mypage/supplier/product/{id}(id=${productId})}"
+                   class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                    상품 상세
+                </a>
+            </header>
 
-            <tbody>
-            <tr th:if="${#lists.isEmpty(options)}">
-                <td colspan="5">옵션이 없습니다.</td>
-            </tr>
+            <div class="px-5 py-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                        <tr class="text-left text-slate-500">
+                            <th class="py-2 font-semibold">optionId</th>
+                            <th class="py-2 font-semibold">name</th>
+                            <th class="py-2 font-semibold">value</th>
+                            <th class="py-2 font-semibold">status</th>
+                            <th class="py-2 font-semibold">토글</th>
+                        </tr>
+                        </thead>
 
-            <tr th:each="o : ${options}">
-                <td th:text="${o.optionId}">id</td>
-                <td th:text="${o.optionName}">Color</td>
-                <td th:text="${o.optionValue}">RED</td>
+                        <tbody class="divide-y divide-slate-100">
+                        <tr th:if="${#lists.isEmpty(options)}">
+                            <td colspan="5" class="py-4 text-slate-500">옵션이 없습니다.</td>
+                        </tr>
 
-                <td>
-                    <span class="status"
-                          th:classappend="${o.status == 'ACTIVE'} ? ' ok' : ' off'"
-                          th:text="${o.status}">
-                        ACTIVE
-                    </span>
-                </td>
+                        <tr th:each="o : ${options}" class="align-middle">
+                            <td class="py-3 font-medium text-slate-900" th:text="${o.optionId}">id</td>
+                            <td class="py-3 text-slate-800" th:text="${o.optionName}">Color</td>
+                            <td class="py-3 text-slate-800" th:text="${o.optionValue}">RED</td>
 
-                <td>
-                    <form th:action="@{/mypage/supplier/product/{pid}/option-values/{ovid}/toggle(pid=${productId}, ovid=${o.optionValueId})}"
-                          method="post" class="inline-form">
-                        <button type="submit"
-                                th:classappend="${o.status == 'ACTIVE'} ? ' danger' : ' primary'"
-                                th:text="${o.status == 'ACTIVE' ? '비활성화' : '활성화'}">
-                            토글
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</section>
-<script th:if="${param.error != null}">
-    alert('이미 SKU에 사용된 옵션은 비활성화할 수 없습니다.');
-</script>
-</body>
-</html>
+                            <td class="py-3">
+                                <!-- status badge -->
+                                <span
+                                        class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold"
+                                        th:classappend="${o.status == 'ACTIVE'} ? ' bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : ' bg-slate-100 text-slate-700 ring-1 ring-slate-200'"
+                                        th:text="${o.status}">
+                  ACTIVE
+                </span>
+                            </td>
+
+                            <td class="py-3">
+                                <form th:action="@{/mypage/supplier/product/{pid}/option-values/{ovid}/toggle(pid=${productId}, ovid=${o.optionValueId})}"
+                                      method="post">
+                                    <button type="submit"
+                                            class="inline-flex items-center rounded-xl px-3 py-2 text-xs font-bold text-white transition"
+                                            th:classappend="${o.status == 'ACTIVE'} ? ' bg-rose-600 hover:bg-rose-700' : ' bg-blue-600 hover:bg-blue-700'"
+                                            th:text="${o.status == 'ACTIVE' ? '비활성화' : '활성화'}">
+                                        토글
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 기존 alert 유지 -->
+        <script th:if="${param.error != null}">
+            alert('이미 SKU에 사용된 옵션은 비활성화할 수 없습니다.');
+        </script>
+
+    </th:block>
+</th:block>
