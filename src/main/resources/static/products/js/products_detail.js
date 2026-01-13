@@ -1,4 +1,5 @@
 let modalMode = null;
+let isTimeSaleActive = true;
 
 const RAW_SKUS = window.SKUS || [];
 const PARSED_SKUS = Array.isArray(RAW_SKUS)
@@ -10,6 +11,26 @@ const DEFAULT_PRICE_RULES_SAFE =
 
 console.log('JS PARSED_SKUS 👉', PARSED_SKUS);
 console.log('JS PRICE RULES 👉', DEFAULT_PRICE_RULES_SAFE);
+
+function getDiscountedUnitPrice(unitPrice) {
+    if (!isTimeSaleActive) return unitPrice;
+
+    const box = document.querySelector('.time-sale-box');
+    if (!box) return unitPrice;
+
+    const type = box.dataset.type;
+    const value = Number(box.dataset.value);
+
+    if (type === 'RATE') {
+        return Math.floor(unitPrice * (100 - value) / 100);
+    }
+
+    if (type === 'AMOUNT') {
+        return Math.max(0, unitPrice - value);
+    }
+
+    return unitPrice;
+}
 
 
 function closeModal() {
@@ -108,12 +129,14 @@ function renderSkuList(skus) {
 
     skus.forEach(sku => {
         const unitPrice = findUnitPriceByQty(sku.priceRules || [], MOQ);
+        const discounted = getDiscountedUnitPrice(unitPrice);
         const optionText = sku.optionSummary?.trim() || '옵션 없음';
 
         const row = document.createElement('div');
         row.className = 'sku-row';
         row.dataset.skuId = sku.skuId;
         row.dataset.unitPrice = unitPrice;
+        row.dataset.discountedUnitPrice = discounted;
 
         row.innerHTML = `
             <div class="sku-left">
@@ -123,7 +146,7 @@ function renderSkuList(skus) {
             </div>
 
             <div class="sku-right">
-                <div class="sku-price">₩${unitPrice.toLocaleString()}</div>
+                <div class="sku-price"></div>
 
                 <div class="qty-box">
                     <button class="qty-minus">-</button>
@@ -133,11 +156,18 @@ function renderSkuList(skus) {
             </div>
         `;
 
+        const priceEl = row.querySelector('.sku-price');
+        priceEl.innerText =
+            discounted !== unitPrice
+                ? `₩${discounted.toLocaleString()} (할인)`
+                : `₩${unitPrice.toLocaleString()}`;
+
         container.appendChild(row);
     });
 
     bindSkuQtyEvents();
 }
+
 
 
 function renderAllSkuInfo() {
@@ -193,8 +223,15 @@ function bindSkuQtyEvents() {
             input.value = qty;
 
             const unitPrice = resolveUnitPriceByQty(skuId, qty);
+            const discounted = getDiscountedUnitPrice(unitPrice);
+
             row.dataset.unitPrice = unitPrice;
-            priceEl.innerText = `₩${unitPrice.toLocaleString()}`;
+            row.dataset.discountedUnitPrice = discounted;
+
+            priceEl.innerText =
+                discounted !== unitPrice
+                    ? `₩${discounted.toLocaleString()} (할인)`
+                    : `₩${unitPrice.toLocaleString()}`;
 
             updateSummary();
         }
@@ -221,7 +258,8 @@ function updateSummary() {
 
     document.querySelectorAll('.sku-row').forEach(row => {
         const qty = Number(row.querySelector('.qty-input')?.value || 0);
-        const unitPrice = Number(row.dataset.unitPrice);
+        const unitPrice =
+            Number(row.dataset.discountedUnitPrice || row.dataset.unitPrice);
 
         totalQty += qty;
         totalPrice += qty * unitPrice;
@@ -293,12 +331,22 @@ function renderPriceTiers(priceRules) {
     if (!container) return;
 
     container.innerHTML = '';
+
     priceRules.forEach(r => {
+        const original = Number(r.unitPrice);
+        const discounted = getDiscountedUnitPrice(original);
+
         const li = document.createElement('li');
+
         li.innerHTML = `
-            <span>${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개</span>
-            <span>₩${Number(r.unitPrice).toLocaleString()}</span>
+            <span>
+                ${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개
+            </span>
+            <span>
+                ₩${discounted.toLocaleString()}
+            </span>
         `;
+
         container.appendChild(li);
     });
 }
@@ -308,15 +356,99 @@ function renderMainPriceTiers(priceRules) {
     if (!container) return;
 
     container.innerHTML = '';
+
     priceRules.forEach(r => {
+        const original = Number(r.unitPrice);
+        const discounted = getDiscountedUnitPrice(original);
+
         const div = document.createElement('div');
+        div.className = 'main-price-tier';
+
         div.innerHTML = `
-            <div>${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개</div>
-            <div>₩${Number(r.unitPrice).toLocaleString()}</div>
+            <div class="tier-qty">
+                ${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개
+            </div>
+
+            ${
+            discounted !== original
+                ? `
+                        <div class="tier-price original">
+                            ₩${original.toLocaleString()}
+                        </div>
+                        <div class="tier-price discounted">
+                            ₩${discounted.toLocaleString()}
+                        </div>
+                      `
+                : `
+                        <div class="tier-price">
+                            ₩${original.toLocaleString()}
+                        </div>
+                      `
+        }
         `;
+
         container.appendChild(div);
     });
 }
+
+
+
+(function () {
+    const el = document.querySelector('.time-sale-countdown');
+    if (!el) return;
+
+    const endAt = new Date(el.dataset.endAt).getTime();
+
+    const timer = setInterval(() => {
+        const now = Date.now();
+        const diff = endAt - now;
+
+        if (diff <= 0) {
+            el.innerText = '종료됨';
+            clearInterval(timer);
+
+            isTimeSaleActive = false;
+
+            restoreOriginalPrices();
+            return;
+        }
+
+        const day = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hour = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const min = Math.floor((diff / (1000 * 60)) % 60);
+
+        let text = '종료까지 ';
+        if (day > 0) text += `${day}일 `;
+        if (hour > 0 || day > 0) text += `${hour}시간 `;
+        text += `${min}분`;
+
+        el.innerText = text;
+    }, 1000);
+})();
+
+function restoreOriginalPrices() {
+    const rules = getRepresentativePriceRules(PARSED_SKUS);
+    renderMainPriceTiers(rules);
+    renderPriceTiers(rules);
+
+    document.querySelectorAll('.sku-row').forEach(row => {
+        const skuId = row.dataset.skuId;
+        const qty = Number(row.querySelector('.qty-input')?.value || 0);
+
+        const unitPrice = resolveUnitPriceByQty(skuId, qty);
+
+        row.dataset.unitPrice = unitPrice;
+        row.dataset.discountedUnitPrice = unitPrice;
+
+        const priceEl = row.querySelector('.sku-price');
+        if (priceEl) {
+            priceEl.innerText = `₩${unitPrice.toLocaleString()}`;
+        }
+    });
+
+    updateSummary();
+}
+
 
 /* ======================================================
    🔧 DEV ONLY : SKU 직접 선택 블록 (ORDER / CART 공통)
