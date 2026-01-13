@@ -1,54 +1,91 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <div th:fragment="inquiryList(inquiries, mode)">
+<div th:fragment="inquiryList(inquiries, mode)">
 
-    <h2 th:text="${mode == 'supplier' ? '받은 문의' : '내 문의'}">문의 목록</h2>
+  <!-- Title -->
+  <div class="flex items-end justify-between gap-3">
+    <h2 class="text-xl font-semibold tracking-tight"
+        th:text="${mode == 'supplier' ? '받은 문의' : '내 문의'}">문의 목록</h2>
 
-    <div th:if="${#lists.isEmpty(inquiries)}" style="margin-top:12px;">
-      문의가 없습니다.
-    </div>
-
-    <table th:if="${!#lists.isEmpty(inquiries)}" style="width:100%; margin-top:12px; border-collapse: collapse;">
-      <thead>
-      <tr>
-        <th style="border-bottom:1px solid #ddd; padding:8px;">번호</th>
-        <th style="border-bottom:1px solid #ddd; padding:8px;">상품ID</th>
-        <th style="border-bottom:1px solid #ddd; padding:8px;">내용</th>
-        <th style="border-bottom:1px solid #ddd; padding:8px;">상태</th>
-        <th style="border-bottom:1px solid #ddd; padding:8px;">작성일</th>
-        <th style="border-bottom:1px solid #ddd; padding:8px;">상세</th>
-      </tr>
-      </thead>
-
-      <tbody>
-      <tr th:each="inq : ${inquiries}">
-        <td style="border-bottom:1px solid #eee; padding:8px;" th:text="${inq.inquiryId}">1</td>
-        <td style="border-bottom:1px solid #eee; padding:8px;" th:text="${inq.productId}">10</td>
-
-        <td style="border-bottom:1px solid #eee; padding:8px;"
-            th:text="${#strings.abbreviate(inq.content, 30)}">내용...</td>
-
-        <!-- 상태 라벨 -->
-        <td style="border-bottom:1px solid #eee; padding:8px;">
-          <span th:if="${inq.status == 0}">답변대기</span>
-          <span th:if="${inq.status == 1}">진행중</span>
-          <span th:if="${inq.status == 2}">종료</span>
-        </td>
-
-        <td style="border-bottom:1px solid #eee; padding:8px;" th:text="${inq.createdAt}">2026-01-07</td>
-
-        <td style="border-bottom:1px solid #eee; padding:8px;">
-          <a th:if="${mode == 'user'}"
-             th:href="@{/inquiry/user/detail/{id}(id=${inq.inquiryId})}">보기</a>
-
-          <a th:if="${mode == 'supplier'}"
-             th:href="@{/inquiry/supplier/detail/{id}(id=${inq.inquiryId})}">보기</a>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-
+    <!-- optional: count -->
+    <div class="text-sm text-slate-500"
+         th:if="${inquiries != null}"
+         th:text="|총 ${#lists.size(inquiries)}건|">총 0건</div>
   </div>
+
+  <!-- Empty -->
+  <div th:if="${#lists.isEmpty(inquiries)}"
+       class="mt-4 rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
+    문의가 없습니다.
+  </div>
+
+  <!-- Table -->
+  <div th:if="${!#lists.isEmpty(inquiries)}"
+       class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50">
+        <tr class="text-left text-slate-600">
+          <th class="whitespace-nowrap px-4 py-3 font-medium">번호</th>
+          <th class="whitespace-nowrap px-4 py-3 font-medium">상품ID</th>
+          <th class="px-4 py-3 font-medium">내용</th>
+          <th class="whitespace-nowrap px-4 py-3 font-medium">상태</th>
+          <th class="whitespace-nowrap px-4 py-3 font-medium">작성일</th>
+          <th class="whitespace-nowrap px-4 py-3 font-medium">상세</th>
+        </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100">
+        <tr th:each="inq : ${inquiries}" class="hover:bg-slate-50/60">
+          <td class="whitespace-nowrap px-4 py-3 text-slate-900"
+              th:text="${inq.inquiryId}">1</td>
+
+          <td class="whitespace-nowrap px-4 py-3 text-slate-900"
+              th:text="${inq.productId}">10</td>
+
+          <td class="px-4 py-3 text-slate-700">
+            <span th:text="${#strings.abbreviate(inq.content, 30)}">내용...</span>
+          </td>
+
+          <!-- status badge -->
+          <td class="whitespace-nowrap px-4 py-3">
+            <span th:if="${inq.status == 0}"
+                  class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
+              답변대기
+            </span>
+            <span th:if="${inq.status == 1}"
+                  class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200">
+              진행중
+            </span>
+            <span th:if="${inq.status == 2}"
+                  class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 ring-1 ring-inset ring-slate-200">
+              종료
+            </span>
+          </td>
+
+          <td class="whitespace-nowrap px-4 py-3 text-slate-600"
+              th:text="${inq.createdAt}">2026-01-07</td>
+
+          <td class="whitespace-nowrap px-4 py-3">
+            <a th:if="${mode == 'user'}"
+               th:href="@{/inquiry/user/detail/{id}(id=${inq.inquiryId})}"
+               class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+              보기
+            </a>
+
+            <a th:if="${mode == 'supplier'}"
+               th:href="@{/inquiry/supplier/detail/{id}(id=${inq.inquiryId})}"
+               class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+              보기
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 </body>
 </html>

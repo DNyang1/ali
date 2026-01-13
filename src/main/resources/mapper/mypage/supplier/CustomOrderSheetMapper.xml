@@ -91,5 +91,18 @@
         WHERE order_id = #{orderId}
             LIMIT 1
     </select>
+    <select id="countBySupplierAndStatus" resultType="long">
+        SELECT COUNT(*)
+        FROM custom_order_sheet cos
+                 JOIN products p ON cos.product_id = p.product_id
+        WHERE p.supplier_id = #{supplierId}
+          AND cos.status = #{status}
+    </select>
+
+
+
+
+
+
 
 </mapper>
