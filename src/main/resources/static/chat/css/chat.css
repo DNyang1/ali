@@ -426,3 +426,40 @@
 .chat-body{
     display: block;   /* 제일 안전 */
 }
+
+.ai-bar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:10px;
+    border-top:1px solid #eee;
+}
+
+.ai-chips{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    flex:1;
+}
+
+.ai-chip{
+    border:1px solid #ddd;
+    border-radius:999px;
+    padding:6px 10px;
+    background:#fff;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.ai-chip.active{
+    border-color:#333;
+}
+
+.ai-draft-btn{
+    border:1px solid #333;
+    border-radius:10px;
+    padding:8px 12px;
+    background:#fff;
+    cursor:pointer;
+    white-space:nowrap;
+}
