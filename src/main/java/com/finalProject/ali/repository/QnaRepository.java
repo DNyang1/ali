@@ -4,13 +4,18 @@ import com.finalProject.ali.entity.Qna;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
+// <Entity 클래스, PK 타입>
 public interface QnaRepository extends JpaRepository<Qna, Long> {
 
-    // 1. 관리자용: 답변 안 달린 것만 가져오기 (WAITING 상태인 것 최신순)
-    List<Qna> findByStatusOrderByCreatedAtDesc(String status);
-
-    // 2. 유저용: 내가 쓴 QnA만 가져오기
+    // 1. [유저용] 내가 쓴 질문 목록 조회 (최신순 정렬)
+    // SQL: SELECT * FROM qna WHERE writer_id = ? ORDER BY created_at DESC
     List<Qna> findByWriterIdOrderByCreatedAtDesc(String writerId);
 
-    // (기본 findAll(), findById(), save() 등은 이미 들어있음)
+    // 2. [관리자용] 답변 대기중인 질문 목록 조회 (상태별 + 최신순)
+    // SQL: SELECT * FROM qna WHERE status = ? ORDER BY created_at DESC
+    List<Qna> findByStatusOrderByCreatedAtDesc(String status);
+
+    // 3. [관리자용] 전체 질문 목록 조회 (최신순)
+    // SQL: SELECT * FROM qna ORDER BY created_at DESC
+    List<Qna> findAllByOrderByCreatedAtDesc();
 }

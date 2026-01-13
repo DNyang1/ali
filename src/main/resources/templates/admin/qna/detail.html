@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::section}, ~{::link})}">
+<head>
+  <link rel="stylesheet" href="/admin/css/qna.css"/>
+</head>
+<body>
+<section>
+  <h2>문의 상세</h2>
+
+  <div class="qna-view">
+    <div class="qna-header">
+      <h3 th:text="${qna.title}">제목</h3>
+      <div class="meta-info">
+        <span th:text="${qna.writerId}">작성자</span> |
+        <span th:text="${#temporals.format(qna.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+      </div>
+    </div>
+    <div class="qna-body">
+      <pre th:text="${qna.content}">내용</pre>
+    </div>
+  </div>
+
+  <div class="answer-view" th:if="${qna.answer != null}">
+    <div class="answer-header">
+      <h3>📢 관리자 답변</h3>
+      <span th:text="${#temporals.format(qna.answeredAt, 'yyyy-MM-dd HH:mm')}"></span>
+    </div>
+    <div class="answer-body">
+      <pre th:text="${qna.answer}">답변 내용</pre>
+    </div>
+  </div>
+
+  <div class="answer-form-box"
+       th:if="${qna.answer == null and session.loginUser != null and session.loginUser.roles.contains('ROLE_ADMIN')}">
+    <h3>답변 등록</h3>
+    <form th:action="@{/qna/answer/{id}(id=${qna.qnaId})}" method="post">
+      <textarea name="answer" rows="5" required placeholder="답변 내용을 입력하세요"></textarea>
+      <div class="btn-group-right">
+        <button type="submit" class="btn-admin">답변 완료</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="btn-group">
+    <a th:href="@{/qna/list}" class="btn-secondary">목록으로</a>
+  </div>
+
+</section>
+</body>
+</html>

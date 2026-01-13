@@ -47,7 +47,7 @@ jobs:
             
             # 3. [핵심] Systemd를 이용해 서버 재시작
             # (이제 nohup 대신 이 명령어가 알아서 다 해줍니다)
-            sudo systemctl restart ali
+            sudo systemctl restart ali 
             
             # 4. 잘 켜졌는지 상태 확인 (로그 10줄 출력)
             sleep 5

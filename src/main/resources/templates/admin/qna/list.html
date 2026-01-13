@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/base :: layout(~{::section}, ~{::link})}">
+<head>
+    <link rel="stylesheet" href="/admin/css/qna.css"/>
+</head>
+<body>
+<section>
+    <div class="page-header">
+        <h2>1:1 문의 관리</h2>
+        <a th:href="@{/qna/write}" class="btn-primary">문의하기</a>
+    </div>
+
+    <div th:if="${qnaList == null or qnaList.isEmpty()}" class="empty-list">
+        등록된 문의가 없습니다.
+    </div>
+
+    <table th:unless="${qnaList == null or qnaList.isEmpty()}">
+        <thead>
+        <tr>
+            <th width="10%">번호</th>
+            <th width="10%">상태</th>
+            <th width="50%">제목</th>
+            <th width="15%">작성자</th>
+            <th width="15%">작성일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="qna : ${qnaList}" class="clickable-row"
+            th:onclick="|location.href='@{/qna/detail/{id}(id=${qna.qnaId})}'|">
+            <td th:text="${qna.qnaId}"></td>
+            <td>
+                <span th:if="${qna.status == 'WAITING'}" class="badge waiting">대기중</span>
+                <span th:if="${qna.status == 'COMPLETED'}" class="badge completed">답변완료</span>
+            </td>
+            <td th:text="${qna.title}" style="text-align: left; padding-left: 20px;"></td>
+            <td th:text="${qna.writerId}"></td>
+            <td th:text="${#temporals.format(qna.createdAt, 'yyyy-MM-dd')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
