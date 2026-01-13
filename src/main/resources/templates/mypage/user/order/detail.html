@@ -38,18 +38,85 @@
             <div>주문일: ${data.createdAt}</div>
             <hr/>
             ${data.items.map(i => `
-                <div>
+                <div class="order-item-container" style="border: 1px solid #eee; padding: 10px; margin-bottom: 10px;">
                     이름: ${i.productName}</br>
                     옵션: ${i.optionSummary ?? '-'}</br>
                     SKU: ${i.skuId} </br>
                     수량: ${i.quantity} </br>
                     금액: ${i.lineAmount}원</br>
                     상태: ${i.status}</br>
-                    배송사: ${i.carrier}</br>
-                    송장번호: ${i.trackingNo}</br>
+                    배송사: ${i.carrier ?? '정보 없음'}</br>
+                    송장번호: ${i.trackingNo ?? '정보 없음'}</br>
+                    ${i.orderItemId && i.carrier && i.trackingNo ? `<button type="button" onclick="fetchShippingStatus(${i.orderItemId}, this)">배송 상태 조회</button>` : ''}
+                    <div id="shipping-status-${i.orderItemId}" style="margin-top: 10px;"></div> <!-- 배송 상태 표시될 곳 -->
                 </div>
             `).join('')}
         `;
+    }
+
+    function fetchShippingStatus(orderItemId, buttonElement) {
+        const shippingStatusDiv = document.getElementById(`shipping-status-${orderItemId}`);
+        // 이미 로딩 중이거나 조회된 정보가 있으면 토글
+        if (shippingStatusDiv.dataset.loaded === 'true') {
+            shippingStatusDiv.innerHTML = '';
+            shippingStatusDiv.dataset.loaded = 'false';
+            buttonElement.innerText = '배송 상태 조회';
+            return;
+        }
+
+        shippingStatusDiv.innerHTML = '<p>배송 상태를 로딩 중...</p>';
+        buttonElement.innerText = '로딩 중...';
+        buttonElement.disabled = true;
+
+        fetch(`/api/order-item/${orderItemId}/shipping`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('배송 상태 조회 실패: ' + res.statusText);
+                }
+                return res.json();
+            })
+            .then(shippingData => {
+                let historyHtml = `
+                    <h4 style="margin-top: 10px; margin-bottom: 5px;">실시간 배송 추적</h4>
+                    <p><strong>[${shippingData.carrier}]</strong> ${shippingData.trackingNo}</p>
+                    <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid #ddd; padding: 8px;">처리 시간</th>
+                                <th style="border: 1px solid #ddd; padding: 8px;">현재 위치</th>
+                                <th style="border: 1px solid #ddd; padding: 8px;">배송 상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (shippingData.trackingHistory && shippingData.trackingHistory.length > 0) {
+                     shippingData.trackingHistory.forEach(event => {
+                        historyHtml += `
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${event.time}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${event.location}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;"><strong>${event.description}</strong></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                     historyHtml += `<tr><td colspan="3" style="border: 1px solid #ddd; padding: 8px;">추적 정보가 없습니다.</td></tr>`;
+                }
+
+                historyHtml += `</tbody></table>`;
+                shippingStatusDiv.innerHTML = historyHtml;
+                shippingStatusDiv.dataset.loaded = 'true';
+                buttonElement.innerText = '배송 상태 숨기기';
+            })
+            .catch(err => {
+                console.error(err);
+                shippingStatusDiv.innerHTML = `<p style="color: red;">배송 상태를 불러올 수 없습니다: ${err.message}</p>`;
+                buttonElement.innerText = '배송 상태 조회';
+            })
+            .finally(() => {
+                buttonElement.disabled = false;
+            });
     }
 </script>
 

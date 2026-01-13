@@ -22,7 +22,7 @@ public class ProductService {
     }
 
     public ProductDTO productDetail(Long productId) {
-        return productDAO.productDetail(productId);
+        return productDAO.selectProductDetail(productId);
     }
 
     public List<ProductDTO> getProductsByCustom(boolean custom) {
@@ -89,6 +89,20 @@ public class ProductService {
                 .allMatch(c -> firstCategory.equals(c));
     }
 
+    public int countActiveDiscountProducts() {
+        return productDAO.countActiveDiscountProducts();
+    }
+
+    public int findMaxDiscountRate() {
+        Integer rate = productDAO.findMaxDiscountRate();
+        return rate != null ? rate : 0;
+    }
+
+    public List<ProductDTO> getDiscountProducts() {
+        return productDAO.selectDiscountProducts();
+    }
+
+
 
     //태민
     public List<ProductDTO> list(String supplierId) {
@@ -138,4 +152,7 @@ public class ProductService {
         return productDAO.findSupplierIdByProductId(productId);
     }
 
+    public List<ProductDTO> getDiscountProductsByCategory(String categoryId) {
+        return productDAO.selectDiscountProductsByCategory(categoryId);
+    }
 }

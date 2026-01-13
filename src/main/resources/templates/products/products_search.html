@@ -45,17 +45,46 @@
         <div class="info">
             <p class="name" th:text="${p.productName}"></p>
 
-            <p class="price" th:if="${p.minPrice != null}">
-                ₩
-                <span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
-                ~
-                ₩
-                <span th:text="${#numbers.formatInteger(p.maxPrice, 3, 'COMMA')}"></span>
-            </p>
+            <div class="price-box">
 
-            <p class="price" th:if="${p.minPrice == null}">
-                가격 문의
-            </p>
+                <th:block th:if="${p.discountType != null}">
+                    <span class="time-sale-badge">
+                        ⏰
+                        <span th:text="${p.discountType == 'RATE'
+                            ? p.discountValue + '%'
+                            : 'SALE'}"></span>
+                    </span>
+
+                    <div class="price-original">
+                        ₩<span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
+                    </div>
+
+                    <div class="price-discounted">
+                        ₩<span
+                            th:text="${#numbers.formatInteger(
+                    p.discountType == 'RATE'
+                    ? p.minPrice - (p.minPrice * p.discountValue / 100)
+                    : p.minPrice - p.discountValue,
+                3, 'COMMA')}">
+            </span>
+                    </div>
+                </th:block>
+
+                <th:block th:if="${p.discountType == null}">
+                    <p class="price" th:if="${p.minPrice != null}">
+                        ₩
+                        <span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
+                        ~
+                        ₩
+                        <span th:text="${#numbers.formatInteger(p.maxPrice, 3, 'COMMA')}"></span>
+                    </p>
+
+                    <p class="price" th:if="${p.minPrice == null}">
+                        가격 문의
+                    </p>
+                </th:block>
+
+            </div>
 
         </div>
     </div>

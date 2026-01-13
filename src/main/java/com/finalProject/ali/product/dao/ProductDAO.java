@@ -24,8 +24,8 @@ public interface ProductDAO {
 
     // 현성
     List<ProductDTO> productList();
-    ProductDTO productDetail(Long productId);
     List<ProductDTO> selectByCustom(@Param("isCustomizable") Long isCustomizable);
+    ProductDTO selectProductDetail(Long productId);
     List<ProductDTO> selectByRootCategory(
             @Param("categoryId") String categoryId);
     List<ProductDTO> selectByCategoryAndCustom(
@@ -42,5 +42,14 @@ public interface ProductDAO {
             @Param("categoryId") String categoryId,
             @Param("limit") int limit
     );
+
+    int countActiveDiscountProducts();
+
+    Integer findMaxDiscountRate();
+
+    List<ProductDTO> selectDiscountProducts();
+
+    List<ProductDTO> selectDiscountProductsByCategory(String categoryId);
+
 
 }

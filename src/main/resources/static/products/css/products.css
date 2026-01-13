@@ -88,3 +88,47 @@
     color: #999;
 }
 
+.time-sale-badge {
+    display: inline-block;
+    background: #ffecec;
+    color: #e60023;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+}
+
+.price-original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 13px;
+}
+
+.price-discounted {
+    color: #e60023;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.price-normal {
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+}
+
+.price-box {
+    margin-top: 6px;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #e60023;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+}

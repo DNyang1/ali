@@ -43,7 +43,6 @@
 
 <div class="all-category-overlay hidden" id="allCategoryOverlay">
     <div class="all-category-panel">
-        <!-- 닫기 버튼 -->
         <button class="category-close" id="categoryCloseBtn">✕</button>
 
         <div class="all-category-wrap">
@@ -66,40 +65,53 @@
         <ul id="categoryList"></ul>
     </aside>
 
-    <section class="recommend-wrapper">
+    <section class="recommend-row">
 
-        <!-- 이 안에서만 가로 스크롤 -->
-        <div class="recommend-horizontal">
+        <div class="recommend-wrapper">
 
-            <!-- 카테고리별 추천 박스 -->
-            <div class="recommend-block"
-                 th:each="entry : ${recommendByCategory}"
-                 th:if="${entry.value != null and #lists.size(entry.value) > 0}">
+            <div class="recommend-horizontal">
 
-                <div class="recommend-header">
-                    <h4>추천 더 보기</h4>
-                    <span th:text="${entry.key}"></span>
-                </div>
+                <div class="recommend-block"
+                     th:each="entry : ${recommendByCategory}"
+                     th:if="${entry.value != null and #lists.size(entry.value) > 0}">
 
-                <div class="recommend-cards">
-                    <div class="product-card"
-                         th:each="p : ${entry.value}">
-                        <a class="product-link" th:href="@{/products/{id}(id=${p.productId})}">
-
-                        <img th:src="|https://picsum.photos/seed/${p.productId}/200/200|">
-                        <span class="price"
-                              th:text="${p.minPrice != null ? '₩' + #numbers.formatInteger(p.minPrice,3,'COMMA') : '가격문의'}">
-                         </span>
-                        </a>
+                    <div class="recommend-header">
+                        <h4>추천 더 보기</h4>
+                        <span th:text="${entry.key}"></span>
                     </div>
+
+                    <div class="recommend-cards">
+                        <div class="product-card"
+                             th:each="p : ${entry.value}">
+                            <a class="product-link"
+                               th:href="@{/products/{id}(id=${p.productId})}">
+
+                                <img th:src="|https://picsum.photos/seed/${p.productId}/200/200|">
+                                <span class="price"
+                                      th:text="${p.minPrice != null
+                                      ? '₩' + #numbers.formatInteger(p.minPrice,3,'COMMA')
+                                      : '가격문의'}">
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
-
         </div>
-    </section>
 
+        <aside class="side-discount-banner">
+            <h3>🔥 최대 <span th:text="${maxDiscountRate}"></span>% 할인</h3>
+            <p>지금 주문하고<br>한정 혜택을 받아보세요</p>
+            <a href="/products/list?discount=true">
+                할인 상품 보기
+            </a>
+        </aside>
+
+    </section>
 </div>
+
 
 <section class="biz">
 

@@ -18,7 +18,10 @@
         p.updated_at,
 
         pr.min_price AS minPrice,
-        pr.max_price AS maxPrice
+        pr.max_price AS maxPrice,
+
+        e.discount_type  AS discountType,
+        e.discount_value AS discountValue
 
         FROM products p
 
@@ -28,44 +31,19 @@
         MIN(sp.price) AS min_price,
         MAX(sp.price) AS max_price
         FROM sku s
-        JOIN sku_price sp
-        ON sp.sku_id = s.sku_id
-        WHERE s.sku_id = (
-        SELECT MIN(s2.sku_id)
-        FROM sku s2
-        WHERE s2.product_id = s.product_id
-        )
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
         GROUP BY s.product_id
         ) pr
         ON pr.product_id = p.product_id
 
+        LEFT JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
         ORDER BY p.created_at DESC
-
-    </select>
-
-
-    <select id="productDetail"
-            parameterType="long"
-            resultType="com.finalProject.ali.product.dto.ProductDTO">
-        SELECT
-            p.product_id,
-            p.category_id,
-            p.supplier_id,
-            p.product_name,
-            p.description,
-            p.is_customizable,
-            p.created_at,
-            p.updated_at,
-            s.moq
-        FROM products p
-        LEFT JOIN sku s
-        ON s.sku_id = (
-        SELECT MIN(s2.sku_id)
-        FROM sku s2
-        WHERE s2.product_id = p.product_id
-        )
-
-        WHERE p.product_id = #{productId}
     </select>
 
 
@@ -79,28 +57,38 @@
             p.is_customizable,
             p.created_at,
             p.updated_at,
-            pr.min_price,
-            pr.max_price
+
+        pr.min_price,
+        pr.max_price,
+
+        e.discount_type  AS discountType,
+        e.discount_value AS discountValue
+
         FROM products p
+
         LEFT JOIN (
         SELECT
         s.product_id,
-        MIN(CAST(REPLACE(sp.price, ',', '') AS UNSIGNED)) AS min_price,
-        MAX(CAST(REPLACE(sp.price, ',', '') AS UNSIGNED)) AS max_price
+        MIN(sp.price) AS min_price,
+        MAX(sp.price) AS max_price
         FROM sku s
-        JOIN sku_price sp
-        ON sp.sku_id = s.sku_id
-        WHERE s.sku_id = (
-        SELECT MIN(s2.sku_id)
-        FROM sku s2
-        WHERE s2.product_id = s.product_id
-        )
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
         GROUP BY s.product_id
         ) pr
         ON pr.product_id = p.product_id
+
+        LEFT JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
         WHERE p.is_customizable = #{isCustomizable}
+
         ORDER BY p.created_at DESC
     </select>
+
 
     <select id="selectByRootCategory"
             parameterType="string"
@@ -129,7 +117,10 @@
         p.updated_at,
 
         pr.min_price AS minPrice,
-        pr.max_price AS maxPrice
+        pr.max_price AS maxPrice,
+
+        e.discount_type  AS discountType,
+        e.discount_value AS discountValue
 
         FROM products p
         JOIN category_tree ct
@@ -143,23 +134,24 @@
         FROM sku s
         JOIN sku_price sp
         ON sp.sku_id = s.sku_id
-        WHERE s.sku_id = (
-        SELECT MIN(s2.sku_id)
-        FROM sku s2
-        WHERE s2.product_id = s.product_id
-        )
         GROUP BY s.product_id
         ) pr
         ON pr.product_id = p.product_id
 
+        LEFT JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
         ORDER BY p.created_at DESC
-
     </select>
-
 
 
     <select id="selectByCategoryAndCustom"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
+
         WITH RECURSIVE cat_tree AS (
         SELECT category_id
         FROM category
@@ -169,12 +161,48 @@
 
         SELECT c.category_id
         FROM category c
-        JOIN cat_tree ct ON c.parent_id = ct.category_id
+        JOIN cat_tree ct
+        ON c.parent_id = ct.category_id
         )
-        SELECT p.*
+        SELECT
+        p.product_id,
+        p.category_id,
+        p.product_name,
+        p.description,
+        p.is_customizable,
+        p.created_at,
+        p.updated_at,
+
+        pr.min_price,
+        pr.max_price,
+
+        e.discount_type  AS discountType,
+        e.discount_value AS discountValue
+
         FROM products p
-        JOIN cat_tree ct ON p.category_id = ct.category_id
+        JOIN cat_tree ct
+        ON p.category_id = ct.category_id
+
+        LEFT JOIN (
+        SELECT
+        s.product_id,
+        MIN(sp.price) AS min_price,
+        MAX(sp.price) AS max_price
+        FROM sku s
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        GROUP BY s.product_id
+        ) pr
+        ON pr.product_id = p.product_id
+
+        LEFT JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
         WHERE p.is_customizable = #{isCustomizable}
+
         ORDER BY p.created_at DESC
     </select>
 
@@ -202,8 +230,13 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
+
         pr.min_price AS minPrice,
-        pr.max_price AS maxPrice
+        pr.max_price AS maxPrice,
+
+        e.discount_type  AS discountType,
+        e.discount_value AS discountValue,
+        e.end_at         AS eventEndAt
 
         FROM products p
 
@@ -227,6 +260,13 @@
         ) pr
         ON pr.product_id = p.product_id
 
+        LEFT JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
         WHERE
         p.product_name LIKE CONCAT('%', #{keyword}, '%')
         OR c.category_name LIKE CONCAT('%', #{keyword}, '%')
@@ -234,6 +274,7 @@
         ORDER BY p.created_at DESC
 
     </select>
+
 
     <select id="findByCategoryId"
             parameterType="string"
@@ -290,5 +331,166 @@
         WHERE p.status = 'ACTIVE'
         ORDER BY p.created_at DESC
         LIMIT #{limit};
+    </select>
+
+    <select id="selectProductDetail"
+            parameterType="long"
+            resultType="com.finalProject.ali.product.dto.ProductDTO">
+
+        SELECT
+        p.product_id      AS productId,
+        p.category_id     AS categoryId,
+        p.supplier_id     AS supplierId,
+        p.product_name    AS productName,
+        p.description     AS description,
+        p.is_customizable AS isCustomizable,
+
+        MIN(sp.price)     AS minPrice,
+        MAX(sp.price)     AS maxPrice,
+
+        e.discount_type   AS discountType,
+        e.discount_value  AS discountValue,
+        e.end_at          AS eventEndAt
+
+        FROM products p
+
+        LEFT JOIN sku s
+        ON s.product_id = p.product_id
+
+        LEFT JOIN sku_price sp
+        ON sp.sku_id = s.sku_id
+
+        LEFT JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
+        WHERE p.product_id = #{productId}
+
+        GROUP BY p.product_id
+    </select>
+
+    <select id="countActiveDiscountProducts" resultType="int">
+        SELECT COUNT(DISTINCT p.product_id)
+        FROM products p
+        JOIN event e
+        ON e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+    </select>
+
+    <select id="findMaxDiscountRate" resultType="int">
+        SELECT MAX(e.discount_value)
+        FROM event e
+        WHERE e.event_type = 'TIME_SALE'
+        AND e.discount_type = 'RATE'
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+    </select>
+
+    <select id="selectDiscountProducts"
+            resultType="com.finalProject.ali.product.dto.ProductDTO">
+
+        SELECT
+        p.product_id,
+        p.category_id,
+        p.supplier_id,
+        p.product_name,
+        p.description,
+        p.is_customizable,
+        p.created_at,
+        p.updated_at,
+
+        pr.min_price AS minPrice,
+        pr.max_price AS maxPrice,
+
+        e.discount_type  AS discountType,
+        e.discount_value AS discountValue,
+        e.end_at         AS eventEndAt
+
+        FROM products p
+
+        LEFT JOIN (
+        SELECT
+        s.product_id,
+        MIN(sp.price) AS min_price,
+        MAX(sp.price) AS max_price
+        FROM sku s
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        GROUP BY s.product_id
+        ) pr
+        ON pr.product_id = p.product_id
+
+        JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
+        ORDER BY e.discount_value DESC
+    </select>
+
+    <select id="selectDiscountProductsByCategory"
+            parameterType="string"
+            resultType="com.finalProject.ali.product.dto.ProductDTO">
+
+        WITH RECURSIVE cat_tree AS (
+        SELECT category_id
+        FROM category
+        WHERE category_id = #{categoryId}
+
+        UNION ALL
+
+        SELECT c.category_id
+        FROM category c
+        JOIN cat_tree ct
+        ON c.parent_id = ct.category_id
+        )
+        SELECT
+        p.product_id,
+        p.category_id,
+        p.supplier_id,
+        p.product_name,
+        p.description,
+        p.is_customizable,
+        p.created_at,
+        p.updated_at,
+
+        pr.min_price AS minPrice,
+        pr.max_price AS maxPrice,
+
+        e.discount_type  AS discountType,
+        e.discount_value AS discountValue,
+        e.end_at         AS eventEndAt
+
+        FROM products p
+        JOIN cat_tree ct
+        ON p.category_id = ct.category_id
+
+        LEFT JOIN (
+        SELECT
+        s.product_id,
+        MIN(sp.price) AS min_price,
+        MAX(sp.price) AS max_price
+        FROM sku s
+        JOIN sku_price sp
+        ON sp.sku_id = s.sku_id
+        GROUP BY s.product_id
+        ) pr
+        ON pr.product_id = p.product_id
+
+        JOIN event e
+        ON e.event_type = 'TIME_SALE'
+        AND e.target_type = 'PRODUCT'
+        AND e.target_id = p.product_id
+        AND e.is_active = 1
+        AND NOW() BETWEEN e.start_at AND e.end_at
+
+        ORDER BY e.discount_value DESC, p.created_at DESC
+
     </select>
 </mapper>

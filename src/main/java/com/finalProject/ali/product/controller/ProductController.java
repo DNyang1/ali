@@ -6,6 +6,7 @@ import com.finalProject.ali.product.service.ProductService;
 import com.finalProject.ali.product.service.SkuPriceService;
 import com.finalProject.ali.product.service.SkuService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import java.util.Map;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/products")
+@Slf4j
 public class ProductController {
 
     private final ProductService productService;
@@ -38,12 +40,25 @@ public class ProductController {
     public String productsList(
             @RequestParam(required = false) Boolean custom,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) Boolean discount,
             Model model) {
 
         List<ProductDTO> products;
         String pageTitle = "전체 상품";
 
-        if (category != null) {
+        if (Boolean.TRUE.equals(discount) && category != null) {
+            products = productService.getDiscountProductsByCategory(category);
+            pageTitle = "할인 상품";
+
+        } else if (Boolean.TRUE.equals(discount)) {
+            products = productService.getDiscountProducts();
+            pageTitle = "할인 상품";
+
+        } else if (custom != null && category != null) {
+            products = productService.getProductsByCategoryAndCustom(category, custom);
+            pageTitle = (custom ? "커스텀 " : "Ali ") + "카테고리 상품";
+
+        } else if (category != null) {
             products = productService.getProductsByRootCategory(category);
             pageTitle = "카테고리 상품";
 
@@ -63,10 +78,13 @@ public class ProductController {
         model.addAttribute("categories", productService.getRootCategories());
         model.addAttribute("custom", custom);
         model.addAttribute("category", category);
+        model.addAttribute("discount", discount);
         model.addAttribute("pageTitle", pageTitle);
 
         return "products/products_list";
     }
+
+
 
 
     @GetMapping("/{productId:\\d+}")
@@ -77,6 +95,15 @@ public class ProductController {
 
         ProductDTO product =
                 productService.productDetail(productId);
+
+        log.info(
+                "[EVENT CHECK] productId={}, discountType={}, discountValue={}, endAt={}",
+                productId,
+                product.getDiscountType(),
+                product.getDiscountValue(),
+                product.getEventEndAt()
+        );
+
 
         Map<String, List<StockOptionDTO>> options =
                 optionService.getStockOptions(productId);

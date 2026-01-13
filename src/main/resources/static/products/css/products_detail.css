@@ -256,16 +256,29 @@ body {
     text-align: center;
 }
 
-.main-price-tier .range {
+.main-price-tier .tier-qty {
     font-size: 14px;
     color: #666;
     margin-bottom: 4px;
 }
 
-.main-price-tier .price {
+.main-price-tier .tier-price {
     font-size: 24px;
     font-weight: bold;
     color: #222;
+}
+
+
+.main-price-tier .tier-price.original {
+    text-decoration: line-through;
+    color: #999;
+    font-weight: 400;
+}
+
+.main-price-tier .tier-price.discounted {
+    color: #e60023;
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .sku-info {
@@ -283,5 +296,36 @@ body {
     color: #333;
 }
 
+/* ===== 타임딜 ===== */
+.time-sale-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff4f4;
+    border: 1px solid #ff6b6b;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.time-sale-badge {
+    background: #ff3b3b;
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.time-sale-discount {
+    color: #d60000;
+    font-weight: bold;
+}
+
+.time-sale-countdown {
+    margin-left: auto;
+    font-size: 13px;
+    color: #333;
+}
 
 
