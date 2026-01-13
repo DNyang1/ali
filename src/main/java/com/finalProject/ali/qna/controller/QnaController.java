@@ -18,30 +18,32 @@ public class QnaController {
 
     private final QnaService qnaService;
 
-    // 1. 고객센터 메인 (내 문의 내역 + 글쓰기 버튼)
+    // 1. 고객센터 메인 (필터 추가)
     @GetMapping("/list")
-    public String list(Model model) {
+    public String list(@RequestParam(defaultValue = "true") boolean showAll, Model model) { // 기본값: 전체보기(true)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userId = auth.getName(); // 로그인한 유저 ID
+        String userId = auth.getName();
 
-        // 유저는 "내 문의"만 봐야 함 (isAdmin = false)
-        List<QnaDTO> qnaList = qnaService.getQnaList(userId, false);
+        // showAll 값에 따라 서비스 호출 (true: 전체, false: 내글)
+        List<QnaDTO> qnaList = qnaService.getQnaList(userId, showAll);
+
         model.addAttribute("qnaList", qnaList);
+        model.addAttribute("showAll", showAll); // 현재 어떤 모드인지 화면에 알려줌 (버튼 색상용)
 
-        return "qna/list"; // 👈 templates/inquiry/a_list.html (새로 만들 디자인)
+        return "qna/list";
     }
 
     // 2. 문의 작성 페이지
     @GetMapping("/write")
     public String writeForm() {
-        return "qna/write"; // 👈 templates/inquiry/write.html
+        return "qna/write";
     }
 
     // 3. 문의 등록 처리
     @PostMapping("/write")
     public String writeAction(@ModelAttribute QnaDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        dto.setWriterId(auth.getName()); // 작성자 강제 주입
+        dto.setWriterId(auth.getName());
 
         qnaService.createQna(dto);
         return "redirect:/qna/list";
@@ -52,13 +54,10 @@ public class QnaController {
     public String detail(@PathVariable Long id, Model model) {
         QnaDTO qna = qnaService.getQnaDetail(id);
 
-        // 보안 체크: 내 글이 아니면 튕겨내기 (관리자는 AdminController로 들어감)
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!qna.getWriterId().equals(auth.getName())) {
-            return "redirect:/qna/list";
-        }
+        // 🚨 중요: 공개 게시판이므로 "내 글 아니면 튕겨내기" 로직 삭제함!
+        // 이제 다른 사람 글도 클릭해서 내용을 볼 수 있습니다.
 
         model.addAttribute("qna", qna);
-        return "qna/detail"; // 👈 templates/inquiry/a_detail.html
+        return "qna/detail";
     }
 }

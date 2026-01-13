@@ -244,3 +244,35 @@ input[type="text"]:focus, textarea:focus {
     border-radius: 12px;
     border: 1px dashed #444;
 }
+
+/* ... 기존 코드 아래에 추가 ... */
+
+/* 필터 탭 스타일 */
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #3a3a3d;
+    padding-bottom: 10px;
+}
+
+.tab-btn {
+    text-decoration: none;
+    color: #888;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 20px;
+    transition: all 0.2s;
+    font-size: 15px;
+}
+
+.tab-btn:hover {
+    color: #ddd;
+    background-color: #333;
+}
+
+/* 활성화된 탭 (주황색 강조) */
+.tab-btn.active {
+    color: #fff;
+    background-color: #ff6f0f;
+}

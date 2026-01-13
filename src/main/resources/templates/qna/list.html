@@ -2,13 +2,13 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>QnA</title>
+  <title>고객센터</title>
   <link rel="stylesheet" href="/qna/css/qna.css">
 </head>
 <body>
 
 <div class="help-header">
-  <h1>🛍️ QnA</h1>
+  <h1>🛍️ 고객센터</h1>
   <a th:href="@{/}" class="btn-close">메인으로 나가기 ✕</a>
 </div>
 
@@ -18,18 +18,29 @@
     <span>무엇을 도와드릴까요?</span>
   </div>
 
-  <h3>내 문의 내역</h3>
+  <div class="filter-tabs">
+    <a th:href="@{/qna/list(showAll=true)}"
+       class="tab-btn"
+       th:classappend="${showAll} ? 'active' : ''">전체 문의</a>
+
+    <a th:href="@{/qna/list(showAll=false)}"
+       class="tab-btn"
+       th:classappend="${!showAll} ? 'active' : ''">내 문의만</a>
+  </div>
 
   <div class="qna-list">
     <div th:if="${qnaList.isEmpty()}" class="empty-msg">
-      아직 문의하신 내용이 없어요.
+      등록된 문의가 없습니다.
     </div>
 
     <div th:each="qna : ${qnaList}" class="qna-item"
          th:onclick="|location.href='@{/qna/detail/{id}(id=${qna.qnaId})}'|">
       <div>
         <div class="qna-title" th:text="${qna.title}">제목</div>
-        <div class="qna-date" th:text="${#temporals.format(qna.createdAt, 'yyyy.MM.dd')}">날짜</div>
+        <div class="qna-date">
+          <span th:text="${qna.writerId}" style="margin-right: 8px; color:#aaa;">작성자</span>
+          <span th:text="${#temporals.format(qna.createdAt, 'yyyy.MM.dd')}">날짜</span>
+        </div>
       </div>
       <div>
         <span th:if="${qna.status == 'WAITING'}" class="badge waiting">대기중</span>
