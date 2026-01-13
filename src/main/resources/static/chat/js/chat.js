@@ -6,6 +6,8 @@ const roomSubs = new Map();
 let currentRoomId = null;
 let currentUserId = null;
 
+let aiSelectedPurpose = null; // 마지막으로 선택한 칩 purpose (예: "MOQ")
+
 // Draft(LocalStorage) Utils
 const DRAFT_KEY_PREFIX = "chatDraftProductId:"; // roomId별 저장
 
@@ -56,6 +58,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     // 드래프트 바인딩(새로고침 복원 포함)
     bindProductDraft();
 
+    // AI UI
+    bindAiUI();           // 이벤트 바인딩(한 번만)
+    await refreshAiBar(); // 최초 진입 시 AI칩 로딩
+
     // WS 연결
     connect();
 
@@ -64,6 +70,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         await loadMessages(currentRoomId);
         await markRead(currentRoomId);
         setBadge(currentRoomId, 0);
+
+        // 혹시 메시지 로딩으로 문맥이 달라질 수 있으니 한 번 더
+        await refreshAiBar();
     }
 });
 
@@ -121,6 +130,10 @@ function subscribeRoomTopics(roomId) {
         if (toNum(msg.roomId) === toNum(currentRoomId)) {
             appendMessage(msg);
 
+            // ✅ 새 메시지가 화면에 반영되면, 그 즉시 AI 추천 질문도 갱신
+            // (상대/나 둘 다 포함. 문맥이 바뀌니까)
+            await refreshAiBar();
+
             // 상대가 보낸 메시지면: 내가 보고 있으니 즉시 읽음 처리 + 배지 0
             if (msg.senderId && msg.senderId !== currentUserId) {
                 await markRead(currentRoomId);
@@ -171,7 +184,7 @@ function bindRoomClicks() {
             el.classList.add("active");
 
             // 방 바꾸면 드래프트는 제거(정책 유지)
-            clearDraft(currentRoomId);      // 기존 방의 draft 제거
+            clearDraft(currentRoomId); // 기존 방의 draft 제거
             draftProductId = null;
             const draftEl = document.getElementById("productDraft");
             if (draftEl) draftEl.style.display = "none";
@@ -183,6 +196,15 @@ function bindRoomClicks() {
 
             const oppName = (el.dataset.opponentName || "").trim();
             setHeader(oppName || `Room #${rid}`, "");
+
+            // 방 바꾸면 입력창 리셋
+            const input = document.getElementById("messageInput");
+            if (input) {
+                input.value = "";
+                input.focus();
+            }
+
+            aiSelectedPurpose = null;
 
             // 메시지 로딩
             await loadMessages(rid);
@@ -200,6 +222,9 @@ function bindRoomClicks() {
 
             // 새 방의 드래프트 복원(있으면)
             bindProductDraft();
+
+            // 방 이동 후 AI칩도 해당 방 기준으로 갱신
+            await refreshAiBar();
         });
     });
 }
@@ -212,7 +237,7 @@ async function loadMessages(roomId) {
 
     const res = await fetch(`/chat/api/rooms/${roomId}/messages`, {
         method: "GET",
-        headers: { "Accept": "application/json" }
+        headers: { Accept: "application/json" },
     });
 
     if (!res.ok) {
@@ -248,8 +273,8 @@ function sendMessage() {
     const payload = {
         roomId: currentRoomId,
         senderId: currentUserId,
-        message: text || "",          // 텍스트 없이 상품만 보내도 OK
-        productId: draftProductId
+        message: text || "", // 텍스트 없이 상품만 보내도 OK
+        productId: draftProductId,
     };
 
     stompClient.send("/app/chat.send", {}, JSON.stringify(payload));
@@ -269,11 +294,19 @@ function sendMessage() {
         // URL에서 productId 제거
         const u = new URL(location.href);
         u.searchParams.delete("productId");
-        history.replaceState(null, "", u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : ""));
+        history.replaceState(
+            null,
+            "",
+            u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : "")
+        );
 
         // localStorage에서도 제거
         clearDraft(currentRoomId);
     }
+
+    // ✅ 내가 보낸 메시지로도 문맥이 바뀌므로 AI 추천 갱신
+    // (상대가 받기 전이어도 "내가 방금 무엇을 말했는지" 반영됨)
+    refreshAiBar();
 }
 
 function appendMessage(m) {
@@ -512,7 +545,6 @@ function bindProductDraft() {
     const draftEl = document.getElementById("productDraft");
     const linkEl = document.getElementById("productDraftLink");
     const removeBtn = document.getElementById("productDraftRemove");
-    const imgEl = draftEl?.querySelector(".product-draft__img img");
 
     if (!draftEl || !linkEl || !removeBtn) return;
 
@@ -573,9 +605,8 @@ function bindProductDraft() {
                 imgEl.src = s.thumbnailUrl;
                 imgEl.alt = s.productName || "상품 이미지";
                 imgEl.style.display = "block";
-                imgEl.onerror = () => imgEl.style.display = "none";
+                imgEl.onerror = () => (imgEl.style.display = "none");
             }
-
         } catch (e) {
             console.log("[draft summary] fail", e);
         }
@@ -588,17 +619,23 @@ function bindProductDraft() {
     }
 
     // X 버튼: 드래프트 숨기기 + 저장된 draft도 제거
-    removeBtn.onclick = () => {
+    removeBtn.onclick = async () => {
         draftEl.style.display = "none";
         draftProductId = null;
 
         // URL에서 productId 제거
         const u = new URL(location.href);
         u.searchParams.delete("productId");
-        history.replaceState(null, "", u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : ""));
+        history.replaceState(
+            null,
+            "",
+            u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : "")
+        );
 
         // localStorage에서도 제거
         if (rid) clearDraft(rid);
+
+        await refreshAiBar();
     };
 }
 
@@ -640,6 +677,215 @@ function applyProductSummary(card, summary) {
     if (imgEl && summary?.thumbnailUrl) {
         imgEl.src = summary.thumbnailUrl;
         imgEl.style.display = "";
-        imgEl.onerror = () => { imgEl.style.display = "none"; };
+        imgEl.onerror = () => {
+            imgEl.style.display = "none";
+        };
     }
+}
+
+/** =========================
+ *  AI (suggestions + draft)
+ *  ========================= */
+
+function bindAiUI() {
+    const draftBtn = document.getElementById("aiDraftBtn");
+    if (!draftBtn) return;
+
+    draftBtn.addEventListener("click", async () => {
+        if (!currentRoomId) return;
+
+        const purpose = aiSelectedPurpose || "PRICE";
+        const pid = draftProductId || null;
+
+        setAiLoading(true);
+        try {
+            const res = await fetch(`/chat/api/rooms/${currentRoomId}/ai/draft`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Accept: "application/json" },
+                body: JSON.stringify({ productId: pid, purpose }),
+            });
+
+            if (!res.ok) {
+                console.log("[AI] draft fail", res.status);
+                return;
+            }
+
+            const data = await res.json();
+            const draft = (data?.draft || "").trim();
+            if (!draft) return;
+
+            const input = document.getElementById("messageInput");
+            if (input) {
+                input.value = draft;
+                input.focus();
+            }
+        } catch (e) {
+            console.log("[AI] draft error", e);
+        } finally {
+            setAiLoading(false);
+        }
+    });
+}
+
+async function refreshAiBar() {
+    const bar = document.getElementById("aiBar");
+    const chipsEl = document.getElementById("aiChips");
+    if (!bar || !chipsEl) return;
+
+    // 방이 없으면 숨김
+    if (!currentRoomId) {
+        bar.style.display = "none";
+        return;
+    }
+
+    // 요청 시작하자마자 로딩 UI 먼저 보여주기
+    showAiSuggestionsLoading();
+
+    const pid = draftProductId || null;
+    const url = pid
+        ? `/chat/api/rooms/${currentRoomId}/ai/suggestions?productId=${encodeURIComponent(pid)}`
+        : `/chat/api/rooms/${currentRoomId}/ai/suggestions`;
+
+    try {
+        const res = await fetch(url, {
+            method: "GET",
+            headers: { Accept: "application/json" },
+        });
+
+        if (!res.ok) {
+            console.log("[AI] suggestions fail", res.status);
+            bar.style.display = "none";
+            return;
+        }
+
+        const data = await res.json();
+        const list = data?.suggestions || [];
+
+        if (!Array.isArray(list) || list.length === 0) {
+            bar.style.display = "none";
+            return;
+        }
+
+        hideAiSuggestionsLoading();
+
+        // 칩 렌더링
+        chipsEl.innerHTML = "";
+        list.forEach((it, idx) => {
+            const key = (it?.key || "").trim();
+            const text = (it?.text || "").trim();
+            if (!key || !text) return;
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "ai-chip";
+            btn.dataset.purpose = key;
+            btn.textContent = text;
+
+            // 첫 칩을 기본 선택(원하면)
+            if (idx === 0 && !aiSelectedPurpose) {
+                aiSelectedPurpose = key;
+                btn.classList.add("active");
+            }
+
+            btn.addEventListener("click", () => {
+                chipsEl.querySelectorAll(".ai-chip").forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                aiSelectedPurpose = key;
+
+                const input = document.getElementById("messageInput");
+                if (input) {
+                    input.value = text; // ✅ 추천 질문(짧은 문장)
+                    input.focus();
+                }
+            });
+
+            chipsEl.appendChild(btn);
+        });
+
+        bar.style.display = "flex";
+    } catch (e) {
+        console.log("[AI] suggestions error", e);
+        bar.style.display = "none";
+    }
+}
+
+function setAiLoading(isLoading) {
+    const bar = document.getElementById("aiBar");
+    const draftBtn = document.getElementById("aiDraftBtn");
+    const chipsEl = document.getElementById("aiChips");
+    const input = document.getElementById("messageInput");
+
+    // 버튼 잠금
+    if (draftBtn) draftBtn.disabled = isLoading;
+    if (chipsEl) chipsEl.querySelectorAll("button").forEach((b) => (b.disabled = isLoading));
+
+    // 입력창 힌트
+    if (input) {
+        input.placeholder = isLoading ? "AI 작성 중..." : "메시지를 입력하세요";
+    }
+
+    // bar에 로딩 뱃지 하나 붙이기(없으면 생성)
+    if (bar) {
+        let badge = bar.querySelector(".ai-loading");
+        if (!badge) {
+            badge = document.createElement("span");
+            badge.className = "ai-loading";
+            badge.textContent = "작성 중…";
+            badge.style.marginLeft = "8px";
+            badge.style.fontSize = "12px";
+            badge.style.opacity = "0.7";
+            bar.appendChild(badge);
+        }
+        badge.style.display = isLoading ? "" : "none";
+    }
+}
+
+async function autoDraftFromPurpose(purpose) {
+    if (!currentRoomId) return;
+
+    setAiLoading(true);
+    try {
+        const pid = draftProductId || null;
+
+        const res = await fetch(`/chat/api/rooms/${currentRoomId}/ai/draft`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ productId: pid, purpose }),
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const draft = (data?.draft || "").trim();
+        if (!draft) return;
+
+        const input = document.getElementById("messageInput");
+        if (input) {
+            input.value = draft;
+            input.focus();
+        }
+    } finally {
+        setAiLoading(false);
+    }
+}
+
+function showAiSuggestionsLoading() {
+    const bar = document.getElementById("aiBar");
+    const chipsEl = document.getElementById("aiChips");
+    if (!bar || !chipsEl) return;
+
+    bar.style.display = "flex";
+    chipsEl.innerHTML = `
+    <span class="ai-suggest-loading" style="opacity:.7; font-size:12px;">
+      추천 질문 생성중…
+    </span>
+  `;
+}
+
+function hideAiSuggestionsLoading() {
+    const chipsEl = document.getElementById("aiChips");
+    if (!chipsEl) return;
+    const el = chipsEl.querySelector(".ai-suggest-loading");
+    if (el) el.remove();
 }

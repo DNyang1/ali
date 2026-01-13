@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class LogAspect {
 
     // com.finalProject.ali 패키지 아래의 모든 Controller를 감시하겠다!
-    @Around("execution(* com.finalProject.ali..*Controller.*(..))")
+    @Around("execution(* com.finalProject.ali..*Controller.*(..)) && !@annotation(org.springframework.messaging.handler.annotation.MessageMapping)")
     public Object logging(ProceedingJoinPoint pjp) throws Throwable {
 
         // 1. 요청 정보 가져오기

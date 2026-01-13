@@ -7,14 +7,14 @@ import com.finalProject.ali.chat.dto.ChatDTO;
 import com.finalProject.ali.chat.dto.RoomDTO;
 import com.finalProject.ali.chat.dto.RoomListDTO;
 import com.finalProject.ali.user.dao.UserDAO;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,15 +59,16 @@ public class ChatServiceImpl implements ChatService {
         if (senderId == null || senderId.isBlank()) {
             throw new IllegalArgumentException("senderId는 필수입니다.");
         }
-        if (message == null || message.isBlank()) {
-            throw new IllegalArgumentException("message는 비어있을 수 없습니다.");
+        if ((message == null || message.isBlank()) && productId == null) {
+            throw new IllegalArgumentException("message 또는 productId 중 하나는 필요합니다.");
         }
 
         if (!isMember(roomId, senderId)) {
             throw new IllegalStateException("해당 유저는 이 채팅방 멤버가 아닙니다.");
         }
 
-        Long chatId = chatDAO.saveChat(roomId, senderId, message, productId);
+        String safeMessage = (message == null ? "" : message);
+        Long chatId = chatDAO.saveChat(roomId, senderId, safeMessage, productId);
 
         if (chatId == null) {
             throw new IllegalStateException("채팅 저장에 실패했습니다.");
@@ -75,7 +76,6 @@ public class ChatServiceImpl implements ChatService {
 
         return chatId;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -146,6 +146,30 @@ public class ChatServiceImpl implements ChatService {
 
         String normalized = userId.startsWith("s_") ? userId.substring(2) : userId;
         return userDAO.findNameByUserId(normalized);
+    }
+
+    @Override
+    public List<ChatDTO> getRecentChatsForAi(Long roomId) {
+        return chatDAO.findRecentChatsByRoomId(roomId, 10);
+    }
+
+    @Override
+    public String buildConversationContext(Long roomId) {
+        List<ChatDTO> chats = getRecentChatsForAi(roomId);
+        Collections.reverse(chats);
+
+        return chats.stream()
+                .map(c -> {
+                    String name = (c.getSenderName() != null ? c.getSenderName() : c.getSenderId());
+                    String msg  = (c.getMessage() != null ? c.getMessage() : "");
+                    if (c.getProductId() != null) {
+                        msg = msg.isBlank()
+                                ? ("[상품링크 productId=" + c.getProductId() + "]")
+                                : (msg + " [productId=" + c.getProductId() + "]");
+                    }
+                    return name + ": " + msg;
+                })
+                .collect(java.util.stream.Collectors.joining("\n"));
     }
 
 }

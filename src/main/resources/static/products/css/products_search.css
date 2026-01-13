@@ -129,3 +129,26 @@ body {
     font-size: 16px;
     color: #777;
 }
+
+.time-sale-badge {
+    display: inline-block;
+    background: #ff3b3b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.price-original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 13px;
+}
+
+.price-discounted {
+    color: #e60023;
+    font-size: 16px;
+    font-weight: 700;
+}
