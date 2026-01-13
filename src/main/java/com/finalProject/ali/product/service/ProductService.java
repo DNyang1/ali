@@ -22,7 +22,7 @@ public class ProductService {
     }
 
     public ProductDTO productDetail(Long productId) {
-        return productDAO.productDetail(productId);
+        return productDAO.selectProductDetail(productId);
     }
 
     public List<ProductDTO> getProductsByCustom(boolean custom) {
@@ -87,6 +87,15 @@ public class ProductService {
         return products.stream()
                 .map(ProductSearchSummaryDTO::getCategoryName)
                 .allMatch(c -> firstCategory.equals(c));
+    }
+
+    public int countActiveDiscountProducts() {
+        return productDAO.countActiveDiscountProducts();
+    }
+
+    public int findMaxDiscountRate() {
+        Integer rate = productDAO.findMaxDiscountRate();
+        return rate != null ? rate : 0;
     }
 
 
