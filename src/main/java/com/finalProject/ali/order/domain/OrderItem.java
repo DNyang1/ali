@@ -17,4 +17,8 @@ public class OrderItem {
 
     private String productName;
     private String optionSummary;
+
+    private String status;
+    private String carrier;
+    private String trackingNo;
 }

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -18,5 +20,10 @@ public class ShippingController {
     @GetMapping("/order-item/{id}/shipping")
     public ShippingResponse shipping(@PathVariable Long id) {
         return shippingService.getShipping(id);
+    }
+
+    @GetMapping("/shipping/carriers")
+    public List<String> getCarriers() {
+        return shippingService.getCarrierNames();
     }
 }

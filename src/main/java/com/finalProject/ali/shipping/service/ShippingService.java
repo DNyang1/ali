@@ -8,6 +8,8 @@ import com.finalProject.ali.shipping.dto.ShippingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ShippingService {
@@ -17,7 +19,7 @@ public class ShippingService {
 
     public ShippingResponse getShipping(Long orderItemId) {
 
-        OrderItemResponse item = orderItemMapper.findById(orderItemId);
+        OrderItem item = orderItemMapper.findById(orderItemId);
 
         if (item == null) {
             throw new IllegalArgumentException("주문 상품이 없습니다.");
@@ -28,5 +30,9 @@ public class ShippingService {
         }
 
         return shippingClient.check(item.getCarrier(), item.getTrackingNo());
+    }
+
+    public List<String> getCarrierNames() {
+        return ShippingClient.getSupportedCarriers();
     }
 }

@@ -31,6 +31,7 @@
     <select id="findByOrderId"
             resultType="com.finalProject.ali.order.dto.OrderItemResponse">
         SELECT
+        order_item_id           AS orderItemId,
         product_name            AS productName,
         option_summary          AS optionSummary,
         sku_id                  AS skuId,
@@ -71,7 +72,7 @@
             AND p.supplier_id = #{supplierId}
 
     </select>
-    <select id="findById" resultType="com.finalProject.ali.order.dto.OrderItemResponse">
+    <select id="findById" resultType="com.finalProject.ali.order.domain.OrderItem">
         SELECT *
         FROM order_item
         WHERE order_item_id = #{orderItemId}
