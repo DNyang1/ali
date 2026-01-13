@@ -1,0 +1,246 @@
+@charset "UTF-8";
+
+/* =========================================
+   1. 기본 레이아웃 (다크모드)
+   ========================================= */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #212124; /* 배경색: 당근마켓 다크모드 톤 */
+    color: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* =========================================
+   2. 헤더 영역 (심플 헤더)
+   ========================================= */
+.help-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #3a3a3d;
+}
+
+.help-header h1 {
+    font-size: 20px;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.btn-close {
+    color: #888;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+/* =========================================
+   3. 메인 목록 페이지 (list.html)
+   ========================================= */
+.welcome-msg {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.welcome-msg span {
+    font-size: 30px;
+}
+
+.qna-list {
+    background: #2c2c30;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.qna-item {
+    padding: 20px;
+    border-bottom: 1px solid #3a3a3d;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.qna-item:last-child {
+    border-bottom: none;
+}
+
+.qna-item:hover {
+    background-color: #35353a;
+}
+
+.qna-title {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.qna-date {
+    font-size: 13px;
+    color: #888;
+}
+
+.empty-msg {
+    text-align: center;
+    padding: 50px;
+    color: #888;
+}
+
+/* 상태 뱃지 */
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.badge.waiting { background: #444; color: #ccc; }
+.badge.completed { background: #ff6f0f; color: #fff; } /* 포인트 컬러 */
+
+/* 둥둥 떠있는 글쓰기 버튼 (FAB) */
+.fab-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #ff6f0f;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.fab-btn:hover {
+    background-color: #e55e00;
+}
+
+/* =========================================
+   4. 글쓰기 폼 (write.html)
+   ========================================= */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #ccc;
+}
+
+input[type="text"], textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #2c2c30;
+    border: 1px solid #3a3a3d;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+}
+
+input[type="text"]:focus, textarea:focus {
+    border-color: #ff6f0f;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background-color: #ff6f0f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+}
+.btn-submit:hover {
+    background-color: #e55e00;
+}
+
+/* =========================================
+   5. 상세 보기 (detail.html)
+   ========================================= */
+.content-box {
+    background-color: #2c2c30;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.qna-meta {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #3a3a3d;
+    padding-bottom: 15px;
+}
+
+/* 제목 재사용 (.qna-title) 하되, 상세페이지용 스타일 덮어쓰기 */
+.content-box .qna-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.qna-body {
+    line-height: 1.6;
+    white-space: pre-wrap;
+    color: #ddd;
+}
+
+/* 관리자 답변 영역 */
+.answer-box {
+    background-color: #35353a;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 5px solid #ff6f0f;
+}
+
+.answer-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.answer-badge {
+    background: #ff6f0f;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.answer-date {
+    font-size: 13px;
+    color: #888;
+    margin-left: auto;
+}
+
+.answer-content {
+    line-height: 1.6;
+    white-space: pre-wrap;
+    color: #fff;
+}
+
+.waiting-msg {
+    text-align: center;
+    color: #888;
+    padding: 30px;
+    background: #2c2c30;
+    border-radius: 12px;
+    border: 1px dashed #444;
+}

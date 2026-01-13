@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{admin/layout/base :: layout(~{::section}, ~{::link})}">
 <head>
-  <link rel="stylesheet" href="/admin/css/qna.css"/>
+  <link rel="stylesheet" href="/admin/css/a_qna.css"/>
 </head>
 <body>
 <section>
@@ -33,17 +33,19 @@
 
   <div class="answer-form-box"
        th:if="${qna.answer == null and session.loginUser != null and session.loginUser.roles.contains('ROLE_ADMIN')}">
+
     <h3>답변 등록</h3>
-    <form th:action="@{/qna/answer/{id}(id=${qna.qnaId})}" method="post">
-      <textarea name="answer" rows="5" required placeholder="답변 내용을 입력하세요"></textarea>
+    <form th:action="@{/admin/qna/answer/{id}(id=${qna.qnaId})}" method="post">
+      <textarea name="answer" rows="5" required placeholder="관리자님, 답변을 입력하세요."></textarea>
       <div class="btn-group-right">
         <button type="submit" class="btn-admin">답변 완료</button>
       </div>
     </form>
+
   </div>
 
   <div class="btn-group">
-    <a th:href="@{/qna/list}" class="btn-secondary">목록으로</a>
+    <a th:href="@{/admin/qna/list}" class="btn-secondary">목록으로</a>
   </div>
 
 </section>
