@@ -1,104 +1,94 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>장바구니</title>
-    <style>
-        body { margin:0; background:#f5f5f5; font-family:Arial,sans-serif; }
-        .page { max-width:900px; margin:0 auto; padding:0 16px; }
-        .card { background:#fff; border-radius:14px; padding:24px; box-shadow:0 6px 24px rgba(0,0,0,.08); margin-bottom:24px; }
-        h2 { margin:0 0 20px; font-size:22px; }
-        .cart-item { display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #eee; font-size:14px; }
-        .cart-item:last-child { border-bottom:none; }
-        .cart-info { display:flex; flex-direction:column; gap:6px; }
-        .cart-actions button { background:none; border:none; color:#ff4d4f; cursor:pointer; font-size:13px; }
-        .actions { text-align:right; margin-top:24px; }
-        .actions button { background:linear-gradient(135deg,#ff6a00,#ff8a00); border:none; color:#fff; padding:12px 26px; border-radius:26px; font-size:15px; cursor:pointer; }
-        .dev-panel { background:#fafafa; border:1px dashed #ccc; border-radius:12px; padding:16px; }
-        .dev-panel input { padding:6px 8px; margin-right:6px; font-size:13px; }
-    </style>
+    <title>MODERN-ALI | 장바구니</title>
     <link rel="stylesheet" href="/main/css/main-header.css">
     <link rel="stylesheet" href="/main/css/common.css">
+    <link rel="stylesheet" href="/cart/css/cart.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 <div th:replace="layout/mainHeader :: mainHeader"></div>
-<div class="page">
 
-    <section class="card">
-        <h2>🛒 내 장바구니</h2>
-        <div id="cart-items"></div>
+<div class="cart-container">
+    <div class="cart-header">🛒 &nbsp;My Cart</div>
 
-        <div class="actions">
-                <button onclick="goCheckout()">결제하기</button>
-        </div>
-    </section>
+    <div id="cart-items-container">
+        <!-- 장바구니 아이템이 여기에 동적으로 추가됩니다. -->
+    </div>
 
-    <section class="dev-panel">
-        <h3>⚙ 개발용: 임시 상품 추가</h3>
-        <input type="text" id="productName" placeholder="productName">
-        <input type="text" id="skuId" placeholder="skuId">
-        <input type="number" id="quantity" value="1" min="1">
-        <button onclick="addItem()">추가</button>
-    </section>
-
+    <div class="checkout-btn-container">
+        <button class="checkout-btn" onclick="goCheckout()">주문하기</button>
+    </div>
 </div>
+
 
 <script>
     function loadCart() {
         fetch('/api/cart/view')
-            .then(res => res.json())
-            .then(renderCart);
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(renderCart)
+            .catch(error => {
+                console.error('Error loading cart:', error);
+                const container = document.getElementById('cart-items-container');
+                container.innerHTML = '<div class="cart-empty-message">장바구니 정보를 불러오는 데 실패했습니다.</div>';
+            });
     }
 
     function renderCart(cart) {
-        const container = document.getElementById('cart-items');
+        const container = document.getElementById('cart-items-container');
         container.innerHTML = '';
 
         if (!cart.items || cart.items.length === 0) {
-            container.innerHTML = '<p>장바구니가 비어 있습니다.</p>';
+            container.innerHTML = '<div class="cart-empty-message">장바구니가 비어 있습니다.</div>';
             return;
         }
 
+        const itemGrid = document.createElement('div');
+        itemGrid.className = 'cart-item-grid';
+
         cart.items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'cart-item';
-
-            div.innerHTML = `
-            <div class="cart-info">
-                <label>
-                    <input type="checkbox"
-                           class="cart-check"
-                           data-sku-id="${item.skuId}"
-                           data-quantity="${item.quantity}">
-                    <strong>${item.productName}</strong>
-                </label>
-                <span>옵션: ${item.optionSummary ?? '-'}<span>
-                <span>수량: ${item.quantity}</span>
-                <span>${item.lineAmount} 원</span>
-            </div>
-            <div class="cart-actions">
-                <button onclick="deleteItem('${item.cartItemId}')">삭제</button>
-            </div>
-        `;
-            container.appendChild(div);
+            const itemElement = document.createElement('div');
+            itemElement.className = 'cart-item';
+            itemElement.innerHTML = `
+                <input type="checkbox" class="cart-check" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
+                <div class="item-details">
+                    <span class="item-name">${item.productName}</span>
+                    <span class="item-option">옵션: ${item.optionSummary || '-'}</span>
+                    <span class="item-quantity">수량: ${item.quantity}개</span>
+                    <span class="item-price">${Number(item.lineAmount).toLocaleString()} 원</span>
+                </div>
+                <div class="item-actions">
+                    <button class="delete-btn" onclick="deleteItem('${item.cartItemId}')">삭제</button>
+                </div>
+            `;
+            itemGrid.appendChild(itemElement);
         });
+
+        container.appendChild(itemGrid);
+
+        document.querySelectorAll('.cart-check').forEach(cb => cb.checked = true);
     }
 
-    function addItem() {
-        fetch('/api/cart/items', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                productId: productId.value,
-                skuId: skuId.value,
-                quantity: quantity.value
-            })
-        }).then(loadCart);
-    }
+    function deleteItem(cartItemId) {
+        if (!confirm('상품을 삭제하시겠습니까?')) return;
 
-    function deleteItem(id) {
-        fetch(`/api/cart/items/${id}`, { method: 'DELETE' })
-            .then(loadCart);
+        fetch(`/api/cart/items/${cartItemId}`, { method: 'DELETE' })
+            .then(response => {
+                if (response.ok) {
+                    loadCart();
+                } else {
+                    alert('삭제에 실패했습니다.');
+                }
+            });
     }
 
     function goCheckout() {

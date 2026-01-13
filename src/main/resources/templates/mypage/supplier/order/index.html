@@ -1,18 +1,19 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{})">
-<head>
-    <meta charset="UTF-8">
-    <title>공급자 주문 관리</title>
-</head>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{})">
 
-<body>
+    <th:block th:fragment="content">
 
-<h2>공급자 주문 관리</h2>
+<section class="space-y-4">
+    <header>
+        <h1 class="text-2xl font-bold text-slate-900">공급자 주문 관리</h1>
+        <p class="text-sm text-slate-500">접수된 주문을 확인하고 처리하세요.</p>
+    </header>
 
-<div id="supplier-order-list">
-    주문을 불러오는 중...
-</div>
+    <div id="supplier-order-list"
+         class="space-y-4">
+        주문을 불러오는 중...
+    </div>
+</section>
 
 <script>
     fetch('/api/order/sup')
@@ -40,19 +41,34 @@
             const div = document.createElement('div');
 
             div.innerHTML = `
-                <hr/>
-                <div>주문번호: ${o.orderId}</div>
-                <div>주문일: ${o.orderedAt}</div>
-                <div>구매자: ${o.buyerId}</div>
+<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-1">
 
-                <div>상품명: ${o.productName}</div>
-                <div>옵션: ${o.optionSummary || '-'}</div>
-                <div>수량: ${o.quantity}</div>
-                <div>단가: ${o.unitPrice}</div>
+  <div class="flex items-center justify-between">
+    <div class="text-sm font-bold text-slate-900">주문 #${o.orderId}</div>
+    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+      ${o.orderStatus}
+    </span>
+  </div>
 
-                <div>주문상태: ${o.orderStatus}</div>
-                <button onclick="goDetail(${o.orderItemId})">상세보기</button>
-            `;
+  <div class="text-xs text-slate-500">${o.orderedAt}</div>
+
+  <div class="pt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+    <div><span class="text-slate-500">구매자</span> ${o.buyerId}</div>
+    <div><span class="text-slate-500">상품</span> ${o.productName}</div>
+    <div><span class="text-slate-500">옵션</span> ${o.optionSummary || '-'}</div>
+    <div><span class="text-slate-500">수량</span> ${o.quantity}</div>
+    <div><span class="text-slate-500">단가</span> ${Number(o.unitPrice).toLocaleString()}원</div>
+  </div>
+
+  <div class="pt-3 text-right">
+    <button onclick="goDetail(${o.orderItemId})"
+      class="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700">
+      상세보기
+    </button>
+  </div>
+
+</div>
+`;
 
             el.appendChild(div);
         });
@@ -62,5 +78,5 @@
     }
 </script>
 
-</body>
-</html>
+    </th:block>
+</th:block>

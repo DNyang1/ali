@@ -1,324 +1,354 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>결제</title>
-
-    <style>
-        /* ===== 기본 ===== */
-        body {
-            margin: 0;
-            padding: 40px 0;
-            background: #f5f5f5;
-            font-family: Arial, sans-serif;
-        }
-
-        /* ===== 레이아웃 ===== */
-        .checkout-page {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 16px;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-        }
-
-        /* ===== 카드 ===== */
-        .card {
-            background: #fff;
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 6px 24px rgba(0,0,0,.08);
-        }
-
-        h2 {
-            margin: 0 0 18px;
-            font-size: 20px;
-        }
-
-        /* ===== 배송지 ===== */
-        .address-card {
-            border: 2px solid #eee;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .address-card.active {
-            border-color: #ff6a00;
-            background: #fff7f0;
-        }
-
-        /* ===== 주문 상품 ===== */
-        .item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-
-        .item:last-child {
-            border-bottom: none;
-        }
-
-        /* ===== 결제 요약 ===== */
-        .summary {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            text-align: right;
-        }
-
-        .summary h1 {
-            margin: 10px 0 20px;
-            font-size: 26px;
-        }
-
-        .summary button {
-            width: 100%;
-            background: linear-gradient(135deg,#ff6a00,#ff8a00);
-            border: none;
-            color: #fff;
-            padding: 14px;
-            border-radius: 26px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: #555;
-            cursor: pointer;
-            font-size: 13px;
-            margin-bottom: 10px;
-        }
-    </style>
-<link rel="stylesheet" href="/main/css/main-header.css">
-<link rel="stylesheet" href="/main/css/common.css">
+    <title>MODERN-ALI | 결제하기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/main/css/main-header.css">
+    <link rel="stylesheet" href="/main/css/common.css">
+    <link rel="stylesheet" href="/checkout/css/checkout.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
 <div th:replace="layout/mainHeader :: mainHeader"></div>
-<div class="checkout-page">
 
-    <!-- ===== 좌측 영역 ===== -->
-    <div class="left">
-
+<div class="checkout-container">
+    <div class="main-content">
         <!-- 주문 상품 -->
-        <div class="card" style="margin-top:24px;">
-            <h2>🧾 주문 상품</h2>
-            <div id="preview-items"></div>
-        </div>
-
-        <!-- 배송지 -->
-        <div class="card">
-            <h2>🚚 배송지 선택</h2>
-            <div id="address-list">
-                <p>배송지를 불러오는 중...</p>
+        <div class="checkout-card">
+            <div class="card-header">
+                <i class="fas fa-shopping-bag"></i>
+                <h2>주문 상품</h2>
+            </div>
+            <div id="order-item-list" class="order-item-list">
+                 <div class="loader"></div>
             </div>
         </div>
 
+        <!-- 배송지 -->
+        <div class="checkout-card">
+            <div class="card-header">
+                <i class="fas fa-truck"></i>
+                <h2>배송지 선택</h2>
+            </div>
+            <div id="address-list" class="address-list">
+                <div class="loader"></div>
+            </div>
+            <button class="add-address-btn" onclick="addNewAddress()">+ 새 배송지 추가</button>
+        </div>
+
+         <!-- 결제 수단 -->
+        <div class="checkout-card">
+            <div class="card-header">
+                <i class="fas fa-credit-card"></i>
+                <h2>결제 수단</h2>
+            </div>
+            <div class="payment-method-list">
+                <div class="payment-method active" data-method="MOCK">
+                    <i class="fas fa-money-check-alt"></i>
+                    <span>가상 결제</span>
+                </div>
+                <div class="payment-method" data-method="TOSS">
+                     <i class="fas fa-coins"></i>
+                    <span>토스페이먼츠</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- ===== 우측 결제 요약 ===== -->
-    <div class="card summary">
-        <h2>💳 결제 요약</h2>
-
-        <div>총 결제 금액</div>
-        <h1><span id="total-amount">0</span> 원</h1>
-
-        <button class="back-btn" onclick="location.href='/cart'">
-            장바구니로
-        </button>
-
-        <button onclick="order()">결제하기</button>
+    <div class="sidebar">
+        <!-- 최종 결제 요약 -->
+        <div class="checkout-card summary-card">
+            <div class="card-header">
+                 <i class="fas fa-receipt"></i>
+                <h2>결제 요약</h2>
+            </div>
+            <div class="summary-details">
+                <div class="summary-row">
+                    <span>총 상품 금액</span>
+                    <span id="subtotal">0 원</span>
+                </div>
+                <div class="summary-row">
+                    <span>배송비</span>
+                    <span id="shipping-fee">0 원</span>
+                </div>
+                <div class="summary-row total">
+                    <span>최종 결제 금액</span>
+                    <span class="total-price" id="total-amount">0 원</span>
+                </div>
+            </div>
+            <button class="checkout-btn" onclick="order()">결제하기</button>
+        </div>
     </div>
-
 </div>
 
+<!-- ====== 주소 추가 모달 ====== -->
+<div id="address-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>새 배송지 추가</h2>
+            <button class="close-btn" onclick="closeAddressModal()">&times;</button>
+        </div>
+        <form id="address-form" class="address-form" onsubmit="saveNewAddress(event)">
+            <div class="form-group">
+                <label for="rName">받는 분</label>
+                <input type="text" id="rName" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="rPhone">연락처</label>
+                <input type="tel" id="rPhone" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>주소</label>
+                <div class="zipcode-group">
+                    <input type="text" id="zipcode" class="form-control" placeholder="우편번호" readonly required>
+                    <button type="button" class="btn btn-secondary" onclick="execDaumPostcode()">검색</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="address1" class="form-control" placeholder="기본 주소" readonly required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="address2" class="form-control" placeholder="상세 주소 입력">
+            </div>
+            <div class="form-group form-checkbox">
+                <input type="checkbox" id="isDefault">
+                <label for="isDefault">기본 배송지로 설정</label>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeAddressModal()">취소</button>
+                <button type="submit" class="btn btn-primary">저장하기</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
-    /* =======================
-       주문 미리보기
-       ======================= */
+    let selectedAddressId = null;
+    let selectedPaymentMethod = 'MOCK';
+    let currentCheckoutData = {};
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadCheckout();
+        loadAddresses();
+        setupPaymentMethodSelector();
+    });
 
     async function loadCheckout() {
         const items = JSON.parse(localStorage.getItem('checkoutItems'));
-
         if (!items || items.length === 0) {
-            alert('결제 정보가 없습니다.');
+            alert('결제할 상품 정보가 없습니다. 장바구니로 돌아갑니다.');
             location.href = '/cart';
             return;
         }
-
-        const res = await fetch('/api/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                items: items,
-                addressId: null
-            })
-        });
-
-        const checkout = await res.json();
-        renderPreview(checkout);
-        window.currentCheckout = checkout; // 주문 생성용 보관
+        //태민
+        const sheetId = sessionStorage.getItem('checkoutSheetId');
+        try {
+            //태민
+            const body = { items, addressId: null };
+            if (sheetId) body.sheetId = Number(sheetId);
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!response.ok) throw new Error('Checkout data fetch failed.');
+            
+            const data = await response.json();
+            currentCheckoutData = data;
+            renderOrderItems(data);
+            renderSummary(data);
+        } catch (error) {
+            console.error('Error loading checkout:', error);
+            document.getElementById('order-item-list').innerHTML = '<p>주문 정보를 불러오는데 실패했습니다.</p>';
+        }
     }
-    function renderPreview(data) {
-        const container = document.getElementById('preview-items');
-        container.innerHTML = '';
 
+    function renderOrderItems(data) {
+        const container = document.getElementById('order-item-list');
+        container.innerHTML = '';
         if (!data.items || data.items.length === 0) {
-            container.innerHTML = '<p>결제할 상품이 없습니다.</p>';
+            container.innerHTML = '<p>주문할 상품이 없습니다.</p>';
             return;
         }
-
         data.items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'item';
-
-            div.innerHTML = `
-                <span>
-                    ${item.productName}
-                    ${item.optionSummary}
-                    (SKU: ${item.skuId}) × ${item.quantity}:개
-                    개당가격: ${item.unitPrice} 원
-                </span>
-                </br>
-                </br>
-                </br>
-                <span>${item.lineAmount} 원</span>
-            `;
-
-            container.appendChild(div);
+            container.innerHTML += `
+                <div class="item">
+                    <div class="item-image"></div>
+                    <div class="item-details">
+                        <div class="item-name">${item.productName}</div>
+                        <div class="item-info">${item.optionSummary} / ${item.quantity}개</div>
+                        <div class="item-price">${item.lineAmount.toLocaleString()}원</div>
+                    </div>
+                </div>`;
         });
-
-        document.getElementById('total-amount').innerText = data.totalAmount;
     }
 
-    /* =======================
-       배송지
-       ======================= */
-    let selectedAddressId = null;
+    function renderSummary(data) {
+        document.getElementById('subtotal').innerText = `${data.totalAmount.toLocaleString()} 원`;
+        document.getElementById('shipping-fee').innerText = `0 원`;
+        document.getElementById('total-amount').innerText = `${data.totalAmount.toLocaleString()} 원`;
+    }
 
-    function loadAddresses() {
-        fetch('/address')
-            .then(res => res.json())
-            .then(renderAddresses);
+    async function loadAddresses() {
+        document.getElementById('address-list').innerHTML = '<div class="loader"></div>';
+        try {
+            const response = await fetch('/address');
+            if (!response.ok) throw new Error('Address fetch failed.');
+            const addresses = await response.json();
+            renderAddresses(addresses);
+        } catch (error) {
+            console.error('Error loading addresses:', error);
+            document.getElementById('address-list').innerHTML = '<p>배송지를 불러오는데 실패했습니다.</p>';
+        }
     }
 
     function renderAddresses(addresses) {
         const container = document.getElementById('address-list');
         container.innerHTML = '';
-
         if (!addresses || addresses.length === 0) {
             container.innerHTML = '<p>등록된 배송지가 없습니다.</p>';
             return;
         }
-
         addresses.forEach(addr => {
-            const div = document.createElement('div');
-            div.className = 'address-card';
-
+            const card = document.createElement('div');
+            card.className = 'address-card';
+            card.onclick = () => selectAddress(card, addr.id);
+            
             if (addr.isDefault) {
-                div.classList.add('active');
+                card.classList.add('active');
                 selectedAddressId = addr.id;
             }
-
-            div.onclick = () => selectAddress(div, addr.id);
-
-            div.innerHTML = `
-                <strong>${addr.rName}</strong> (${addr.rPhone || '-'})<br>
-                [${addr.zipcode}] ${addr.address1} ${addr.address2 || ''}
+            
+            card.innerHTML = `
+                ${addr.isDefault ? '<div class="default-badge">기본 배송지</div>' : ''}
+                <div class="address-card-content">
+                    <strong>${addr.rName}</strong> (${addr.rPhone || '-'})<br>
+                    [${addr.zipcode}] ${addr.address1} ${addr.address2 || ''}
+                </div>
             `;
-
-            container.appendChild(div);
+            container.appendChild(card);
         });
     }
 
-    function selectAddress(el, id) {
-        document.querySelectorAll('.address-card')
-            .forEach(a => a.classList.remove('active'));
-
-        el.classList.add('active');
+    function selectAddress(card, id) {
+        document.querySelectorAll('.address-card.active').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
         selectedAddressId = id;
     }
+    
+    // --- Address Modal Functions ---
+    const addressModal = document.getElementById('address-modal');
 
-    /* =======================
-       주문 생성
-       ======================= */
+    function addNewAddress() {
+        addressModal.classList.add('visible');
+    }
+
+    function closeAddressModal() {
+        addressModal.classList.remove('visible');
+        document.getElementById('address-form').reset();
+    }
+
+    async function saveNewAddress(event) {
+        event.preventDefault();
+        
+        const newAddress = {
+            rName: document.getElementById('rName').value,
+            rPhone: document.getElementById('rPhone').value,
+            zipcode: document.getElementById('zipcode').value,
+            address1: document.getElementById('address1').value,
+            address2: document.getElementById('address2').value,
+            isDefault: document.getElementById('isDefault').checked
+        };
+
+        try {
+            const response = await fetch('/address', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newAddress)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save address.');
+            }
+            
+            closeAddressModal();
+            await loadAddresses(); // Refresh the address list
+
+        } catch (error) {
+            console.error('Error saving address:', error);
+            alert('배송지 저장에 실패했습니다. 다시 시도해주세요.');
+        }
+    }
+
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                document.getElementById('zipcode').value = data.zonecode;
+                document.getElementById("address1").value = data.address;
+                document.getElementById("address2").focus();
+            }
+        }).open();
+    }
+
+    // --- End of Address Modal Functions ---
+
+
+    function setupPaymentMethodSelector() {
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                document.querySelectorAll('.payment-method.active').forEach(m => m.classList.remove('active'));
+                method.classList.add('active');
+                selectedPaymentMethod = method.dataset.method;
+            });
+        });
+    }
+
     async function order() {
         if (!selectedAddressId) {
             alert('배송지를 선택해주세요.');
             return;
         }
-
+        const sheetId = sessionStorage.getItem('checkoutSheetId');
         try {
-            // 1️⃣ 주문 생성
+            const payload = { ...currentCheckoutData, addressId: selectedAddressId };
+            if (sheetId) payload.sheetId = Number(sheetId);
             const orderRes = await fetch('/api/order', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    ...window.currentCheckout,
-                    addressId: selectedAddressId
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-
-            if (!orderRes.ok) {
-                throw new Error('주문 생성 실패');
-            }
-
+            if (!orderRes.ok) throw new Error('주문 생성 실패');
+            
             const orderData = await orderRes.json();
-
-            // ✅ 개발 단계: 주문 생성 알림 유지
-            alert('주문 생성 완료!\n주문번호: ' + orderData.orderId);
-
-            // 2️⃣ 결제 시도 (Mock 결제)
+            
             const paymentRes = await fetch('/api/payments', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    orderId: orderData.orderId,
-                    method: 'MOCK'   // 나중에 CARD / BANK 로 확장 가능
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: orderData.orderId, method: selectedPaymentMethod })
             });
-
-            if (!paymentRes.ok) {
-                throw new Error('결제 요청 실패');
-            }
+            if (!paymentRes.ok) throw new Error('결제 요청 실패');
 
             const paymentData = await paymentRes.json();
-
-            // 3️⃣ 결제 결과 분기
+            
             if (paymentData.status === 'SUCCESS') {
-                alert(
-                    '결제 성공!\n' +
-                    '주문번호: ' + orderData.orderId
-                );
+                //태민
+                sessionStorage.removeItem('checkoutSheetId');
+                localStorage.removeItem('checkoutItems');
+                alert(`결제 성공! 주문번호: ${orderData.orderId}`);
                 location.href = `/order/complete?orderId=${orderData.orderId}`;
             } else {
-                alert(
-                    '결제 실패\n' +
-                    '다시 시도해주세요.'
-                );
+                alert('결제에 실패했습니다. 다시 시도해주세요.');
             }
-
         } catch (error) {
-            console.error(error);
-            alert('주문/결제 처리 중 오류가 발생했습니다.');
+            console.error('Order processing failed:', error);
+            alert('주문 처리 중 오류가 발생했습니다.');
         }
     }
-
-    /* 초기 로딩 */
-    loadCheckout();
-    loadAddresses();
 </script>
 
 </body>

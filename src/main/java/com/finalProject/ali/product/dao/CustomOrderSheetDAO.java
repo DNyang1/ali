@@ -20,14 +20,20 @@ public interface CustomOrderSheetDAO {
 
     int updateStatus(@Param("sheetId") Long sheetId,
                      @Param("status") String status);
-    int updateContent(@Param("sheetId") Long sheetId,
-                      @Param("quantity") Long quantity,
-                      @Param("unitPrice") Long unitPrice,
-                      @Param("optionsText") String optionsText);
 
     int updateContentByInquiryId(@Param("inquiryId") Long inquiryId,
                                  @Param("quantity") Long quantity,
                                  @Param("unitPrice") Long unitPrice,
                                  @Param("optionsText") String optionsText);
+
+
+
+    void linkOrderId(@Param("sheetId") Long sheetId,
+                     @Param("orderId") Long orderId);
+    void markPaidByOrderId(@Param("orderId") Long orderId);
+    CustomOrderSheetDTO findPayableBySheetAndInquiry(@Param("sheetId") Long sheetId,
+                                                  @Param("inquiryId") Long inquiryId);
+
+    Long findInquiryIdByOrderId(@Param("orderId") Long orderId);
 
 }

@@ -82,7 +82,7 @@ public class ProductController {
                 optionService.getStockOptions(productId);
 
         List<SkuDTO> skus =
-                skuService.getSkuWithPrices(productId);
+                skuService.getProductDetailSkus(productId);
 
         List<SkuPriceDTO> defaultPriceRules =
                 skuPriceService.getPriceRulesByProductId(productId);

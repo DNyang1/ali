@@ -12,4 +12,8 @@ public class OrderCreateRequest {
     private Long addressId;
     private Long totalAmount;
     private List<CheckoutItem> items;
+
+
+    //태민
+    private Long sheetId;
 }

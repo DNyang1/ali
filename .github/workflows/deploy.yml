@@ -40,21 +40,15 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # 80번 포트 권한 부여 및 포워딩 (배포 시마다 실행)
-            sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080 || true
-            
-            # 1. 기존 8080 포트 프로세스 종료
-            sudo fuser -k 8080/tcp || true
-            sleep 3
-            
-            # 2. 파일 위치로 이동 (strip_components: 2 설정 기준)
+            # 1. 파일 위치로 이동
             cd /home/ubuntu/app
-            
-            # 3. 새 서버 실행
-            nohup java -jar -Dspring.profiles.active=dev $(ls ali-*.jar | grep -v "plain") > nohup.out 2>&1 &
-            
-            # 4. 실행 확인을 위한 대기
-            sleep 10
-            
-            
 
+            # 2. 기존 JAR 파일이 있다면 백업하거나 정리 (선택사항, 덮어쓰기 되므로 생략 가능)
+            
+            # 3. [핵심] Systemd를 이용해 서버 재시작
+            # (이제 nohup 대신 이 명령어가 알아서 다 해줍니다)
+            sudo systemctl restart ali
+            
+            # 4. 잘 켜졌는지 상태 확인 (로그 10줄 출력)
+            sleep 5
+            sudo systemctl status ali --no-pager
