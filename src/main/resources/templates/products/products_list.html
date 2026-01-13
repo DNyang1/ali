@@ -29,7 +29,13 @@
 
 <div class="product-grid" id="productGrid">
     <a class="product-card" th:each="p : ${products}" th:href="@{/products/{id}(id=${p.productId})}">
-        <!-- 이미지 (임시) -->
+        <div class="discount-badge"
+             th:if="${p.discountType != null}"
+             th:text="${p.discountType == 'RATE'
+        ? '-' + p.discountValue + '%'
+        : '-' + p.discountValue + '원'}">
+        </div>
+
         <img th:src="@{|https://picsum.photos/300?random=${p.productId}|}"
              alt="상품 이미지">
 
@@ -37,17 +43,40 @@
             <p class="title" th:text="${p.productName}"></p>
 
             <div class="meta">
-                <p class="price" th:if="${p.minPrice != null}">
-                    ₩
-                    <span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
-                    ~
-                    ₩
-                    <span th:text="${#numbers.formatInteger(p.maxPrice, 3, 'COMMA')}"></span>
-                </p>
+                <div class="price-box">
 
-                <p class="price" th:if="${p.minPrice == null}">
-                    가격 문의
-                </p>
+                    <th:block th:if="${p.discountType != null}">
+                        <span class="time-sale-badge">⏰ 타임딜</span>
+
+                        <div class="price-original">
+                            ₩<span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
+                        </div>
+
+                        <div class="price-discounted">
+                            ₩<span th:text="${#numbers.formatInteger(
+                            (p.discountType == 'RATE'
+                                ? p.minPrice - (p.minPrice * p.discountValue / 100)
+                                : p.minPrice - p.discountValue),
+                            3,
+                            'COMMA'
+                        )}"></span>
+                        </div>
+                    </th:block>
+
+                    <th:block th:if="${p.discountType == null}">
+                        <div class="price-normal" th:if="${p.minPrice != null}">
+                            ₩<span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
+                            ~
+                            ₩<span th:text="${#numbers.formatInteger(p.maxPrice, 3, 'COMMA')}"></span>
+                        </div>
+
+                        <div class="price-normal" th:if="${p.minPrice == null}">
+                            가격 문의
+                        </div>
+                    </th:block>
+
+                </div>
+
 
                 <span class="custom"
                       th:if="${p.isCustomizable == 1}">

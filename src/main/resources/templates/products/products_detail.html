@@ -27,6 +27,24 @@
 
     <div class="product-info">
 
+        <div th:if="${product.discountType != null}"
+             class="time-sale-box"
+             th:data-type="${product.discountType}"
+             th:data-value="${product.discountValue}">
+
+            <span class="time-sale-badge">⏰ 타임딜</span>
+
+            <span class="time-sale-discount"
+                  th:text="${product.discountType == 'RATE'
+                ? product.discountValue + '% 할인'
+                : product.discountValue + '원 할인'}">
+        </span>
+
+            <span class="time-sale-countdown"
+                  th:data-end-at="${product.eventEndAt}">
+        </span>
+        </div>
+
         <div class="price-box">
             <div id="mainPriceTiers" class="main-price-tiers"></div>
             <p class="moq">MOQ: <span th:text="${product.moq}"></span> 개</p>
