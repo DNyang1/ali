@@ -40,12 +40,25 @@ public class ProductController {
     public String productsList(
             @RequestParam(required = false) Boolean custom,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) Boolean discount,
             Model model) {
 
         List<ProductDTO> products;
         String pageTitle = "전체 상품";
 
-        if (category != null) {
+        if (Boolean.TRUE.equals(discount) && category != null) {
+            products = productService.getDiscountProductsByCategory(category);
+            pageTitle = "할인 상품";
+
+        } else if (Boolean.TRUE.equals(discount)) {
+            products = productService.getDiscountProducts();
+            pageTitle = "할인 상품";
+
+        } else if (custom != null && category != null) {
+            products = productService.getProductsByCategoryAndCustom(category, custom);
+            pageTitle = (custom ? "커스텀 " : "Ali ") + "카테고리 상품";
+
+        } else if (category != null) {
             products = productService.getProductsByRootCategory(category);
             pageTitle = "카테고리 상품";
 
@@ -65,10 +78,13 @@ public class ProductController {
         model.addAttribute("categories", productService.getRootCategories());
         model.addAttribute("custom", custom);
         model.addAttribute("category", category);
+        model.addAttribute("discount", discount);
         model.addAttribute("pageTitle", pageTitle);
 
         return "products/products_list";
     }
+
+
 
 
     @GetMapping("/{productId:\\d+}")

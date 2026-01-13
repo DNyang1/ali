@@ -487,12 +487,12 @@ body {
     opacity: .95;
 }
 
-.side-discount-banner button {
+.side-discount-banner a {
     background: #fff;
     color: #ff6a00;
     border: none;
-    padding: 10px 18px;
     border-radius: 999px;
+    padding: 10px 18px;
     font-weight: 700;
     cursor: pointer;
 }

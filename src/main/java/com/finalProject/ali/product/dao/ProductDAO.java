@@ -47,5 +47,9 @@ public interface ProductDAO {
 
     Integer findMaxDiscountRate();
 
+    List<ProductDTO> selectDiscountProducts();
+
+    List<ProductDTO> selectDiscountProductsByCategory(String categoryId);
+
 
 }

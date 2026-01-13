@@ -171,26 +171,31 @@ function renderSkuList(skus) {
 
 
 function renderAllSkuInfo() {
-    const container = document.getElementById('mainSkuList');
-    if (!container) return;
-    if (!Array.isArray(PARSED_SKUS) || PARSED_SKUS.length === 0) return;
+    const skuIdEl = document.getElementById('skuIdText');
+    const skuOptionEl = document.getElementById('skuOptionText');
 
-    container.innerHTML = PARSED_SKUS
+    if (!skuIdEl || !skuOptionEl) return;
+
+    if (IS_CUSTOM_PRODUCT === true) {
+        skuIdEl.style.display = 'none';
+        skuOptionEl.style.display = 'none';
+        return;
+    }
+
+    skuIdEl.innerText = 'SKU 목록';
+
+    skuOptionEl.innerHTML = PARSED_SKUS
         .map(sku => {
             const option =
                 sku.optionSummary && sku.optionSummary.trim() !== ''
                     ? sku.optionSummary
                     : '옵션 없음';
 
-            return `
-                <div class="sku-all-item">
-                    <span class="sku-all-id">${sku.skuId}</span>
-                    <span class="sku-all-option">${option}</span>
-                </div>
-            `;
+            return `<div>${sku.skuId} | ${option}</div>`;
         })
         .join('');
 }
+
 
 
 function resolveUnitPriceByQty(skuId, qty) {
