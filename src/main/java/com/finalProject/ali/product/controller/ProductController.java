@@ -6,6 +6,7 @@ import com.finalProject.ali.product.service.ProductService;
 import com.finalProject.ali.product.service.SkuPriceService;
 import com.finalProject.ali.product.service.SkuService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import java.util.Map;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/products")
+@Slf4j
 public class ProductController {
 
     private final ProductService productService;
@@ -77,6 +79,15 @@ public class ProductController {
 
         ProductDTO product =
                 productService.productDetail(productId);
+
+        log.info(
+                "[EVENT CHECK] productId={}, discountType={}, discountValue={}, endAt={}",
+                productId,
+                product.getDiscountType(),
+                product.getDiscountValue(),
+                product.getEventEndAt()
+        );
+
 
         Map<String, List<StockOptionDTO>> options =
                 optionService.getStockOptions(productId);

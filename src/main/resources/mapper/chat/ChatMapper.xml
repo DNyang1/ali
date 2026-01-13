@@ -47,4 +47,29 @@
         ORDER BY sort_order ASC
         LIMIT 1
     </select>
+
+    <select id="findRecentChatsByRoomId" resultType="com.finalProject.ali.chat.dto.ChatDTO">
+        SELECT
+        c.chat_id AS chatId,
+        c.room_id AS roomId,
+        c.sender_id AS senderId,
+        u.name AS senderName,
+        c.message AS message,
+        c.product_id AS productId,
+        c.chat_at AS chatAt
+        FROM chat c
+        JOIN users u ON u.user_id = c.sender_id
+        WHERE c.room_id = #{roomId}
+        ORDER BY c.chat_id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findLastProductIdInRoom" resultType="java.lang.Long" parameterType="long">
+        SELECT product_id
+        FROM chat
+        WHERE room_id = #{roomId}
+        AND product_id IS NOT NULL
+        ORDER BY chat_at DESC
+        LIMIT 1
+    </select>
 </mapper>

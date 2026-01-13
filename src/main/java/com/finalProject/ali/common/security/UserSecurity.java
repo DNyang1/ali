@@ -63,6 +63,7 @@ public class UserSecurity {
 //                        .anyRequest().authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/mypage/supplier/**").hasRole("SUPPLIER") //.authenticated()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger").permitAll()
                         .anyRequest().permitAll()
                 )
 

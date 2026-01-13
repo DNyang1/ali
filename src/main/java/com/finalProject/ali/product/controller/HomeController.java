@@ -27,6 +27,16 @@ public class HomeController {
                 productService.getRecommendedProducts(4)
         );
 
+        model.addAttribute(
+                "discountProductCount",
+                productService.countActiveDiscountProducts()
+        );
+
+        model.addAttribute(
+                "maxDiscountRate",
+                productService.findMaxDiscountRate()
+        );
+
         return "index/index";
     }
 }
