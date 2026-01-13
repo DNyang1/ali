@@ -13,17 +13,26 @@
 <h2 th:text="${pageTitle}">전체 상품</h2>
 <div class="category-tabs">
 
-    <a th:href="@{/products/list(custom=${custom})}"
+    <a th:href="@{/products/list(
+                custom=${custom},
+                discount=${discount}
+        )}"
        th:classappend="${category == null} ? 'active' : ''">
         전체
     </a>
 
+
     <a th:each="c : ${categories}"
-       th:href="@{/products/list(category=${c.categoryId}, custom=${custom})}"
+       th:href="@{/products/list(
+        category=${c.categoryId},
+        custom=${custom},
+        discount=${discount}
+   )}"
        th:text="${c.categoryName}"
        th:classappend="${category == c.categoryId} ? 'active' : ''">
         카테고리명
     </a>
+
 
 </div>
 

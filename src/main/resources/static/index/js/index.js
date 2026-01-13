@@ -21,16 +21,40 @@ fetch('/api/categories/main')
 
         list.forEach(c => {
             const html = `
-                <span class="left">
-                    <span class="icon">📦</span>
-                    <span class="text">${c.categoryName}</span>
-                </span>
-                <span class="arrow">›</span>
-            `;
+        <span class="left">
+            <span class="icon">📦</span>
+            <span class="text">${c.categoryName}</span>
+        </span>
+        <span class="arrow">›</span>
+    `;
 
             const li1 = document.createElement('li');
             li1.className = 'category-item';
             li1.innerHTML = html;
+
+            li1.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                const params = new URLSearchParams(window.location.search);
+
+                const discount = params.get('discount');
+                const custom = params.get('custom');
+
+                let url = `/products/list?category=${c.categoryId}`;
+
+                if (discount === 'true') {
+                    url += `&discount=true`;
+                }
+
+                if (custom === 'true' || custom === 'false') {
+                    url += `&custom=${custom}`;
+                }
+
+                location.href = url;
+            });
+
+
+
             categoryList.appendChild(li1);
 
             const li2 = document.createElement('li');
@@ -40,6 +64,7 @@ fetch('/api/categories/main')
             li2.dataset.categoryName = c.categoryName;
             allCategoryList.appendChild(li2);
         });
+
     })
     .catch(err => console.error(err));
 
