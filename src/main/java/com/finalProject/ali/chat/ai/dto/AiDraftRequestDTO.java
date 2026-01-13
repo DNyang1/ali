@@ -7,4 +7,5 @@ import lombok.Setter;
 public class AiDraftRequestDTO {
     private Long productId;    // optional
     private String purpose;    // "MOQ" | "PRICE" | "LEADTIME" | "SAMPLE" | "SHIPPING" | "PAYMENT" | "QUOTE"
+    private String seedText;
 }

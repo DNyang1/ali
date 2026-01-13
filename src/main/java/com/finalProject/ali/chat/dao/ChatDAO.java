@@ -20,4 +20,8 @@ public interface ChatDAO {
 
     Long findRoomIdByTwoMembers(@Param("userA") String userA, @Param("userB") String userB);
 
+    List<ChatDTO> findRecentChatsByRoomId(@Param("roomId") Long roomId, @Param("limit") int limit);
+
+    Long findLastProductIdInRoom(Long roomId);
+
 }

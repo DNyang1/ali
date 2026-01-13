@@ -33,4 +33,8 @@ public interface ChatService {
 
     String getUserName(String userId);
 
+    List<ChatDTO> getRecentChatsForAi(Long roomId);
+
+    String buildConversationContext(Long roomId);
+
 }

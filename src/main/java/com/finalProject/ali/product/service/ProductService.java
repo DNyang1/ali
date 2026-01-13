@@ -133,4 +133,9 @@ public class ProductService {
 
 
     }
+
+    public String findSupplierIdByProductId(Long productId) {
+        return productDAO.findSupplierIdByProductId(productId);
+    }
+
 }
