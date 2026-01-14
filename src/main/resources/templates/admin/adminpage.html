@@ -2,12 +2,66 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{admin/layout/base :: layout(~{::section}, ~{::head/link})}">
 <head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="/admin/css/adminpage.css"/>
 </head>
 <body>
 <section>
-    <h2>대시보드 요약</h2>
-    <p>관리자 홈 화면입니다.</p>
+    <h2>📊 대시보드 현황</h2>
+    <br>
+    <div class="dashboard-grid">
+        <a th:href="@{/admin/users}" style="text-decoration: none;">
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>총 회원 수</h3>
+                <p th:text="${dashboard.totalUsers} + '명'">0명</p>
+            </div>
+            <div class="stat-icon bg-blue">
+                <span class="material-icons-outlined">people</span>
+            </div>
+        </div>
+        </a>
+
+
+        <a th:href="@{/admin/qna/list}" style="text-decoration: none;">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>답변 대기 문의</h3>
+                    <p th:text="${dashboard.waitingQna} + '건'" style="color: #ff6b6b;">0건</p>
+                </div>
+                <div class="stat-icon bg-red">
+                    <span class="material-icons-outlined">support_agent</span>
+                </div>
+            </div>
+        </a>
+
+        <a th:href="@{/admin/supplier/list}" style="text-decoration: none;">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>판매자 승인 대기</h3>
+                    <p th:text="${dashboard.pendingSuppliers} + '명'" style="color: #ff922b;">0명</p>
+                </div>
+                <div class="stat-icon bg-orange">
+                    <span class="material-icons-outlined">storefront</span>
+                </div>
+            </div>
+        </a>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>오늘 신규 가입</h3>
+                <p th:text="${dashboard.todayUsers} + '명'">0명</p>
+            </div>
+            <div class="stat-icon bg-green">
+                <span class="material-icons-outlined">person_add</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="shortcut-section">
+        <h3>👋 관리자님, 환영합니다!</h3>
+        <p>상단의 카드를 클릭하면 해당 관리 페이지로 바로 이동할 수 있습니다.</p>
+    </div>
+
 </section>
 </body>
 </html>

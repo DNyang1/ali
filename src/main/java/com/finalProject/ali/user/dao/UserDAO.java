@@ -60,5 +60,9 @@ public interface UserDAO {
     // 판매자 정보 삭제 (권한 해제 시)
     void deleteSupplier(String userId);
 
+    // 대시보드 통계용
+    int countAllUsers();          // 전체 회원 수
+    int countTodayUsers();        // 오늘 가입 수
+    int countPendingSuppliers();
 
 }
