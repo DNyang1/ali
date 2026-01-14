@@ -3,133 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${product.productName}">상품 상세</title>
-    <link rel="stylesheet" th:href="@{/products/css/products_detail.css}">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="/main/css/main-header.css">
     <link rel="stylesheet" href="/main/css/common.css">
-
+    <link rel="stylesheet" href="/mypage/common/css/layout.css">
 </head>
-<body>
+
+<body class="bg-slate-50 text-slate-900">
+
+<!-- HEADER -->
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
-<nav class="breadcrumb">
-    <a href="/">홈</a> &gt;
-    <a href="/products/list">상품</a> &gt;
-    <span th:text="${product.productName}"></span>
+<nav class="max-w-[1280px] mx-auto px-6 mt-4 text-sm text-slate-500">
+    <a href="/" class="hover:underline">홈</a> /
+    <a href="/products/list" class="hover:underline">상품</a> /
+    <span class="font-medium" th:text="${product.productName}"></span>
 </nav>
 
-<h1 class="product-title" th:text="${product.productName}"></h1>
+<section class="max-w-[1280px] mx-auto px-6 mt-4
+                grid grid-cols-1 lg:grid-cols-[600px_1fr] gap-8">
 
-<div class="product-detail-container">
-
-    <div class="product-images">
-        <img class="main-image" th:src="@{|https://picsum.photos/300?random=${product.productId}|}" alt="상품 이미지">
+    <div class="bg-white border border-slate-200">
+        <img class="w-full aspect-square object-cover"
+             th:src="@{|https://picsum.photos/900?random=${product.productId}|}">
     </div>
 
-    <div class="product-info">
+    <div class="bg-white border border-slate-200 p-6 space-y-6">
+
+        <h1 class="text-2xl font-bold leading-snug"
+            th:text="${product.productName}">
+        </h1>
+
+        <div class="flex gap-2 text-sm font-semibold">
+            <span th:if="${product.isCustomizable == 0}"
+                  class="px-3 py-1 border border-teal-600 text-teal-700">
+                Ali Guaranteed
+            </span>
+            <span th:if="${product.isCustomizable == 1}"
+                  class="px-3 py-1 border border-sky-500 text-sky-700">
+                커스터마이징 가능
+            </span>
+        </div>
 
         <div th:if="${product.discountType != null}"
-             class="time-sale-box"
+             class="time-sale-box flex items-center justify-between
+                    bg-slate-900 text-white px-4 py-3 text-sm"
              th:data-type="${product.discountType}"
              th:data-value="${product.discountValue}">
 
-            <span class="time-sale-badge">⏰ 타임딜</span>
+            <span class="font-bold">⏰ 타임딜</span>
 
-            <span class="time-sale-discount"
-                  th:text="${product.discountType == 'RATE'
+            <span th:text="${product.discountType == 'RATE'
                 ? product.discountValue + '% 할인'
                 : product.discountValue + '원 할인'}">
-        </span>
+            </span>
 
-            <span class="time-sale-countdown"
+            <span class="time-sale-countdown text-slate-200"
                   th:data-end-at="${product.eventEndAt}">
-        </span>
-        </div>
-
-        <div class="price-box">
-            <div id="mainPriceTiers" class="main-price-tiers"></div>
-            <p class="moq">MOQ: <span th:text="${product.moq}"></span> 개</p>
-        </div>
-
-        <div class="sku-selected-box">
-            <div class="sku-all-list" id="mainSkuList">
-            </div>
-        </div>
-
-
-
-        <div class="custom">
-            <span th:if="${product.isCustomizable == 1}" class="custom-yes">
-            </span>
-            <span th:if="${product.isCustomizable == 0}" class="custom-no">
             </span>
         </div>
 
-        <div class="action-buttons">
+        <!-- PRICE -->
+        <div class="border-t pt-4 space-y-3">
+            <div id="mainPriceTiers"
+                 class="grid grid-cols-3 gap-3 text-sm"></div>
+        </div>
+
+        <div class="border-t pt-4 text-sm">
+
             <th:block th:if="${product.isCustomizable == 0}">
-                <button class="btn order" id="openOrderModal">주문 시작</button>
-                <button class="btn cart" id="openCartModal">장바구니</button>
+                <div id="mainSkuList"
+                     class="max-h-[340px] overflow-y-auto pr-1 space-y-2">
+                </div>
             </th:block>
 
             <th:block th:if="${product.isCustomizable == 1}">
-                <button class="btn inquiry"
-                        th:onclick="|location.href='/inquiry/create?productId=${product.productId}'|">
-                    문의 전송
+                <div class="space-y-4">
+
+                    <div class="p-4 border border-slate-200 rounded-xl bg-slate-50">
+                        <div class="font-bold mb-2">커스터마이징 안내</div>
+                        <ul class="text-sm text-slate-700 space-y-1">
+                            <li>• 색상, 사이즈, 소재 등 옵션 맞춤 가능</li>
+                            <li>• 수량 및 사양에 따라 가격 변동</li>
+                            <li>• 제작 일정 협의 필요</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-4 border border-slate-200 rounded-xl bg-white">
+                        <div class="font-bold mb-2">진행 절차</div>
+                        <ol class="text-sm text-slate-700 space-y-1">
+                            <li>1. 문의 전송</li>
+                            <li>2. 옵션 및 수량 협의</li>
+                            <li>3. 견적 확정</li>
+                            <li>4. 제작 및 납품</li>
+                        </ol>
+                    </div>
+
+                </div>
+            </th:block>
+
+        </div>
+
+
+        <div class="border-t pt-6 grid grid-cols-3 gap-4">
+
+            <th:block th:if="${product.isCustomizable == 0}">
+                <button id="openOrderModal" class="h-14 w-full
+                       bg-teal-600 text-white
+                       font-bold rounded-xl
+                       text-base
+                       hover:bg-teal-700 transition
+                       whitespace-nowrap">
+                    주문 시작
+                </button>
+
+                <button id="openCartModal" class="h-14 w-full
+                       bg-white border border-slate-300
+                       text-slate-800 font-bold rounded-xl
+                       text-base
+                       hover:bg-slate-100 transition
+                       whitespace-nowrap">
+                    장바구니
                 </button>
             </th:block>
 
-            <button class="btn chat"
+            <th:block th:if="${product.isCustomizable == 1}">
+
+                <button class="h-14 w-full
+                       bg-sky-500 text-white
+                       font-bold rounded-xl
+                       text-base
+                       hover:bg-sky-600 transition
+                       whitespace-nowrap"
+                        th:onclick="|location.href='/inquiry/create?productId=${product.productId}'|">
+                    문의 전송
+                </button>
+
+                <div></div>
+            </th:block>
+
+            <button class="h-14 w-full
+                       bg-slate-900 text-white
+                       font-bold rounded-xl
+                       text-base
+                       hover:bg-black transition
+                       whitespace-nowrap btn chat"
                     th:data-product-id="${product.productId}">
-                채팅하기
+                채팅
+            </button>
+
+        </div>
+
+    </div>
+</section>
+
+<th:block th:if="${product.isCustomizable == 0}">
+
+    <div id="orderModalOverlay"
+         class="hidden fixed inset-0 bg-black/40 z-[9999]"></div>
+
+    <div id="orderModal"
+         class="hidden fixed left-1/2 top-1/2
+                -translate-x-1/2 -translate-y-1/2
+                w-[640px] max-w-[95vw]
+                bg-white border border-slate-300
+                p-6 z-[10000]">
+
+        <button id="closeOrderModal"
+                class="absolute right-4 top-4
+                       text-xl text-slate-500 hover:text-black">
+            ✕
+        </button>
+
+        <h3 class="text-lg font-bold mb-4">옵션 및 수량 선택</h3>
+
+        <div class="text-sm mb-3">
+            MOQ :
+            <b th:text="${product.moq}"></b> 개
+        </div>
+
+        <div class="border border-slate-200 p-3 mb-4">
+            <ul id="priceTiers" class="text-sm space-y-1"></ul>
+        </div>
+
+        <div id="skuList" class="space-y-2 mb-4"></div>
+
+        <div class="mt-4 flex justify-between text-sm font-bold">
+            <div>총 수량 <span id="totalQty">0</span></div>
+            <div>총 금액 <span id="totalPrice">0원</span></div>
+        </div>
+
+        <div class="mt-4 flex gap-2">
+            <button id="submitOrder"
+                    class="flex-1 h-11 bg-teal-600
+                           text-white font-bold rounded-lg">
+                주문
+            </button>
+            <button id="submitCart"
+                    class="flex-1 h-11 bg-slate-800
+                           text-white font-bold rounded-lg">
+                장바구니
             </button>
         </div>
 
     </div>
-</div>
-
-<th:block th:if="${product.isCustomizable == 0}">
-    <div class="modal-overlay" id="orderModalOverlay"></div>
-
-    <div class="order-modal" id="orderModal">
-
-        <button class="modal-close" id="closeOrderModal">✕</button>
-        <h3 class="modal-title">옵션 및 수량을 선택하세요</h3>
-
-        <div class="moq-text">
-            최소 주문 수량: <strong th:text="${product.moq}">1</strong> 개
-        </div>
-
-        <div class="price-tier-box">
-            <h4 class="price-tier-title">가격 구간</h4>
-            <ul id="priceTiers" class="price-tier-list"></ul>
-        </div>
-
-        <div id="skuList" class="sku-list">
-        </div>
-
-        <div class="order-summary">
-            <div>
-                총 수량 :
-                <strong id="totalQty">0</strong>
-            </div>
-            <div>
-                총 금액 :
-                <strong id="totalPrice">0원</strong>
-            </div>
-        </div>
-
-        <button class="modal-submit" id="submitOrder">주문 시작</button>
-        <button class="modal-submit" id="submitCart">장바구니 담기</button>
-    </div>
 </th:block>
+<div th:replace="layout/footer :: footer"></div>
 
 <script th:inline="javascript">
     window.SKUS = /*[[${skusJson}]]*/ [];
     window.DEFAULT_PRICE_RULES = /*[[${defaultPriceRulesJson}]]*/ [];
     window.MOQ = /*[[${product.moq}]]*/ 1;
     window.PRODUCT_ID = /*[[${product.productId}]]*/ 0;
-
-    console.log('HTML SKUS 👉', window.SKUS);
-    console.log('HTML PRICE RULES 👉', window.DEFAULT_PRICE_RULES);
 </script>
 
 <script th:src="@{/products/js/products_detail.js}"></script>
