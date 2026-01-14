@@ -25,12 +25,31 @@
                     if (!Array.isArray(list)) list = [];
 
                     const params = new URLSearchParams(location.search);
-                    const status = norm(params.get('supplierStatus')); // READY
 
-                    if (status) {
-                        render(list.filter(o => norm(o.supplierStatus) === status));
-                    } else {
-                        render(list);
+                    // ✅ 기존 기능: 상태 필터 유지
+                    const status = norm(params.get('supplierStatus')); // READY
+                    const filtered = status
+                        ? list.filter(o => norm(o.supplierStatus) === status)
+                        : list;
+
+                    // ✅ 추가 기능: 프론트 페이징(10개씩)
+                    const size = 10;
+                    const page = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
+                    const totalPages = Math.max(1, Math.ceil(filtered.length / size));
+                    const safePage = Math.min(page, totalPages);
+
+                    const start = (safePage - 1) * size;
+                    const sliced = filtered.slice(start, start + size);
+
+                    render(sliced);
+                    renderPager(safePage, totalPages, status);
+
+                    // page가 범위를 벗어나면(예: 필터 적용 후 페이지가 줄어듦) URL 정리
+                    if (safePage !== page) {
+                        const next = new URLSearchParams(location.search);
+                        next.set('page', String(safePage));
+                        if (status) next.set('supplierStatus', status);
+                        history.replaceState(null, '', `${location.pathname}?${next.toString()}`);
                     }
                 })
                 .catch(err => {
@@ -91,10 +110,85 @@
                 });
             }
 
+            // ✅ 추가: 페이지네이션 UI
+            function renderPager(page, totalPages, status) {
+                // 기존 pager 있으면 제거(필터 변경/재렌더 대응)
+                const old = document.getElementById('supplier-order-pager');
+                if (old) old.remove();
+
+                // 주문이 0개거나 1페이지면 pager 숨김
+                if (!totalPages || totalPages <= 1) return;
+
+                const pager = document.createElement('div');
+                pager.id = 'supplier-order-pager';
+                pager.className = 'mt-6 flex flex-wrap items-center justify-center gap-2';
+
+                // 링크 생성(필터 유지 + page만 변경)
+                const makeHref = (p) => {
+                    const qs = new URLSearchParams(location.search);
+                    qs.set('page', String(p));
+                    if (status) qs.set('supplierStatus', status); // ✅ 필터 유지
+                    else qs.delete('supplierStatus');
+                    return `${location.pathname}?${qs.toString()}`;
+                };
+
+                // 이전
+                if (page > 1) {
+                    pager.appendChild(pageBtn('이전', makeHref(page - 1), false));
+                }
+
+                // 페이지 번호 (너무 많으면 1~N 전부 말고 범위로 줄임)
+                const windowSize = 7; // 1..7 정도만 보이게
+                let start = Math.max(1, page - Math.floor(windowSize / 2));
+                let end = Math.min(totalPages, start + windowSize - 1);
+                start = Math.max(1, end - windowSize + 1);
+
+                if (start > 1) {
+                    pager.appendChild(pageBtn('1', makeHref(1), page === 1));
+                    if (start > 2) pager.appendChild(ellipsis());
+                }
+
+                for (let p = start; p <= end; p++) {
+                    pager.appendChild(pageBtn(String(p), makeHref(p), p === page));
+                }
+
+                if (end < totalPages) {
+                    if (end < totalPages - 1) pager.appendChild(ellipsis());
+                    pager.appendChild(pageBtn(String(totalPages), makeHref(totalPages), page === totalPages));
+                }
+
+                // 다음
+                if (page < totalPages) {
+                    pager.appendChild(pageBtn('다음', makeHref(page + 1), false));
+                }
+
+                const listEl = document.getElementById('supplier-order-list');
+                listEl.after(pager);
+            }
+
+            function pageBtn(text, href, active) {
+                const a = document.createElement('a');
+                a.href = href;
+                a.textContent = text;
+                a.className =
+                    'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 ' +
+                    (active ? 'border-blue-600 bg-blue-600 text-white hover:bg-blue-600' : 'text-slate-700');
+                return a;
+            }
+
+            function ellipsis() {
+                const span = document.createElement('span');
+                span.textContent = '...';
+                span.className = 'px-2 text-sm text-slate-400';
+                return span;
+            }
+
+            // ✅ 기존 기능 유지
             window.goDetail = function(orderId) {
                 location.href = `/mypage/supplier/order/${orderId}`;
             }
         </script>
+
 
 
     </th:block>
