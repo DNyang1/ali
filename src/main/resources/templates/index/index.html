@@ -2,183 +2,224 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Alibaba Style Main</title>
-    <link rel="stylesheet" href="/index/css/index.css">
+    <title>Ali Main</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/main/css/main-header.css">
     <link rel="stylesheet" href="/main/css/common.css">
+    <link rel="stylesheet" href="/mypage/common/css/layout.css">
 </head>
-<body>
+
+<body class="bg-slate-50 text-slate-900">
+
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
-<header class="header">
-    <div class="top">
-        <div class="left">
-            <button id="allCategoryBtn">모든 카테고리</button>
-        </div>
-    </div>
+<header class="bg-gradient-to-r from-teal-500 to-sky-500 text-white">
+    <div class="max-w-[1200px] mx-auto px-6 py-10 text-center">
 
-    <div class="hero">
-        <div class="tabs">
-            <span class="active">제품</span>
-            <span>제조업체</span>
+        <div class="flex justify-center gap-8 text-2xl font-bold mb-6">
+            <span class="border-b-4 border-white pb-1">제품</span>
+            <span class="opacity-70">제조업체</span>
         </div>
 
-        <form action="/products/search" method="get" class="search-box">
-            <input type="text"
-                   name="keyword"
-                   placeholder="여성 의류"
-                   th:value="${keyword}">
-            <button type="submit" class="search-btn">검색</button>
+        <form action="/products/search"
+              method="get"
+              class="bg-white max-w-[820px] mx-auto flex rounded-full overflow-hidden shadow">
+            <input name="keyword"
+                   class="flex-1 px-6 py-4 text-black outline-none"
+                   placeholder="여성 의류">
+            <button class="bg-teal-500 px-10 font-bold">
+                검색
+            </button>
         </form>
+
     </div>
 </header>
 
-<div class="welcome-bar">
-    <div class="welcome-left">
-        <strong>
-            Ali.com에 오신 것을 환영합니다
-        </strong>
-    </div>
-</div>
+<section class="max-w-[1200px] mx-auto px-6 my-14 grid grid-cols-2 gap-8">
 
-<div class="all-category-overlay hidden" id="allCategoryOverlay">
-    <div class="all-category-panel">
-        <button class="category-close" id="categoryCloseBtn">✕</button>
+    <div class="bg-white rounded-xl p-8 shadow-sm">
+        <h2 class="text-xl font-bold mb-2">
+            <span class="text-teal-600">Ali</span> Guaranteed
+        </h2>
+        <p class="text-sm text-slate-600 mb-4">
+            ✔ 빠른 주문 ✔ 정시 배송 ✔ 환불 보장
+        </p>
 
-        <div class="all-category-wrap">
-            <aside class="all-category-left">
-                <h3>모든 카테고리</h3>
-                <ul id="allCategoryList"></ul>
-            </aside>
+        <button class="explore-btn bg-teal-500 text-white px-6 py-2 rounded font-bold mb-6"
+                data-custom="false">
+            지금 살펴보기
+        </button>
 
-            <section class="all-category-right">
-                <h3 id="allCategoryTitle">고객님을 위한 카테고리</h3>
-                <div class="all-category-grid" id="allCategoryGrid"></div>
-            </section>
-        </div>
-    </div>
-</div>
-
-<div class="main">
-    <aside class="category-box">
-        <h3>고객님을 위한 카테고리</h3>
-        <ul id="categoryList"></ul>
-    </aside>
-
-    <section class="recommend-row">
-
-        <div class="recommend-wrapper">
-
-            <div class="recommend-horizontal">
-
-                <div class="recommend-block"
-                     th:each="entry : ${recommendByCategory}"
-                     th:if="${entry.value != null and #lists.size(entry.value) > 0}">
-
-                    <div class="recommend-header">
-                        <h4>추천 더 보기</h4>
-                        <span th:text="${entry.key}"></span>
-                    </div>
-
-                    <div class="recommend-cards">
-                        <div class="product-card"
-                             th:each="p : ${entry.value}">
-                            <a class="product-link"
-                               th:href="@{/products/{id}(id=${p.productId})}">
-
-                                <img th:src="|https://picsum.photos/seed/${p.productId}/200/200|">
-                                <span class="price"
-                                      th:text="${p.minPrice != null
-                                      ? '₩' + #numbers.formatInteger(p.minPrice,3,'COMMA')
-                                      : '가격문의'}">
-                                </span>
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-
-        <aside class="side-discount-banner">
-            <h3>🔥 최대 <span th:text="${maxDiscountRate}"></span>% 할인</h3>
-            <p>지금 주문하고<br>한정 혜택을 받아보세요</p>
-            <button onclick="location.href='/products/discount'">
-                할인 상품 보기
-            </button>
-        </aside>
-
-    </section>
-</div>
-
-
-<section class="biz">
-
-    <div class="banner left">
-        <div class="text">
-            <h2><span>Ali</span> Guaranteed</h2>
-            <p>✔ 빠른 주문 및 결제 &nbsp; ✔ 정시 배송 &nbsp; ✔ 환불 보장</p>
-            <button class="explore-btn"  data-custom="false">지금 살펴보기</button>
-        </div>
-
-        <div class="products">
-            <div class="card">
-                <img src="https://picsum.photos/200?1">
+        <div class="grid grid-cols-4 gap-4 text-center text-sm">
+            <div th:each="i : ${#numbers.sequence(1,4)}">
+                <img class="rounded mb-1" th:src="|https://picsum.photos/200?${i}|">
                 <b>₩896</b>
-                <span class="ship">무료 배송</span>
-            </div>
-            <div class="card">
-                <img src="https://picsum.photos/200?2">
-                <b>₩314</b>
-                <span class="ship">무료 배송</span>
-            </div>
-            <div class="card">
-                <img src="https://picsum.photos/200?3">
-                <b>₩493</b>
-                <span class="ship">무료 배송</span>
-            </div>
-            <div class="card">
-                <img src="https://picsum.photos/200?4">
-                <b>₩7,541</b>
-                <span class="ship">무료 배송</span>
+                <div class="text-xs text-slate-500">무료 배송</div>
             </div>
         </div>
     </div>
 
-    <div class="banner right">
-        <div class="text">
-            <h2>⚡ 빠른 커스터마이징</h2>
-            <p>✔ 낮은 MOQ &nbsp; ✔ 14일 내 발송 &nbsp; ✔ 디자인 충실</p>
-            <button class="explore-btn"  data-custom="true">지금 살펴보기</button>
-        </div>
+    <div class="bg-white rounded-xl p-8 shadow-sm">
+        <h2 class="text-xl font-bold mb-2">⚡ 빠른 커스터마이징</h2>
+        <p class="text-sm text-slate-600 mb-4">
+            ✔ 낮은 MOQ ✔ 14일 발송 ✔ 디자인 충실
+        </p>
 
-        <div class="products">
-            <div class="card">
-                <img src="https://picsum.photos/200?5">
+        <button class="explore-btn bg-sky-500 text-white px-6 py-2 rounded font-bold mb-6"
+                data-custom="true">
+            지금 살펴보기
+        </button>
+
+        <div class="grid grid-cols-4 gap-4 text-center text-sm">
+            <div th:each="i : ${#numbers.sequence(5,8)}">
+                <img class="rounded mb-1" th:src="|https://picsum.photos/200?${i}|">
                 <b>₩6,272</b>
-                <span>MOQ: 100</span>
-            </div>
-            <div class="card">
-                <img src="https://picsum.photos/200?6">
-                <b>₩4,465</b>
-                <span>MOQ: 5</span>
-            </div>
-            <div class="card">
-                <img src="https://picsum.photos/200?7">
-                <b>₩139,609</b>
-                <span>MOQ: 1</span>
-            </div>
-            <div class="card">
-                <img src="https://picsum.photos/200?8">
-                <b>₩13,633</b>
-                <span>MOQ: 2</span>
+                <div class="text-xs text-slate-500">MOQ 10</div>
             </div>
         </div>
     </div>
 
 </section>
 
+<section class="max-w-[1200px] mx-auto px-6 mb-20">
+
+    <div class="bg-white rounded-2xl shadow
+              grid grid-cols-[260px_1fr_300px]
+              gap-6 p-6
+              h-[480px]">
+
+        <aside class="category-box bg-white border border-slate-200 rounded-xl p-4 h-[440px] flex flex-col">
+            <div id="allCategoryBtn" class="flex items-center justify-between px-2 py-2 mb-3 rounded-lg cursor-pointer select-none hover:bg-slate-50 transition">
+                    <span class="flex items-center gap-2">
+                      <span class="grid place-items-center w-8 h-8 rounded-xl bg-teal-100 text-teal-600">📂</span>
+                      고객님을 위한 카테고리
+                    </span>
+                <span class="text-slate-400 text-lg">›</span>
+            </div>
+
+            <ul id="categoryList" class="mt-2 space-y-1 text-[15px] overflow-y-auto pr-1">
+            </ul>
+        </aside>
+
+
+
+        <main class="h-full overflow-hidden">
+
+            <div class="flex gap-6 overflow-x-auto pb-4 h-full items-start">
+
+                <div
+                        th:each="entry : ${recommendByCategory}"
+                        th:if="${entry.value != null and #lists.size(entry.value) > 0}"
+                        class="min-w-[320px] h-[420px]
+                 bg-white border rounded-2xl p-4 flex flex-col">
+
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-sm"
+                            th:text="${entry.key}">
+                        </h4>
+                        <a class="text-xs text-sky-600 hover:underline">
+                            추천 더 보기
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 flex-1">
+
+                        <a th:each="p, stat : ${entry.value}"
+                           th:if="${stat.index < 4}"
+                           th:href="@{/products/{id}(id=${p.productId})}"
+                           class="bg-slate-50 rounded-xl overflow-hidden hover:shadow">
+
+                            <img th:src="|https://picsum.photos/seed/${p.productId}/300/200|"
+                                 class="w-full h-28 object-cover">
+
+                            <div class="px-2 py-1 text-sm font-bold text-teal-600"
+                                 th:text="${p.minPrice != null
+                     ? '₩' + #numbers.formatInteger(p.minPrice,3,'COMMA')
+                     : '가격문의'}">
+                            </div>
+
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <div class="bg-gradient-to-b from-teal-500 to-sky-500
+         rounded-2xl p-8 text-white
+         h-[440px] flex flex-col justify-between">
+
+
+            <div>
+                <h3 class="text-xl font-bold mb-2">
+                    최대 <span th:text="${maxDiscountRate}">30</span>% 할인
+                </h3>
+                <p class="text-sm opacity-90">
+                    지금 주문하고<br>한정 혜택을 받아보세요
+                </p>
+            </div>
+
+            <a href="/products/list?discount=true"
+               class="bg-white text-teal-600 font-bold py-3 rounded-lg text-center">
+                할인 상품 보기
+            </a>
+
+        </aside>
+
+    </div>
+    </div>
+</section>
+
+
+<div id="allCategoryOverlay"
+     class="hidden fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-6">
+
+    <div class="all-category-panel w-[1100px] max-w-[96vw] max-h-[82vh] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200
+                bg-gradient-to-r from-teal-50 to-sky-50">
+            <div class="flex items-center gap-3">
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-teal-100 text-teal-600">📦</span>
+                <h3 id="allCategoryTitle" class="text-lg font-extrabold text-slate-900">
+                    고객님을 위한 카테고리
+                </h3>
+            </div>
+
+            <button id="categoryCloseBtn"
+                    class="w-10 h-10 grid place-items-center rounded-xl text-slate-500 hover:text-slate-900 hover:bg-black/5 transition">
+                ✕
+            </button>
+        </div>
+
+        <div class="all-category-wrap grid grid-cols-[260px_1fr] h-[520px]">
+
+            <aside class="all-category-left border-r border-slate-200 bg-slate-50/60 p-4 overflow-y-auto">
+                <ul id="allCategoryList" class="space-y-1 text-[15px]">
+                </ul>
+            </aside>
+
+            <section class="all-category-right p-6 overflow-y-auto">
+                <div id="allCategoryGrid" class="grid grid-cols-4 gap-3">
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+
+<div th:replace="layout/footer :: footer"></div>
 <script src="/index/js/index.js"></script>
+
+<script>
+    document.querySelectorAll('.explore-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            location.href = `/products/list?custom=${btn.dataset.custom}`;
+        });
+    });
+</script>
+
 </body>
 </html>

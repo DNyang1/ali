@@ -1,199 +1,153 @@
-fetch('/api/categories/main')
-    .then(res => {
-        if (!res.ok) {
-            throw new Error('API 호출 실패');
-        }
-        return res.json();
-    })
-    .then(list => {
-        console.log('category list:', list);
-
-        if (!Array.isArray(list)) {
-            console.error('배열 아님:', list);
-            return;
-        }
-
-        const categoryList = document.getElementById('categoryList');
-        const allCategoryList = document.getElementById('allCategoryList');
-
-        categoryList.innerHTML = '';
-        allCategoryList.innerHTML = '';
-
-        list.forEach(c => {
-            const html = `
-                <span class="left">
-                    <span class="icon">📦</span>
-                    <span class="text">${c.categoryName}</span>
-                </span>
-                <span class="arrow">›</span>
-            `;
-
-            const li1 = document.createElement('li');
-            li1.className = 'category-item';
-            li1.innerHTML = html;
-            categoryList.appendChild(li1);
-
-            const li2 = document.createElement('li');
-            li2.className = 'category-item';
-            li2.innerHTML = html;
-            li2.dataset.categoryId = c.categoryId;
-            li2.dataset.categoryName = c.categoryName;
-            allCategoryList.appendChild(li2);
-        });
-    })
-    .catch(err => console.error(err));
-
-
-const allCategoryBtn = document.getElementById('allCategoryBtn');
-const overlay = document.getElementById('allCategoryOverlay');
-const panel = document.querySelector('.all-category-panel');
-const closeBtn = document.getElementById('categoryCloseBtn');
-const categoryBox = document.querySelector('.category-box');
-
-if (allCategoryBtn && overlay && panel) {
-
-    allCategoryBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        overlay.classList.toggle('hidden');
-    });
-
-    overlay.addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-
-    panel.addEventListener('click', e => {
-        e.stopPropagation();
-    });
-
-    closeBtn.addEventListener('click', () => {
-        overlay.classList.add('hidden');
-    });
-
-}
-
-if (categoryBox && overlay) {
-    categoryBox.addEventListener('click', () => {
-        overlay.classList.remove('hidden');
-    });
-}
-
-document.querySelectorAll('.explore-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        window.location.href = '/products';
-    });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
 
-    const exploreBtns = document.querySelectorAll('.explore-btn');
+    /* ===============================
+       DOM 캐싱
+    =============================== */
+    const categoryList = document.getElementById('categoryList');
+    const allCategoryList = document.getElementById('allCategoryList');
+    const allCategoryGrid = document.getElementById('allCategoryGrid');
+    const allCategoryTitle = document.getElementById('allCategoryTitle');
 
-    exploreBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const custom = btn.dataset.custom;
-            location.href = `/products/list?custom=${custom}`;
-        });
-    });
+    const overlay = document.getElementById('allCategoryOverlay');
+    const panel = document.querySelector('.all-category-panel');
+    const closeBtn = document.getElementById('categoryCloseBtn');
+    const categoryBox = document.querySelector('.category-box');
 
-});
-
-const allCategoryGrid = document.getElementById('allCategoryGrid');
-const allCategoryTitle = document.getElementById('allCategoryTitle');
-
-allCategoryList.addEventListener('click', async (e) => {
-    const item = e.target.closest('.category-item');
-    if (!item) return;
-
-    const categoryId = item.dataset.categoryId;
-    const categoryName = item.dataset.categoryName;
-
-    allCategoryTitle.textContent = categoryName;
-    allCategoryGrid.innerHTML = '<p>로딩중...</p>';
-
-    try {
-        const res = await fetch(`/api/categories/children?parentId=${categoryId}`);
-        const children = await res.json();
-
-        if (Array.isArray(children) && children.length > 0) {
-            renderSubCategories(children);
-        }
-        else {
-            fetchProducts(categoryId);
-        }
-
-    } catch (err) {
-        console.error(err);
-        allCategoryGrid.innerHTML = '<p>불러오지 못했습니다.</p>';
-    }
-});
-
-function renderSubCategories(categories) {
-    allCategoryGrid.innerHTML = categories.map(c => `
-        <div class="category-preview-item"
-             data-category-id="${c.categoryId}"
-             data-category-name="${c.categoryName}">
-            <div class="category-preview-thumb circle">
-                ${c.categoryName[0]}
-            </div>
-            <div class="category-preview-name">
-                ${c.categoryName}
-            </div>
-        </div>
-    `).join('');
-
-    allCategoryGrid.querySelectorAll('.category-preview-item').forEach(item => {
-        item.addEventListener('click', () => {
-            onCategoryClick(
-                item.dataset.categoryId,
-                item.dataset.categoryName
-            );
-        });
-    });
-}
-
-function onCategoryClick(categoryId, categoryName) {
-    allCategoryTitle.textContent = categoryName;
-    allCategoryGrid.innerHTML = '<p>로딩중...</p>';
-
-    fetch(`/api/categories/children?parentId=${categoryId}`)
+    /* ===============================
+       메인 카테고리 로드
+    =============================== */
+    fetch('/api/categories/main')
         .then(res => res.json())
-        .then(children => {
-            if (children.length > 0) {
-                renderSubCategories(children);
-            } else {
-                fetchProducts(categoryId);
-            }
-        });
-}
+        .then(list => {
+            if (!Array.isArray(list)) return;
 
-async function fetchProducts(categoryId) {
-    try {
-        const res = await fetch(`/api/products/preview?categoryId=${categoryId}`);
-        const products = await res.json();
-        renderCategoryPreview(products);
-    } catch (e) {
-        console.error(e);
-        allCategoryGrid.innerHTML = '<p>상품을 불러오지 못했습니다.</p>';
-    }
-}
+            categoryList.innerHTML = '';
+            allCategoryList.innerHTML = '';
 
-function renderCategoryPreview(products) {
-    if (!Array.isArray(products) || products.length === 0) {
-        allCategoryGrid.innerHTML = '<p>상품이 없습니다.</p>';
-        return;
-    }
-
-    allCategoryGrid.innerHTML = products.map(p => `
-        <div class="category-preview-item"
-             onclick="location.href='/products/${p.productId}'">
-            <div class="category-preview-thumb">
-                <img src="${p.imageUrl || '/images/no-image.png'}"
-                     alt="${p.productName}">
+            list.forEach(c => {
+                const html = `
+          <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg
+                      hover:bg-teal-50 cursor-pointer">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 grid place-items-center rounded-lg bg-teal-100 text-teal-600">📦</span>
+              <span class="text-sm font-medium">${c.categoryName}</span>
             </div>
-            <div class="category-preview-name">
-                ${p.productName}
-            </div>
+            <span class="text-slate-400">›</span>
+          </div>
+        `;
+
+                /* 왼쪽 카테고리 (모달 열기만 함) */
+                const li1 = document.createElement('li');
+                li1.innerHTML = html;
+                li1.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openOverlay(c.categoryId, c.categoryName);
+                });
+                categoryList.appendChild(li1);
+
+                /* 모달 왼쪽 카테고리 */
+                const li2 = document.createElement('li');
+                li2.innerHTML = html;
+                li2.addEventListener('click', () => {
+                    openOverlay(c.categoryId, c.categoryName);
+                });
+                allCategoryList.appendChild(li2);
+            });
+        })
+        .catch(console.error);
+
+    /* ===============================
+       모달 열기 + 소분류 로드
+    =============================== */
+    function openOverlay(categoryId, categoryName) {
+        overlay.classList.remove('hidden');
+        allCategoryTitle.textContent = categoryName;
+        allCategoryGrid.innerHTML = '<p class="text-slate-400">로딩중...</p>';
+
+        fetch(`/api/categories/children?parentId=${categoryId}`)
+            .then(res => res.json())
+            .then(children => {
+                if (children.length > 0) {
+                    renderSubCategories(children);
+                } else {
+                    fetchProducts(categoryId);
+                }
+            })
+            .catch(console.error);
+    }
+
+    /* ===============================
+       소분류 렌더
+    =============================== */
+    function renderSubCategories(categories) {
+        allCategoryGrid.innerHTML = categories.map(c => `
+      <div
+        class="cursor-pointer border border-slate-200 rounded-xl
+               px-4 py-3 bg-white text-sm font-medium
+               hover:border-teal-300 hover:bg-teal-50 transition"
+        data-category-id="${c.categoryId}">
+        <div class="flex justify-between items-center">
+          <span>${c.categoryName}</span>
+          <span class="text-slate-400">›</span>
         </div>
+      </div>
     `).join('');
-}
+
+        allCategoryGrid.querySelectorAll('[data-category-id]')
+            .forEach(el => {
+                el.addEventListener('click', () => {
+                    fetchProducts(el.dataset.categoryId);
+                });
+            });
+    }
+
+    /* ===============================
+       상품 프리뷰 로드
+    =============================== */
+    async function fetchProducts(categoryId) {
+        try {
+            const res = await fetch(`/api/products/preview?category=${categoryId}`);
+            const products = await res.json();
+
+            console.log('preview products:', products);
+
+            if (!Array.isArray(products) || products.length === 0) {
+                allCategoryGrid.innerHTML = `
+              <div class="col-span-full text-center text-slate-400 py-10">
+                상품이 없습니다.
+              </div>`;
+                return;
+            }
+
+            allCategoryGrid.innerHTML = products.map(p => `
+            <a href="/products/${p.productId}"
+               class="group bg-slate-50 rounded-xl overflow-hidden border hover:shadow transition">
+                <img
+                    src="https://picsum.photos/seed/${p.productId}/300/200"
+                    class="w-full h-32 object-cover">
+                <div class="p-2 text-sm font-bold text-teal-600">
+                    ${p.minPrice
+                ? '₩' + Number(p.minPrice).toLocaleString()
+                : '가격문의'}
+                </div>
+            </a>
+        `).join('');
+        } catch (e) {
+            console.error(e);
+            allCategoryGrid.innerHTML = '<p>오류 발생</p>';
+        }
+    }
 
 
+    /* ===============================
+       모달 닫기
+    =============================== */
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.add('hidden');
+    });
+    panel.addEventListener('click', e => e.stopPropagation());
+    closeBtn?.addEventListener('click', () => overlay.classList.add('hidden'));
+
+    categoryBox?.addEventListener('click', () => overlay.classList.remove('hidden'));
+
+});

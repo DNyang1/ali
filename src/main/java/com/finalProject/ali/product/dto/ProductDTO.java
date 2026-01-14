@@ -34,6 +34,9 @@ public class ProductDTO {
     private LocalDateTime eventEndAt;
 
     public boolean isTimeSale() {
-        return discountType != null && discountValue != null;
+        return discountType != null
+                && discountValue != null
+                && eventEndAt != null
+                && eventEndAt.isAfter(LocalDateTime.now());
     }
 }

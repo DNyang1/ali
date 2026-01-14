@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>문의 작성</title>
+  <link rel="stylesheet" href="/qna/css/qna.css">
+</head>
+<body>
+
+<div class="help-header">
+  <h1>✏️ 문의 작성</h1>
+  <a th:href="@{/qna/list}" class="btn-close">취소</a>
+</div>
+
+<div class="container">
+  <form th:action="@{/qna/write}" method="post">
+    <div class="form-group">
+      <label for="title" class="form-label">제목</label>
+      <input type="text" id="title" name="title" required placeholder="제목을 입력하세요">
+    </div>
+
+    <div class="form-group">
+      <label for="content" class="form-label">내용</label>
+      <textarea id="content" name="content" rows="10" required placeholder="문의 내용을 자세히 적어주세요"></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit">등록하기</button>
+  </form>
+</div>
+
+</body>
+</html>

@@ -98,6 +98,15 @@ public class ProductService {
         return rate != null ? rate : 0;
     }
 
+    public List<ProductDTO> getDiscountProducts() {
+        return productDAO.selectDiscountProducts();
+    }
+
+    public List<ProductDTO> getPreviewProductsByCategory(String categoryId) {
+        System.out.println("🔥 SERVICE categoryId = " + categoryId);
+        return productDAO.findByCategoryId(categoryId);
+    }
+
 
     //태민
     public List<ProductDTO> list(String supplierId) {
@@ -147,4 +156,7 @@ public class ProductService {
         return productDAO.findSupplierIdByProductId(productId);
     }
 
+    public List<ProductDTO> getDiscountProductsByCategory(String categoryId) {
+        return productDAO.selectDiscountProductsByCategory(categoryId);
+    }
 }

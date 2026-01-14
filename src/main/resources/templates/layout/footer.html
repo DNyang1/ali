@@ -1,3 +1,39 @@
 <footer th:fragment="footer" class="footer">
-  <p>© 2025 ALI. All rights reserved.</p>
+  <div class="footer-content">
+    <p>© 2025 ALI. All rights reserved.</p>
+
+    <div class="footer-links">
+      <a th:href="@{/qna/list}" class="qna-link">1:1 문의</a>
+    </div>
+  </div>
 </footer>
+
+<style>
+  /* 푸터 간단 스타일링 (필요하면 css 파일로 이동) */
+  .footer {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    position: relative;
+  }
+  .footer-links {
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .qna-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+  }
+  .qna-link:hover {
+    background-color: #eee;
+  }
+</style>
