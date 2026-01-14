@@ -22,15 +22,6 @@
         </div>
         </a>
 
-        <div class="stat-card">
-            <div class="stat-info">
-                <h3>오늘 신규 가입</h3>
-                <p th:text="${dashboard.todayUsers} + '명'">0명</p>
-            </div>
-            <div class="stat-icon bg-green">
-                <span class="material-icons-outlined">person_add</span>
-            </div>
-        </div>
 
         <a th:href="@{/admin/qna/list}" style="text-decoration: none;">
             <div class="stat-card">
@@ -55,6 +46,15 @@
                 </div>
             </div>
         </a>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>오늘 신규 가입</h3>
+                <p th:text="${dashboard.todayUsers} + '명'">0명</p>
+            </div>
+            <div class="stat-icon bg-green">
+                <span class="material-icons-outlined">person_add</span>
+            </div>
+        </div>
     </div>
 
     <div class="shortcut-section">
