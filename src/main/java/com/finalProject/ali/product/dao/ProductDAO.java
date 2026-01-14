@@ -52,5 +52,9 @@ public interface ProductDAO {
 
     int countLowStockProducts(@Param("supplierId") String supplierId,
                               @Param("threshold") int threshold);
+    List<ProductDTO> selectDiscountProducts();
+
+    List<ProductDTO> selectDiscountProductsByCategory(String categoryId);
+
 
 }

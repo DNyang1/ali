@@ -7,7 +7,7 @@
     <div class="topbar-right">
         <div th:if="${session.loginUser != null}" class="auth">
             <span class="role-tag">관리자</span>
-            <span class="username" th:text="${session.loginUser.name}">관리자님</span>
+            <span class="username" th:text="${session.loginUser.name}">관리자님</span>님
             <a th:href="@{/user/logout}" class="logout">로그아웃</a>
         </div>
     </div>
