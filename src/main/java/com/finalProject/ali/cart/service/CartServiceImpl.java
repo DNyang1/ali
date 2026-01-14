@@ -117,5 +117,9 @@ public class CartServiceImpl implements CartService{
         return response;
     }
 
+    @Override
+    public int getCartItemCount(String userId) {
+        return cartMapper.countCartItemByUser(userId);
+    }
 
 }

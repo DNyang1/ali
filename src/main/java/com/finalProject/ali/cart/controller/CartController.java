@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
@@ -44,4 +46,5 @@ public class CartController {
         String userId = user.getUserId();
         return cartService.getCartView(userId);
     }
+
 }

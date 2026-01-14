@@ -10,4 +10,5 @@ public interface CartService {
 
     void deleteItem(String userId, String cartItemId);
     CartViewResponse getCartView(String userId);
+    int getCartItemCount(String userId);
 }
