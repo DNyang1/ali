@@ -2,44 +2,59 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>MODERN-ALI | 장바구니</title>
+    <title>ALI | 장바구니</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/main/css/main-header.css">
     <link rel="stylesheet" href="/main/css/common.css">
-    <link rel="stylesheet" href="/cart/css/cart.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .cart-check:checked {
+            background-color: #0d9488; /* Tailwind's teal-600 */
+            border-color: #0d9488;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900">
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
-<div class="cart-container">
-    <div class="cart-header">🛒 &nbsp;My Cart</div>
+<main class="max-w-[1200px] mx-auto px-6 py-12">
+    <h1 class="text-3xl font-extrabold mb-8 text-slate-800">🛒 &nbsp;My Cart</h1>
 
-    <div id="cart-items-container">
-        <!-- 장바구니 아이템이 여기에 동적으로 추가됩니다. -->
-    </div>
+    <div class="grid grid-cols-[1fr_360px] gap-12 items-start">
+        <div class="bg-white rounded-xl shadow-sm" id="cart-items-container">
+            <!-- 장바구니 아이템이 여기에 동적으로 추가됩니다. -->
+        </div>
 
-    <div class="checkout-btn-container">
-        <button class="checkout-btn" onclick="goCheckout()">주문하기</button>
+        <div class="p-6 bg-white rounded-xl shadow-sm sticky top-8">
+            <h2 class="text-xl font-bold mb-6 border-b pb-4">주문 요약</h2>
+
+            <div class="flex justify-between items-center text-lg font-bold mb-6">
+                <span>총 주문 예상 금액</span>
+                <span id="total-amount">0 원</span>
+            </div>
+
+            <button class="checkout-btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg transition-colors" onclick="goCheckout()">
+                주문하기
+            </button>
+        </div>
     </div>
-</div>
+</main>
 
 
 <script>
     function loadCart() {
         fetch('/api/cart/view')
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(renderCart)
             .catch(error => {
                 console.error('Error loading cart:', error);
                 const container = document.getElementById('cart-items-container');
-                container.innerHTML = '<div class="cart-empty-message">장바구니 정보를 불러오는 데 실패했습니다.</div>';
+                container.innerHTML = '<div class="p-8 text-center text-slate-500">장바구니 정보를 불러오는 데 실패했습니다.</div>';
             });
     }
 
@@ -48,34 +63,70 @@
         container.innerHTML = '';
 
         if (!cart.items || cart.items.length === 0) {
-            container.innerHTML = '<div class="cart-empty-message">장바구니가 비어 있습니다.</div>';
+            container.innerHTML = `
+                <div class="p-12 text-center text-slate-500">
+                    <p class="text-lg">장바구니가 비어 있습니다.</p>
+                    <a href="/" class="mt-4 inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg">쇼핑 계속하기</a>
+                </div>`;
+            updateTotal();
             return;
         }
 
-        const itemGrid = document.createElement('div');
-        itemGrid.className = 'cart-item-grid';
+        const header = document.createElement('div');
+        header.className = 'flex items-center p-6 border-b border-slate-200 font-bold text-slate-600';
+        header.innerHTML = `
+            <input type="checkbox" id="check-all" class="cart-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 mr-6">
+            <span>전체 선택</span>
+        `;
+        container.appendChild(header);
 
         cart.items.forEach(item => {
             const itemElement = document.createElement('div');
-            itemElement.className = 'cart-item';
+            itemElement.className = 'flex items-center gap-6 p-6 border-b border-slate-200';
             itemElement.innerHTML = `
-                <input type="checkbox" class="cart-check" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
-                <div class="item-details">
-                    <span class="item-name">${item.productName}</span>
-                    <span class="item-option">옵션: ${item.optionSummary || '-'}</span>
-                    <span class="item-quantity">수량: ${item.quantity}개</span>
-                    <span class="item-price">${Number(item.lineAmount).toLocaleString()} 원</span>
+                <input type="checkbox" class="cart-check item-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
+                <a href="/products/${item.productId}" class="block w-24 h-24 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
+                     <img src="https://picsum.photos/seed/${item.skuId}/200" alt="${item.productName}" class="w-full h-full object-cover">
+                </a>
+                <div class="flex-1">
+                    <a href="/products/${item.productId}" class="font-bold text-lg text-slate-800 hover:underline">${item.productName}</a>
+                    <div class="text-sm text-slate-500 mt-1">옵션: ${item.optionSummary || '-'}</div>
+                    <div class="text-sm text-slate-500">수량: ${item.quantity}개</div>
                 </div>
-                <div class="item-actions">
-                    <button class="delete-btn" onclick="deleteItem('${item.cartItemId}')">삭제</button>
+                <div class="text-right">
+                     <div class="font-extrabold text-lg text-slate-900">${Number(item.lineAmount).toLocaleString()} 원</div>
+                     <button class="delete-btn text-sm text-slate-500 hover:text-red-500 hover:underline mt-1" onclick="deleteItem('${item.cartItemId}')">삭제</button>
                 </div>
             `;
-            itemGrid.appendChild(itemElement);
+            container.appendChild(itemElement);
         });
 
-        container.appendChild(itemGrid);
+        // Event Listeners
+        const checkAll = document.getElementById('check-all');
+        const itemChecks = document.querySelectorAll('.item-check');
 
-        document.querySelectorAll('.cart-check').forEach(cb => cb.checked = true);
+        checkAll.addEventListener('change', () => {
+            itemChecks.forEach(cb => cb.checked = checkAll.checked);
+            updateTotal();
+        });
+
+        itemChecks.forEach(cb => {
+            cb.addEventListener('change', () => {
+                checkAll.checked = [...itemChecks].every(c => c.checked);
+                updateTotal();
+            });
+        });
+        
+        checkAll.checked = true;
+        updateTotal();
+    }
+    
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.item-check:checked').forEach(cb => {
+            total += Number(cb.dataset.price);
+        });
+        document.getElementById('total-amount').innerText = `${total.toLocaleString()} 원`;
     }
 
     function deleteItem(cartItemId) {
@@ -94,7 +145,7 @@
     function goCheckout() {
         const selected = [];
 
-        document.querySelectorAll('.cart-check:checked')
+        document.querySelectorAll('.item-check:checked')
             .forEach(cb => {
                 selected.push({
                     skuId: cb.dataset.skuId,
