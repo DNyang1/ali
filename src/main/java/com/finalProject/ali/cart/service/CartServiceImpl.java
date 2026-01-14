@@ -51,7 +51,7 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void addItem(String userId, AddCartItemRequest request) {
+    public void addItem(String userId, List<AddCartItemRequest> requests) {
 
         Cart cart = cartMapper.findActiveCart(userId);
 
@@ -62,25 +62,27 @@ public class CartServiceImpl implements CartService{
             cart.setStatus("ACTIVE");
             cartMapper.insert(cart);
         }
-        
-        CartItem item =
-                cartItemMapper.findByCartIdAndProductIdAndSkuId(
-                        cart.getCartId(),
-                        request.getProductId(),
-                        request.getSkuId()
-                );
 
-        if (item == null) {
-            CartItem newItem = new CartItem();
-            newItem.setCartItemId(UUID.randomUUID().toString());
-            newItem.setCartId(cart.getCartId());
-            newItem.setProductId(request.getProductId());
-            newItem.setSkuId(request.getSkuId());
-            newItem.setQuantity(request.getQuantity());
-            cartItemMapper.insert(newItem);
-        } else {
-            item.setQuantity(item.getQuantity() + request.getQuantity());
-            cartItemMapper.updateQuantity(item);
+        for (AddCartItemRequest request : requests) {
+            CartItem item =
+                    cartItemMapper.findByCartIdAndProductIdAndSkuId(
+                            cart.getCartId(),
+                            request.getProductId(),
+                            request.getSkuId()
+                    );
+
+            if (item == null) {
+                CartItem newItem = new CartItem();
+                newItem.setCartItemId(UUID.randomUUID().toString());
+                newItem.setCartId(cart.getCartId());
+                newItem.setProductId(request.getProductId());
+                newItem.setSkuId(request.getSkuId());
+                newItem.setQuantity(request.getQuantity());
+                cartItemMapper.insert(newItem);
+            } else {
+                item.setQuantity(item.getQuantity() + request.getQuantity());
+                cartItemMapper.updateQuantity(item);
+            }
         }
     }
 

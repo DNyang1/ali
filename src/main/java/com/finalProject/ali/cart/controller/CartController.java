@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,10 +28,10 @@ public class CartController {
 
     @PostMapping("/items")
     public void addItem(
-            @RequestBody AddCartItemRequest request, HttpSession session) {
+            @RequestBody List<AddCartItemRequest> requests, HttpSession session) {
         UserDTO user = (UserDTO) session.getAttribute("loginUser");
         String userId = user.getUserId();
-        cartService.addItem(userId, request);
+        cartService.addItem(userId, requests);
     }
 
     @DeleteMapping("/items/{cartItemId}")
