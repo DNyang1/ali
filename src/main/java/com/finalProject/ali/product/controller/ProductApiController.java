@@ -21,10 +21,12 @@ public class ProductApiController {
 
     @GetMapping("/preview")
     public List<ProductDTO> previewByCategory(
-            @RequestParam String categoryId
+            @RequestParam("category") String categoryId
     ) {
-        return productService.getProductsByCategory(categoryId);
+        System.out.println("🔥 PREVIEW API categoryId = " + categoryId);
+        return productService.getPreviewProductsByCategory(categoryId);
     }
+
 
     @PostMapping("/sku/match")
     public ResponseEntity<SkuDTO> matchSku(
