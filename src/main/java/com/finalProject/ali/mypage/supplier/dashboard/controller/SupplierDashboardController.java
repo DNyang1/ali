@@ -2,6 +2,7 @@ package com.finalProject.ali.mypage.supplier.dashboard.controller;
 
 import com.finalProject.ali.mypage.supplier.common.controller.BaseSupplierController;
 import com.finalProject.ali.mypage.supplier.dashboard.service.SupplierDashboardService;
+import com.finalProject.ali.product.service.ProductService;
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import com.finalProject.ali.user.service.UserService;
@@ -20,6 +21,7 @@ public class SupplierDashboardController extends BaseSupplierController {
 
     private final UserService userService;
     private final SupplierDashboardService dashboardService;
+    private final ProductService productService;
 
     @GetMapping("/mypage/supplier/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -38,12 +40,16 @@ public class SupplierDashboardController extends BaseSupplierController {
         Map<String, Object> summary = defaultSummary();
         summary.put("openInquiries", dashboardService.countOpenInquiries(supplierId));
         summary.put("inProgressInquiries", dashboardService.countInProgressInquiries(supplierId));
-        summary.put("shippingReady", dashboardService.countShippingReady(supplierId));
+        summary.put("lowStockProductCount",
+                productService.countLowStockProducts(supplierId, 5));
         addCommonAttributes(model, summary);
+
 
         model.addAttribute("recentOrders", Collections.emptyList());
         model.addAttribute("recentInquiries", Collections.emptyList());
         model.addAttribute("notifications", Collections.emptyList());
+
+
 
         return "mypage/supplier/dashboard/index";
     }

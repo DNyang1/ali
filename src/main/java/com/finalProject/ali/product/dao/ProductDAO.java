@@ -2,6 +2,7 @@ package com.finalProject.ali.product.dao;
 
 import com.finalProject.ali.product.category.dto.CategoryDTO;
 import com.finalProject.ali.product.dto.ProductDTO;
+import com.finalProject.ali.product.dto.ProductListRow;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -46,6 +47,10 @@ public interface ProductDAO {
     int countActiveDiscountProducts();
 
     Integer findMaxDiscountRate();
+    List<ProductListRow> findLowStockProducts(@Param("supplierId") String supplierId,
+                                          @Param("threshold") int threshold);
 
+    int countLowStockProducts(@Param("supplierId") String supplierId,
+                              @Param("threshold") int threshold);
 
 }

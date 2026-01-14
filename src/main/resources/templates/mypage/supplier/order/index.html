@@ -1,5 +1,5 @@
 <th:block xmlns:th="http://www.thymeleaf.org"
-          th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{})">
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, null)">
 
     <th:block th:fragment="content">
 
@@ -15,68 +15,87 @@
     </div>
 </section>
 
-<script>
-    fetch('/api/order/sup')
-        .then(res => {
-            if (!res.ok) throw new Error('주문 조회 실패');
-            return res.json();
-        })
-        .then(render)
-        .catch(err => {
-            console.error(err);
-            document.getElementById('supplier-order-list').innerText =
-                '주문 정보를 불러오지 못했습니다.';
-        });
+        <script>
+            fetch('/api/order/sup')
+                .then(res => {
+                    if (!res.ok) throw new Error('주문 조회 실패');
+                    return res.json();
+                })
+                .then(list => {
+                    if (!Array.isArray(list)) list = [];
 
-    function render(list) {
-        const el = document.getElementById('supplier-order-list');
-        el.innerHTML = '';
+                    const params = new URLSearchParams(location.search);
+                    const status = norm(params.get('supplierStatus')); // READY
 
-        if (!list || list.length === 0) {
-            el.innerText = '접수된 주문이 없습니다.';
-            return;
-        }
+                    if (status) {
+                        render(list.filter(o => norm(o.supplierStatus) === status));
+                    } else {
+                        render(list);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    const el = document.getElementById('supplier-order-list');
+                    if (el) el.innerText = '주문 정보를 불러오지 못했습니다.';
+                });
 
-        list.forEach(o => {
-            const div = document.createElement('div');
+            function norm(v) {
+                return (v || '').toString().trim().toUpperCase();
+            }
 
-            div.innerHTML = `
+            function render(list) {
+                const el = document.getElementById('supplier-order-list');
+                if (!el) return;
+                el.innerHTML = '';
+
+                if (!list || list.length === 0) {
+                    el.innerText = '접수된 주문이 없습니다.';
+                    return;
+                }
+
+                list.forEach(o => {
+                    const div = document.createElement('div');
+                    const orderItemId = (o.orderItemId ?? '').toString().replace(/'/g, "\\'");
+
+                    div.innerHTML = `
 <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-1">
-
   <div class="flex items-center justify-between">
-    <div class="text-sm font-bold text-slate-900">주문 #${o.orderId}</div>
+    <div class="text-sm font-bold text-slate-900">주문 #${o.orderId ?? '-'}</div>
     <span class="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
-      ${o.orderStatus}
+      ${o.orderStatus ?? '-'}
+    </span>
+    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+      ${o.supplierStatus ?? '-'}
     </span>
   </div>
 
-  <div class="text-xs text-slate-500">${o.orderedAt}</div>
+  <div class="text-xs text-slate-500">${o.orderedAt ?? '-'}</div>
 
   <div class="pt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-    <div><span class="text-slate-500">구매자</span> ${o.buyerId}</div>
-    <div><span class="text-slate-500">상품</span> ${o.productName}</div>
+    <div><span class="text-slate-500">구매자</span> ${o.buyerId ?? '-'}</div>
+    <div><span class="text-slate-500">상품</span> ${o.productName ?? '-'}</div>
     <div><span class="text-slate-500">옵션</span> ${o.optionSummary || '-'}</div>
-    <div><span class="text-slate-500">수량</span> ${o.quantity}</div>
-    <div><span class="text-slate-500">단가</span> ${Number(o.unitPrice).toLocaleString()}원</div>
+    <div><span class="text-slate-500">수량</span> ${o.quantity ?? '-'}</div>
+    <div><span class="text-slate-500">단가</span> ${Number(o.unitPrice || 0).toLocaleString()}원</div>
   </div>
 
   <div class="pt-3 text-right">
-    <button onclick="goDetail(${o.orderItemId})"
+    <button onclick="goDetail('${orderItemId}')"
       class="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700">
       상세보기
     </button>
   </div>
-
 </div>
 `;
+                    el.appendChild(div);
+                });
+            }
 
-            el.appendChild(div);
-        });
-    }
-    function goDetail(orderId) {
-        location.href = `/mypage/supplier/order/${orderId}`;
-    }
-</script>
+            window.goDetail = function(orderId) {
+                location.href = `/mypage/supplier/order/${orderId}`;
+            }
+        </script>
+
 
     </th:block>
 </th:block>
