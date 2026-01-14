@@ -30,4 +30,9 @@ public class ExchangeController {
     public java.util.Set<String> getCurrencies() {
         return exchangeService.getAvailableCurrencies();
     }
+
+    @GetMapping("/baseDate")
+    public java.time.LocalDate getBaseDate() {
+        return exchangeService.getBaseDate();
+    }
 }
