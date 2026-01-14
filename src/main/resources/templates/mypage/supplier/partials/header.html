@@ -1,4 +1,5 @@
 <header th:fragment="header"
+        th:attr="data-user-id=${session.loginUser != null ? session.loginUser.userId : ''}"
         class="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
 
     <div class="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-3 lg:px-6">
@@ -41,22 +42,15 @@
 
             <!-- 로그인 -->
             <div th:if="${session.loginUser != null}" class="flex items-center gap-2">
-                <a th:href="@{/chat/messages}"
+                <a th:href="@{/chat/messages-user}"
                    class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
                     안읽은 메시지
-                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700"
+                    <span id="headerUnreadCount" class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700"
                           th:text="${unreadChatCount} ?: 0">0</span>
                 </a>
 
-                <a th:href="@{/mypage/user/notification}"
-                   class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
-                    알림
-                    <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700"
-                          th:text="${notificationCount} ?: 0">0</span>
-                </a>
-
                 <span class="hidden text-sm font-semibold text-slate-700 md:inline"
-                      th:text="${loginUser?.name} ?: '공급자'">
+                      th:text="${session.loginUser?.name} ?: '공급자'">
           공급자
         </span>
 

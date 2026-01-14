@@ -172,4 +172,27 @@ public class ChatServiceImpl implements ChatService {
                 .collect(java.util.stream.Collectors.joining("\n"));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long getUnreadTotal(String userId) {
+        if (userId == null || userId.isBlank()) return 0L;
+
+        String normalized = userId.startsWith("s_") ? userId.substring(2) : userId;
+
+        List<RoomListDTO> rooms = roomMemberDAO.getMyRooms(normalized);
+        if (rooms == null) return 0L;
+
+        long total = 0L;
+        for (RoomListDTO r : rooms) {
+            if (r.getUnreadCount() != null) total += r.getUnreadCount();
+        }
+        return total;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getMemberIds(Long roomId) {
+        return roomMemberDAO.findMemberIds(roomId);
+    }
+
 }
