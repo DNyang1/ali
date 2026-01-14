@@ -77,6 +77,12 @@ public class ChatRestController {
         evt.setLastReadChatId(lastReadChatId);
 
         messagingTemplate.convertAndSend("/topic/rooms/" + roomId + "/read", evt);
+
+        long total = chatService.getUnreadTotal(userId); // userId가 s_면 service에서 정규화 처리함
+        messagingTemplate.convertAndSend(
+                "/topic/users/" + (userId.startsWith("s_") ? userId.substring(2) : userId) + "/unread-total",
+                new UnreadTotalDTO(total)
+        );
     }
 
     private String normalizeUserId(String userId) {
@@ -130,6 +136,16 @@ public class ChatRestController {
                 "roomId", roomId,
                 "productId", productId
         );
+    }
+
+    @GetMapping("/unread-total")
+    public UnreadTotalDTO unreadTotal(HttpSession session) {
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        long total = chatService.getUnreadTotal(loginUser.getUserId());
+        return new UnreadTotalDTO(total);
     }
 
 }
