@@ -39,39 +39,62 @@ public class UserSecurity {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form
-                        .loginPage("/user/login") // 권한 없을 때 이동할 페이지 (GET 요청)
-                        .loginProcessingUrl("/doLogin_dummy") // 중요: Security가 가로채지 못하게 가짜 주소 입력
+                        .loginPage("/user/login")
+                        .loginProcessingUrl("/doLogin_dummy")
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/user/login") // 로그인 페이지 지정
-                        .defaultSuccessUrl("/") // 성공 시 이동할 곳
+                        .loginPage("/user/login")
+                        .defaultSuccessUrl("/")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 )
 
+                // ✅ [핵심 수정 구간] 권한 설정
+                // [UserSecurity.java 수정]
+
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/user/register", "/user/signup", "/user/login",
-//                                "/user/update","/user/index", "/user/logout",
-//                                "/user/switch-role","/user/supplier-signup",
-//                                "/supplier/**").permitAll()
-//                        .anyRequest().authenticated()
+                        // 1. 정적 리소스 (CSS, JS, 이미지, 폰트 등) 전면 허용
+                        .requestMatchers(
+                                "/css/**", "/js/**", "/images/**", "/upload/**", "/favicon.ico", "/error", // 기본
+                                "/**/*.css",   // 모든 폴더의 css 파일 허용
+                                "/**/*.js",    // 모든 폴더의 js 파일 허용
+                                "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif", "/**/*.svg"
+
+                        ).permitAll()
+
+                        // 2. 누구나 접근 가능한 페이지
+                        .requestMatchers(
+                                "/", "/index","/products/**",
+                                "/user/login", "/user/register", "/user/signup",
+                                "/user/find_id", "/user/reset_pw**",
+                                "/user/send**", "/user/verify**",
+                                "/v3/api-docs/**", "/swagger-ui/**"
+                        ).permitAll()
+
+                        .requestMatchers("/supplier/api/**").authenticated()
+
+                        // 3. 관리자 전용
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/mypage/supplier/**").hasRole("SUPPLIER") //.authenticated()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger").permitAll()
-                        .anyRequest().permitAll()
+
+                        // 4. 판매자 전용
+                        .requestMatchers("/supplier/**").hasAnyRole("SUPPLIER", "ADMIN")
+
+                        // 5. 나머지 요청은 로그인 필수
+                        .anyRequest().authenticated()
                 )
 
                 .logout(logout -> logout
-                        .logoutUrl("/user/logout") // 로그아웃을 처리할 URL
-                        .logoutSuccessUrl("/") // 로그아웃 성공 후 이동할 페이지
-                        .invalidateHttpSession(true) // 세션 삭제 필수
-                        .deleteCookies("JSESSIONID") // 쿠키 삭제로 세션 꼬임 방지
+                        .logoutUrl("/user/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
 
@@ -80,7 +103,7 @@ public class UserSecurity {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                         .expiredUrl("/user/login?expired=true")
-                        .sessionRegistry(sessionRegistry()) // [중요] 세션 기록부 등록
+                        .sessionRegistry(sessionRegistry())
                 );
 
         return http.build();
