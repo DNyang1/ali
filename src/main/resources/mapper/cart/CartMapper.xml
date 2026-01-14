@@ -17,4 +17,11 @@
         VALUES (#{cartId}, #{userId}, #{status})
     </insert>
 
+    <select id="countCartItemByUser" resultType="int">
+        SELECT COUNT(*)
+        FROM cart_item ci
+        JOIN cart c
+        ON ci.cart_id = c.id
+        WHERE c.user_id = #{userId}
+    </select>
 </mapper>

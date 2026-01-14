@@ -65,4 +65,5 @@
             ci.sku_id,
             ci.quantity
     </select>
+
 </mapper>

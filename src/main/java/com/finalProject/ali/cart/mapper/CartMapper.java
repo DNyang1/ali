@@ -8,4 +8,5 @@ public interface CartMapper {
 
     Cart findActiveCart(String userId);
     void insert(Cart cart);
+    int countCartItemByUser(String userId);
 }
