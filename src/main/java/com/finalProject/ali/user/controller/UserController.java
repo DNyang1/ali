@@ -5,7 +5,6 @@ import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
 import com.finalProject.ali.user.service.EmailService;
 import com.finalProject.ali.user.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,19 +13,20 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
+import java.security.Principal; // Security 인증 정보
 import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
+
     @Autowired
     private UserService userService;
     @Autowired
@@ -36,30 +36,30 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private ImageService imageService; // 새로 만든 서비스 주입
+    private ImageService imageService;
 
-
+    // 메인 페이지
     @GetMapping("/")
-    public String indexPage(HttpSession session) {
-        return "/index/index";
+    public String indexPage() {
+        return "index/index";
     }
 
-
+    // 회원가입 페이지
     @GetMapping("/register")
     public String registerPage() {
         return "user/register";
     }
 
-
+    // 로그인 페이지
     @GetMapping("/login")
     public String loginPage() {
         return "user/login";
     }
 
+    // [회원가입 로직] - 변수명 변경 없음
     @PostMapping("/signup")
     @ResponseBody
     public ResponseEntity<String> signup(@RequestBody UserDTO userDTO, HttpSession session) {
-        // 세션에서 인증 여부 확인
         Boolean isVerified = (Boolean) session.getAttribute("isEmailVerified");
         String authEmail = (String) session.getAttribute("authEmail");
 
@@ -69,29 +69,22 @@ public class UserController {
 
         userService.register(userDTO);
 
-        // 가입 성공 후 세션 정보 정리
         session.removeAttribute("emailAuthCode");
         session.removeAttribute("isEmailVerified");
         session.removeAttribute("authEmail");
 
         return ResponseEntity.ok("회원가입 성공");
     }
+
+    // [이메일 인증 발송]
     @PostMapping("/send-auth-code")
     @ResponseBody
-    public ResponseEntity<String> sendAuthCode(@RequestParam String email, HttpSession session) {
-        // 1. 이메일 중복 체크 (선택 사항, 필요시 UserDAO로 확인)
-
-        // 2. 인증코드 생성 및 발송
+    public ResponseEntity<String> sendAuthCode(@RequestParam("email") String email, HttpSession session) {
         try {
             String authCode = emailService.sendVerificationEmail(email);
-
-            // 3. 세션에 인증코드와 이메일 저장 (나중에 verifyAuthCode에서 검증용)
             session.setAttribute("emailAuthCode", authCode);
             session.setAttribute("authEmail", email);
-            session.setAttribute("isEmailVerified", false); // 초기화
-
-            // 유효시간 설정이 필요하다면 세션 타임아웃이나 별도 로직 필요 (여기선 생략)
-
+            session.setAttribute("isEmailVerified", false);
             return ResponseEntity.ok("success");
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,100 +92,102 @@ public class UserController {
         }
     }
 
+    // [이메일 인증 확인]
     @PostMapping("/verify-auth-code")
     @ResponseBody
-    public ResponseEntity<String> verifyAuthCode(@RequestParam String code, HttpSession session) {
+    public ResponseEntity<String> verifyAuthCode(@RequestParam("code") String code, HttpSession session) {
         String serverCode = (String) session.getAttribute("emailAuthCode");
-
         if (serverCode != null && serverCode.equals(code)) {
-            session.setAttribute("isEmailVerified", true); // 인증 완료 플래그
+            session.setAttribute("isEmailVerified", true);
             return ResponseEntity.ok("success");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
         }
     }
+
+    // ✅ [로그인]
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData, HttpSession session) {
-        String userId = loginData.get("userId");
-        String password = loginData.get("password");
+    public ResponseEntity<?> login(@RequestBody UserDTO loginDTO, HttpSession session) {
+        // 1. 변수명 깔끔하게 DTO에서 가져오기
+        String userId = loginDTO.getUserId();
+        String password = loginDTO.getPassword();
+
+        // 2. [핵심] Security 인증 전에 '정지 상태' 먼저 확인 (예전 로직 부활)
+        // 이렇게 하면 Exception 처리가 꼬일 일 없이 사유가 확실하게 뜹니다.
+        UserDTO checkUser = userService.findByUserId(userId);
+        if (checkUser != null && "SUSPENDED".equals(checkUser.getStatus())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("정지된 계정입니다. 사유: " + checkUser.getSuspensionReason());
+        }
 
         try {
-            // 1. 인증 토큰 생성
-            UsernamePasswordAuthenticationToken authRequest =
-                    new UsernamePasswordAuthenticationToken(userId, password);
-
-            // 2. 인증 시도
+            // 3. Security 인증 진행
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(userId, password);
             Authentication authentication = authenticationManager.authenticate(authRequest);
 
-            // 3. 인증 성공 처리
+            // 4. Security Context 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
             sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
 
-            UserDTO user = userService.findByUserId(userId);
-            session.setAttribute("loginUser", user);
+            // 5. 세션 유지 (HTML 호환용)
+            session.setAttribute("loginUser", checkUser); // 위에서 조회한 checkUser 재사용
 
             Map<String, String> response = new java.util.HashMap<>();
             response.put("status", "success");
+
+            // 권한별 리다이렉트
             String mainRole = "ROLE_USER";
-            if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-                if (user.getRoles().contains("ROLE_ADMIN")) mainRole = "ROLE_ADMIN";
-                else if (user.getRoles().contains("ROLE_SUPPLIER")) mainRole = "ROLE_SUPPLIER";
-                else mainRole = user.getRoles().get(0);
+            if (checkUser.getRoles() != null && !checkUser.getRoles().isEmpty()) {
+                if (checkUser.getRoles().contains("ROLE_ADMIN")) mainRole = "ROLE_ADMIN";
+                else if (checkUser.getRoles().contains("ROLE_SUPPLIER")) mainRole = "ROLE_SUPPLIER";
+                else mainRole = checkUser.getRoles().get(0);
             }
             response.put("role", mainRole);
 
             return ResponseEntity.ok(response);
 
         } catch (AuthenticationException e) {
-            if (e instanceof org.springframework.security.authentication.LockedException ||
-                    e.getCause() instanceof org.springframework.security.authentication.LockedException) {
-
-                // 원인 예외(LockedException)를 찾아서 메시지 추출
-                String msg = (e instanceof org.springframework.security.authentication.LockedException) ?
-                        e.getMessage() : e.getCause().getMessage();
-
-                // 403 Forbidden과 함께 사유 리턴
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);
-            }
-
-
-            // 그 외 진짜 아이디/비번 틀림
+            // 비번 틀림 등 나머지 에러 처리
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
     }
 
     // 로그아웃
     @GetMapping("/logout")
-    public String logout(jakarta.servlet.http.HttpSession session) {
-        session.invalidate(); // 세션 무효화
-        return "redirect:/"; // 메인 페이지로 이동
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
     }
 
+    // --- 👇 여기서부터 수정 (변수명 유지하면서 Security 적용) ---
 
-    // UserController.java 수정
+    // 회원정보 수정 페이지
     @GetMapping("/update")
     public String updatePage(HttpSession session) {
-        // 세션에 유저 정보가 없으면 로그인 창으로 보냄 (에러 방지)
+        // [중요] 세션이 없으면 로그인 페이지로 (HTML 렌더링 오류 방지)
         if (session.getAttribute("loginUser") == null) {
             return "redirect:/user/login";
         }
         return "user/update";
     }
 
-
+    // 회원정보 수정 처리
     @PostMapping("/update")
     @ResponseBody
     public ResponseEntity<String> update(
-            @RequestPart("userData") UserDTO userDTO,
-            @RequestPart(value = "profileFile", required = false) MultipartFile profileFile,
-            HttpSession session) {
+            @RequestPart("userData") UserDTO userDTO, // JS 변수명 userData 유지
+            @RequestPart(value = "profileFile", required = false) MultipartFile profileFile, // JS 변수명 profileFile 유지
+            HttpSession session,
+            Principal principal) { // Security ID 확인용
 
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
-        if (loginUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+        // 1. 현재 로그인된 유저 정보 가져오기 (Security 기준)
+        if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+        String currentUserId = principal.getName();
+        UserDTO loginUser = userService.findByUserId(currentUserId);
 
-        // 1. 프로필 이미지 처리 (ImageService 활용)
+        // 2. 프로필 이미지 처리
         if (profileFile != null && !profileFile.isEmpty()) {
             if (loginUser.getProfileImg() != null) {
                 imageService.deleteActualFile(loginUser.getProfileImg());
@@ -203,57 +198,51 @@ public class UserController {
             userDTO.setProfileImg(loginUser.getProfileImg());
         }
 
-        // 2. 정보 업데이트 수행
-        userDTO.setUserId(loginUser.getUserId());
+        // 3. 정보 업데이트
+        userDTO.setUserId(currentUserId);
         userService.updateUserInfo(userDTO);
 
-        // 3. DB에서 최신 정보를 다시 조회하여 세션 갱신
-        UserDTO updatedUser = userService.findByUserId(loginUser.getUserId());
+        // 4. [중요] 세션 갱신 (HTML 상단의 프로필 사진 등이 바로 바뀌도록)
+        UserDTO updatedUser = userService.findByUserId(currentUserId);
         session.setAttribute("loginUser", updatedUser);
 
         return ResponseEntity.ok("success");
     }
 
+    // 프로필 이미지 삭제
     @PostMapping("/delete_profile_img")
     @ResponseBody
-    public ResponseEntity<String> deleteProfileImg(HttpSession session) {
-        // 1. 세션에서 현재 로그인된 유저 가져오기
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
-        // 로그인 안 되어 있으면 실패 응답
-        if (loginUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
-        }
-
+    public ResponseEntity<String> deleteProfileImg(HttpSession session, Principal principal) {
         try {
+            if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+
+            UserDTO loginUser = userService.findByUserId(principal.getName());
 
             if (loginUser.getProfileImg() != null) {
                 imageService.deleteActualFile(loginUser.getProfileImg());
             }
-            // 2. DTO와 세션에서 이미지 경로 제거
             loginUser.setProfileImg(null);
-            // 3. DB 업데이트 (수정된 DTO를 서비스로 전달)
             userService.updateUserInfo(loginUser);
-            // 4. 세션 최신화
-            session.setAttribute("loginUser", loginUser);
 
+            // [중요] 세션 갱신
+            session.setAttribute("loginUser", loginUser);
             return ResponseEntity.ok("success");
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
         }
     }
 
-    // 판매자와 구매자 전환
+    // 판매자/구매자 전환
     @GetMapping("/switch-role")
     public String switchRole(
-            @RequestParam(value = "reapply", required = false) Boolean reapply, // 1. 지역변수(파라미터) 생성
+            @RequestParam(value = "reapply", required = false) Boolean reapply, // 파라미터명 reapply 유지
             HttpSession session,
-            org.springframework.ui.Model model) {
+            Model model,
+            Principal principal) {
 
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
-        if (loginUser == null) return "redirect:/user/login";
+        if (principal == null) return "redirect:/user/login";
 
-        SupplierDTO supplier = userService.getSupplierInfo(loginUser.getUserId());
+        SupplierDTO supplier = userService.getSupplierInfo(principal.getName());
 
         if (supplier == null) return "user/supplier_register";
 
@@ -263,55 +252,48 @@ public class UserController {
             session.setAttribute("supplierInfo", supplier);
             return "redirect:/mypage/supplier/dashboard";
         }
-        // 2. 반려 상태(REJECTED)이면서 사용자가 '재신청' 버튼을 눌러 reapply=true를 보낸 경우
         else if ("REJECTED".equals(status) && Boolean.TRUE.equals(reapply)) {
-            model.addAttribute("supplier", supplier); // 기존에 입력했던 정보를 폼에 뿌려주기 위해 전달
-            return "user/supplier_register"; // 등록 폼으로 이동
+            model.addAttribute("supplier", supplier);
+            return "user/supplier_register";
         }
-        // 3. 그 외 PENDING이거나, 그냥 REJECTED 상태를 확인하러 들어온 경우
         else {
             model.addAttribute("status", status);
-            model.addAttribute("supplier", supplier); // memo 출력을 위해 supplier 객체 전달
+            model.addAttribute("supplier", supplier);
             return "user/supplier_status";
         }
     }
 
+    // 판매자 신청
     @PostMapping("/supplier-signup")
     @ResponseBody
-    public ResponseEntity<String> supplierSignup(@RequestBody SupplierDTO supplierDTO, HttpSession session) {
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+    public ResponseEntity<String> supplierSignup(@RequestBody SupplierDTO supplierDTO, Principal principal) {
+        if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
 
-        if (loginUser != null) {
-            // 세션의 userId를 SupplierDTO에 심어줌
-            supplierDTO.setUserId(loginUser.getUserId());
-            // supplier_id 생성 (예: s_아이디)
-            supplierDTO.setSupplierId("s_" + loginUser.getUserId());
-            // 서비스 호출하여 DB 저장 (userService.registerSupplier)
-            userService.registerSupplier(supplierDTO);
-
-            return ResponseEntity.ok("success");
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+        supplierDTO.setUserId(principal.getName());
+        supplierDTO.setSupplierId("s_" + principal.getName());
+        userService.registerSupplier(supplierDTO);
+        return ResponseEntity.ok("success");
     }
 
-    // 비밀번호 수정
+    // 비밀번호 변경 페이지
     @GetMapping("/update_password")
     public String updatePasswordPage() {
         return "user/update_password";
     }
+
+    // 비밀번호 변경 처리
     @PostMapping("/update_password")
     @ResponseBody
-    public ResponseEntity<String> updatePassword(@RequestParam String currentPassword,
-                                                 @RequestParam String newPassword,
-                                                 HttpSession session) {
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
-        if (loginUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("fail");
+    public ResponseEntity<String> updatePassword(
+            @RequestParam("currentPassword") String currentPassword, // JS 파라미터명 유지
+            @RequestParam("newPassword") String newPassword,         // JS 파라미터명 유지
+            Principal principal,
+            HttpSession session) {
 
-        boolean isChanged = userService.changePassword(loginUser.getUserId(), currentPassword, newPassword);
+        boolean isChanged = userService.changePassword(principal.getName(), currentPassword, newPassword);
 
         if (isChanged) {
-            // 비밀번호가 바뀌었으므로 세션을 무효화하거나 업데이트 권장
-            session.removeAttribute("loginUser");
+            session.invalidate(); // 비밀번호 바뀌었으니 재로그인
             return ResponseEntity.ok("success");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("wrong_password");
@@ -320,33 +302,25 @@ public class UserController {
 
     // 마이페이지
     @GetMapping("/setting")
-    public String setting(HttpSession session, org.springframework.ui.Model model) {
-        // 1. 세션에서 로그인된 유저 정보 확인
-        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+    public String setting(Model model, Principal principal) {
+        if (principal == null) return "redirect:/user/login";
 
-        if (loginUser == null) {
-            return "redirect:/user/login"; // 로그인 안 되어 있으면 로그인 페이지로
-        }
-
-        // 2. 화면에 유저 정보를 뿌려주기 위해 모델에 담기
+        UserDTO loginUser = userService.findByUserId(principal.getName());
         model.addAttribute("user", loginUser);
-
         return "user/setting";
     }
 
+    // --- 비로그인 영역 (그대로 유지) ---
 
     @GetMapping("/find_id")
-    public String findIdPage() {
-        return "user/find_id"; // templates/user/find_id.html 호출
-    }
+    public String findIdPage() { return "user/find_id"; }
 
     @PostMapping("/find_id")
     @ResponseBody
     public ResponseEntity<String> findId(@RequestBody Map<String, String> data) {
         String name = data.get("name");
-        String type = data.get("type"); // "phone" 또는 "email"
+        String type = data.get("type");
         String value = data.get("value");
-
         String userId = userService.findId(name, type, value);
 
         if (userId != null) {
@@ -360,62 +334,37 @@ public class UserController {
     }
 
     @GetMapping("/reset_pw")
-    public String resetPwPage() {
-        return "user/reset_pw"; // templates/user/reset_pw.html 호출
-    }
-    @PostMapping("/reset_pw")
-    @ResponseBody
-    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> data) {
-        String userId = data.get("userId");
-        String newPassword = data.get("newPassword");
-
-        boolean success = userService.updatePassword(userId, newPassword);
-
-        return success ? ResponseEntity.ok("success") : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("fail");
-    }
-
+    public String resetPwPage() { return "user/reset_pw"; }
 
     @PostMapping("/send_reset_link")
     @ResponseBody
     public ResponseEntity<String> sendResetLink(@RequestBody Map<String, String> data) {
         String userId = data.get("userId");
         String email = data.get("email");
-
-        // 아이디와 이메일이 일치하는 유저가 있는지 확인
         if (userService.checkUserForReset(userId, email)) {
             userService.processForgotPassword(userId, email);
             return ResponseEntity.ok("success");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("not_found");
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("not_found");
     }
 
     @GetMapping("/reset_pw_confirm")
-    public String confirmResetToken(@RequestParam String token, HttpSession session, org.springframework.ui.Model model) {
-        // 토큰 검증
+    public String confirmResetToken(@RequestParam("token") String token, Model model) {
         String userId = userService.verifyResetToken(token);
-
         if (userId != null) {
-            // 유효한 토큰이면 세션에 인증 정보를 담거나 모델에 userId를 전달
             model.addAttribute("userId", userId);
             model.addAttribute("token", token);
-            return "user/reset_pw_form"; // 새 비밀번호를 입력할 새로운 HTML 페이지
-        } else {
-            return "redirect:/user/login?error=invalid_token";
+            return "user/reset_pw_form";
         }
-
+        return "redirect:/user/login?error=invalid_token";
     }
-    // 새 비밀번호 실제 반영 API
+
     @PostMapping("/reset_pw_final")
     @ResponseBody
-    public ResponseEntity<String> resetPwFinal(@RequestParam String token,
-                                               @RequestParam String userId,
-                                               @RequestParam String newPassword) {
+    public ResponseEntity<String> resetPwFinal(@RequestParam("token") String token,
+                                               @RequestParam("userId") String userId,
+                                               @RequestParam("newPassword") String newPassword) {
         boolean success = userService.resetPasswordWithToken(token, userId, newPassword);
         return success ? ResponseEntity.ok("success") : ResponseEntity.badRequest().body("fail");
     }
-
-
-
-
 }
