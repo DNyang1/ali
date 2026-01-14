@@ -96,10 +96,13 @@
   </div>
 
   <div class="pt-3 text-right">
-    <button onclick="goDetail('${(o.orderId ?? '').toString().replace(/'/g, "\\'")}')"
-      class="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700">
-      상세보기
-    </button>
+    <button onclick="goDetail(${Number(o.orderId)})"
+  class="inline-flex items-center justify-center rounded-xl
+         bg-gradient-to-r from-brand-500 to-accent-500
+         px-4 py-2 text-xs font-bold text-white
+         hover:from-brand-600 hover:to-accent-600">
+  상세보기
+</button>
   </div>
 </div>
 `;
@@ -156,9 +159,19 @@
                 const a = document.createElement('a');
                 a.href = href;
                 a.textContent = text;
-                a.className =
-                    'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 ' +
-                    (active ? 'border-blue-600 bg-blue-600 text-white hover:bg-blue-600' : 'text-slate-700');
+
+                const base =
+                    'rounded-xl border px-3 py-1.5 text-sm font-semibold ';
+
+                const normal =
+                    'border-slate-200 bg-white text-slate-700 hover:bg-slate-50';
+
+                const activeCls =
+                    'border-transparent text-white ' +
+                    'bg-gradient-to-r from-brand-500 to-accent-500 ' +
+                    'hover:from-brand-600 hover:to-accent-600';
+
+                a.className = base + (active ? activeCls : normal);
                 return a;
             }
 

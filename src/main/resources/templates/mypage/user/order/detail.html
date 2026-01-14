@@ -1,124 +1,233 @@
-<!DOCTYPE html>
-<html lang="ko"
-      xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/user/layout/base :: layout(~{::body}, ~{})">
-<head>
-    <meta charset="UTF-8">
-    <title>order-detail</title>
-</head>
-<body>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/user/layout/base :: layout(~{::content}, null)">
 
-<div id="order-detail"></div>
+    <th:block th:fragment="content">
 
-<script th:inline="javascript">
-    const orderId = [[${orderId}]];
-    console.log('orderId:', orderId);
+        <section class="space-y-6">
+            <!-- Header -->
+            <header>
+                <h1 class="text-2xl font-bold text-slate-900">주문 상세</h1>
+                <p class="text-sm text-slate-500">주문 정보와 상품별 배송 정보를 확인하세요.</p>
+            </header>
 
-    fetch(`/api/order/${orderId}/detail`)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error('주문 상세 조회 실패');
+            <!-- Summary -->
+            <div id="order-summary"
+                 class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <p class="text-sm text-slate-500">주문 정보를 불러오는 중...</p>
+            </div>
+
+            <!-- Items -->
+            <div id="order-items" class="space-y-4"></div>
+        </section>
+
+        <script th:inline="javascript">
+            const orderId = [[${orderId}]];
+            console.log('orderId:', orderId);
+
+            fetch(`/api/order/${orderId}/detail`)
+                .then(res => {
+                    if (!res.ok) throw new Error('주문 상세 조회 실패');
+                    return res.json();
+                })
+                .then(render)
+                .catch(err => {
+                    console.error(err);
+                    const summary = document.getElementById('order-summary');
+                    const items = document.getElementById('order-items');
+                    if (summary) summary.innerHTML = `<p class="text-sm text-slate-500">주문 정보를 불러올 수 없습니다.</p>`;
+                    if (items) items.innerHTML = '';
+                });
+
+            function escapeHtml(str) {
+                return (str ?? '').toString()
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
             }
-            return res.json();
-        })
-        .then(render)
-        .catch(err => {
-            console.error(err);
-            document.getElementById('order-detail').innerHTML =
-                '<p>주문 정보를 불러올 수 없습니다.</p>';
-        });
 
-    function render(data) {
-        const el = document.getElementById('order-detail');
+            function fmtMoney(v) {
+                return Number(v || 0).toLocaleString();
+            }
 
-        el.innerHTML = `
-            <h2>주문번호 ${data.orderId}</h2>
-            <div>상태: ${data.status}</div>
-            <div>금액: ${data.totalAmount}원</div>
-            <div>주문일: ${data.createdAt}</div>
-            <hr/>
-            ${data.items.map(i => `
-                <div class="order-item-container" style="border: 1px solid #eee; padding: 10px; margin-bottom: 10px;">
-                    이름: ${i.productName}</br>
-                    옵션: ${i.optionSummary ?? '-'}</br>
-                    SKU: ${i.skuId} </br>
-                    수량: ${i.quantity} </br>
-                    금액: ${i.lineAmount}원</br>
-                    상태: ${i.status}</br>
-                    배송사: ${i.carrier ?? '정보 없음'}</br>
-                    송장번호: ${i.trackingNo ?? '정보 없음'}</br>
-                    ${i.orderItemId && i.carrier && i.trackingNo ? `<button type="button" onclick="fetchShippingStatus(${i.orderItemId}, this)">배송 상태 조회</button>` : ''}
-                    <div id="shipping-status-${i.orderItemId}" style="margin-top: 10px;"></div> <!-- 배송 상태 표시될 곳 -->
-                </div>
-            `).join('')}
+            function render(data) {
+                renderSummary(data);
+                renderItems(Array.isArray(data.items) ? data.items : []);
+            }
+
+            function renderSummary(data) {
+                const el = document.getElementById('order-summary');
+                if (!el) return;
+
+                el.innerHTML = `
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div class="text-sm font-bold text-slate-900">주문 #${escapeHtml(data.orderId ?? '-')}</div>
+              <div class="mt-1 text-xs text-slate-500">주문일: ${escapeHtml(data.createdAt ?? '-')}</div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
+                ${escapeHtml(data.status ?? '-')}
+              </span>
+              <div class="text-sm text-slate-700">
+                총액 <span class="font-bold text-slate-900">${fmtMoney(data.totalAmount)}원</span>
+              </div>
+            </div>
+          </div>
         `;
-    }
+            }
 
-    function fetchShippingStatus(orderItemId, buttonElement) {
-        const shippingStatusDiv = document.getElementById(`shipping-status-${orderItemId}`);
-        // 이미 로딩 중이거나 조회된 정보가 있으면 토글
-        if (shippingStatusDiv.dataset.loaded === 'true') {
-            shippingStatusDiv.innerHTML = '';
-            shippingStatusDiv.dataset.loaded = 'false';
-            buttonElement.innerText = '배송 상태 조회';
-            return;
-        }
+            function renderItems(items) {
+                const host = document.getElementById('order-items');
+                if (!host) return;
+                host.innerHTML = '';
 
-        shippingStatusDiv.innerHTML = '<p>배송 상태를 로딩 중...</p>';
-        buttonElement.innerText = '로딩 중...';
-        buttonElement.disabled = true;
-
-        fetch(`/api/order-item/${orderItemId}/shipping`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('배송 상태 조회 실패: ' + res.statusText);
+                if (!items || items.length === 0) {
+                    host.innerHTML = `
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="text-sm text-slate-500">주문 상품이 없습니다.</p>
+            </div>
+          `;
+                    return;
                 }
-                return res.json();
-            })
-            .then(shippingData => {
-                let historyHtml = `
-                    <h4 style="margin-top: 10px; margin-bottom: 5px;">실시간 배송 추적</h4>
-                    <p><strong>[${shippingData.carrier}]</strong> ${shippingData.trackingNo}</p>
-                    <table style="width: 100%; border-collapse: collapse; text-align: center;">
-                        <thead>
-                            <tr>
-                                <th style="border: 1px solid #ddd; padding: 8px;">처리 시간</th>
-                                <th style="border: 1px solid #ddd; padding: 8px;">현재 위치</th>
-                                <th style="border: 1px solid #ddd; padding: 8px;">배송 상태</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
 
-                if (shippingData.trackingHistory && shippingData.trackingHistory.length > 0) {
-                     shippingData.trackingHistory.forEach(event => {
-                        historyHtml += `
-                            <tr>
-                                <td style="border: 1px solid #ddd; padding: 8px;">${event.time}</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;">${event.location}</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;"><strong>${event.description}</strong></td>
-                            </tr>
-                        `;
+                items.forEach(i => {
+                    const orderItemId = i.orderItemId ?? null;
+                    const carrier = i.carrier ?? null;
+                    const trackingNo = i.trackingNo ?? null;
+                    const canTrack = !!(orderItemId && carrier && trackingNo);
+
+                    const safeOrderItemId = (orderItemId ?? '').toString().replace(/'/g, "\\'");
+
+                    const card = document.createElement('div');
+                    card.className = 'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm';
+
+                    card.innerHTML = `
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="text-sm font-bold text-slate-900 truncate">${escapeHtml(i.productName ?? '-')}</div>
+                <div class="mt-1 text-xs text-slate-500 truncate">${escapeHtml(i.optionSummary ?? '-')}</div>
+              </div>
+
+              <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                ${escapeHtml(i.status ?? '-')}
+              </span>
+            </div>
+
+            <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div><span class="text-slate-500">SKU</span> ${escapeHtml(i.skuId ?? '-')}</div>
+              <div><span class="text-slate-500">수량</span> ${escapeHtml(i.quantity ?? '-')}</div>
+              <div><span class="text-slate-500">금액</span> ${fmtMoney(i.lineAmount)}원</div>
+              <div><span class="text-slate-500">배송사</span> ${escapeHtml(i.carrier ?? '정보 없음')}</div>
+              <div class="col-span-2"><span class="text-slate-500">송장번호</span> ${escapeHtml(i.trackingNo ?? '정보 없음')}</div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between">
+              <div id="shipping-status-${safeOrderItemId}" class="text-sm text-slate-600" data-loaded="false"></div>
+
+              ${canTrack ? `
+               <button type="button"
+  class="inline-flex items-center justify-center rounded-xl
+         bg-gradient-to-r from-brand-500 to-accent-500
+         px-4 py-2 text-xs font-bold text-white
+         hover:from-brand-600 hover:to-accent-600"
+  onclick="fetchShippingStatus('${safeOrderItemId}', this)">
+  배송 상태 조회
+</button>
+              ` : `
+                <span class="text-xs text-slate-400">배송 추적 정보가 없습니다.</span>
+              `}
+            </div>
+          `;
+
+                    host.appendChild(card);
+                });
+            }
+
+            window.fetchShippingStatus = function(orderItemId, btn) {
+                const box = document.getElementById(`shipping-status-${orderItemId}`);
+                if (!box) return;
+
+                // 토글: 이미 불러왔으면 숨김
+                if (box.dataset.loaded === 'true') {
+                    box.innerHTML = '';
+                    box.dataset.loaded = 'false';
+                    if (btn) btn.innerText = '배송 상태 조회';
+                    return;
+                }
+
+                box.innerHTML = `<p class="text-sm text-slate-500">배송 상태를 로딩 중...</p>`;
+                if (btn) {
+                    btn.innerText = '로딩 중...';
+                    btn.disabled = true;
+                }
+
+                fetch(`/api/order-item/${orderItemId}/shipping`)
+                    .then(res => {
+                        if (!res.ok) throw new Error('배송 상태 조회 실패: ' + res.statusText);
+                        return res.json();
+                    })
+                    .then(shippingData => {
+                        const history = Array.isArray(shippingData.trackingHistory) ? shippingData.trackingHistory : [];
+
+                        let rows = '';
+                        if (history.length > 0) {
+                            rows = history.map(ev => `
+                <tr class="border-t border-slate-100">
+                  <td class="px-3 py-2 text-xs text-slate-600">${escapeHtml(ev.time ?? '-')}</td>
+                  <td class="px-3 py-2 text-xs text-slate-600">${escapeHtml(ev.location ?? '-')}</td>
+                  <td class="px-3 py-2 text-xs font-semibold text-slate-800">${escapeHtml(ev.description ?? '-')}</td>
+                </tr>
+              `).join('');
+                        } else {
+                            rows = `
+                <tr class="border-t border-slate-100">
+                  <td class="px-3 py-2 text-xs text-slate-600" colspan="3">추적 정보가 없습니다.</td>
+                </tr>
+              `;
+                        }
+
+                        box.innerHTML = `
+              <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div class="text-xs font-bold text-slate-800">실시간 배송 추적</div>
+                <div class="mt-1 text-xs text-slate-600">
+                  <span class="font-semibold">[${escapeHtml(shippingData.carrier ?? '-')}]
+                  </span>
+                  ${escapeHtml(shippingData.trackingNo ?? '-')}
+                </div>
+
+                <div class="mt-3 overflow-x-auto">
+                  <table class="w-full text-left">
+                    <thead class="bg-white">
+                      <tr class="text-xs text-slate-500">
+                        <th class="px-3 py-2 font-semibold">처리 시간</th>
+                        <th class="px-3 py-2 font-semibold">현재 위치</th>
+                        <th class="px-3 py-2 font-semibold">배송 상태</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white">
+                      ${rows}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            `;
+
+                        box.dataset.loaded = 'true';
+                        if (btn) btn.innerText = '배송 상태 숨기기';
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        box.innerHTML = `<p class="text-sm text-red-600">배송 상태를 불러올 수 없습니다: ${escapeHtml(err.message)}</p>`;
+                        if (btn) btn.innerText = '배송 상태 조회';
+                    })
+                    .finally(() => {
+                        if (btn) btn.disabled = false;
                     });
-                } else {
-                     historyHtml += `<tr><td colspan="3" style="border: 1px solid #ddd; padding: 8px;">추적 정보가 없습니다.</td></tr>`;
-                }
+            }
+        </script>
 
-                historyHtml += `</tbody></table>`;
-                shippingStatusDiv.innerHTML = historyHtml;
-                shippingStatusDiv.dataset.loaded = 'true';
-                buttonElement.innerText = '배송 상태 숨기기';
-            })
-            .catch(err => {
-                console.error(err);
-                shippingStatusDiv.innerHTML = `<p style="color: red;">배송 상태를 불러올 수 없습니다: ${err.message}</p>`;
-                buttonElement.innerText = '배송 상태 조회';
-            })
-            .finally(() => {
-                buttonElement.disabled = false;
-            });
-    }
-</script>
-
-</body>
-</html>
+    </th:block>
+</th:block>
