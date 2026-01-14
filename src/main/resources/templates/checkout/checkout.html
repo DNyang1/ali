@@ -79,6 +79,20 @@
                     <span>최종 결제 금액</span>
                     <span class="total-price" id="total-amount">0 원</span>
                 </div>
+                <div class="summary-row">
+                    <label for="currency-selector" style="font-size: 14px; color: #555;">표시 통화</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <select id="currency-selector" onchange="handleCurrencyChange()"
+                                style="flex-grow: 1; padding: 4px; border-radius: 4px; border: 1px solid #ccc; width: 80px">
+                        </select>
+                        <button id="refresh-rates-btn" onclick="refreshExchangeRates()" title="환율 새로고침" style="padding: 5px 8px; border: none; background-color: #f0f0f0; cursor: pointer; border-radius: 4px;">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div style="font-size: 11px; color: #888; text-align: right; margin-top: 4px;">
+                        환율 기준일: <span id="rates-base-date">N/A</span>
+                    </div>
+                </div>
             </div>
             <button class="checkout-btn" onclick="order()">결제하기</button>
         </div>
@@ -136,7 +150,107 @@
         loadCheckout();
         loadAddresses();
         setupPaymentMethodSelector();
+        loadCurrencyData();
     });
+
+    async function loadCurrencyData(triggeredByButton = false) {
+        const refreshBtn = document.getElementById('refresh-rates-btn');
+        const baseDateSpan = document.getElementById('rates-base-date');
+        const selector = document.getElementById('currency-selector');
+
+        if (refreshBtn) refreshBtn.disabled = true;
+
+        try {
+            if (!triggeredByButton) {
+                // Fetch baseDate passively on initial load
+                const baseDateResponse = await fetch('/api/exchange/baseDate');
+                if (baseDateResponse.ok) {
+                    const baseDate = await baseDateResponse.json();
+                    if (baseDateSpan) baseDateSpan.innerText = baseDate;
+                } else {
+                    console.error('Failed to fetch initial base date.');
+                    if (baseDateSpan) baseDateSpan.innerText = '로딩 실패';
+                }
+            } else {
+                // Perform a full refresh if triggered by the button
+                const refreshResponse = await fetch('/api/exchange/refresh', { method: 'POST' });
+                if (!refreshResponse.ok) throw new Error('Failed to refresh rates');
+                const refreshData = await refreshResponse.json();
+                if (baseDateSpan && refreshData.baseDate) {
+                    baseDateSpan.innerText = refreshData.baseDate;
+                }
+            }
+
+            const currenciesResponse = await fetch('/api/exchange/currencies');
+            if (!currenciesResponse.ok) throw new Error('Failed to fetch currencies');
+            const currencies = await currenciesResponse.json();
+
+            const previouslySelected = selector.value;
+
+            selector.innerHTML = '<option value="KRW">KRW</option>';
+            currencies.forEach(currency => {
+                if (currency !== 'KRW') {
+                    selector.innerHTML += `<option value="${currency}">${currency}</option>`;
+                }
+            });
+
+            if (currencies.includes(previouslySelected)) {
+                selector.value = previouslySelected;
+            } else {
+                selector.value = 'KRW';
+            }
+
+            if (selector.value !== 'KRW') {
+                await handleCurrencyChange();
+            }
+
+            if (triggeredByButton) {
+                alert('환율 정보가 갱신되었습니다.');
+            }
+
+        } catch (error) {
+            console.error('Error loading currency data:', error);
+            if (baseDateSpan) baseDateSpan.innerText = '오류';
+            if (triggeredByButton) {
+                alert('환율 정보 갱신에 실패했습니다.');
+            }
+        } finally {
+            if (refreshBtn) refreshBtn.disabled = false;
+        }
+    }
+
+    async function refreshExchangeRates() {
+        await loadCurrencyData(true);
+    }
+
+    async function handleCurrencyChange() {
+        const selector = document.getElementById('currency-selector');
+        const selectedCurrency = selector.value;
+        const totalKrw = currentCheckoutData.totalAmount;
+
+        if (selectedCurrency === 'KRW') {
+            renderSummary(currentCheckoutData);
+            return;
+        }
+
+        if (!totalKrw) return;
+
+        try {
+            const response = await fetch(`/api/exchange?amount=${totalKrw}&currency=${selectedCurrency}`);
+            if (!response.ok) throw new Error('Conversion failed');
+            const result = await response.json();
+
+            const convertedAmount = result.convertedAmount.toFixed(2);
+            document.getElementById('subtotal').innerText = `${convertedAmount} ${result.currency}`;
+            document.getElementById('shipping-fee').innerText = `0 ${result.currency}`; // Or handle shipping fee conversion
+            document.getElementById('total-amount').innerText = `${convertedAmount} ${result.currency}`;
+
+        } catch (error) {
+            console.error('Error converting currency:', error);
+            alert('환율 변환에 실패했습니다.');
+            selector.value = 'KRW'; // Revert to KRW
+        }
+    }
 
     async function loadCheckout() {
         const items = JSON.parse(localStorage.getItem('checkoutItems'));
@@ -157,7 +271,7 @@
                 body: JSON.stringify(body)
             });
             if (!response.ok) throw new Error('Checkout data fetch failed.');
-            
+
             const data = await response.json();
             currentCheckoutData = data;
             renderOrderItems(data);
@@ -218,12 +332,12 @@
             const card = document.createElement('div');
             card.className = 'address-card';
             card.onclick = () => selectAddress(card, addr.id);
-            
+
             if (addr.isDefault) {
                 card.classList.add('active');
                 selectedAddressId = addr.id;
             }
-            
+
             card.innerHTML = `
                 ${addr.isDefault ? '<div class="default-badge">기본 배송지</div>' : ''}
                 <div class="address-card-content">
@@ -240,7 +354,7 @@
         card.classList.add('active');
         selectedAddressId = id;
     }
-    
+
     // --- Address Modal Functions ---
     const addressModal = document.getElementById('address-modal');
 
@@ -255,7 +369,7 @@
 
     async function saveNewAddress(event) {
         event.preventDefault();
-        
+
         const newAddress = {
             rName: document.getElementById('rName').value,
             rPhone: document.getElementById('rPhone').value,
@@ -275,7 +389,7 @@
             if (!response.ok) {
                 throw new Error('Failed to save address.');
             }
-            
+
             closeAddressModal();
             await loadAddresses(); // Refresh the address list
 
@@ -323,9 +437,9 @@
                 body: JSON.stringify(payload)
             });
             if (!orderRes.ok) throw new Error('주문 생성 실패');
-            
+
             const orderData = await orderRes.json();
-            
+
             const paymentRes = await fetch('/api/payments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -334,7 +448,7 @@
             if (!paymentRes.ok) throw new Error('결제 요청 실패');
 
             const paymentData = await paymentRes.json();
-            
+
             if (paymentData.status === 'SUCCESS') {
                 //태민
                 sessionStorage.removeItem('checkoutSheetId');
