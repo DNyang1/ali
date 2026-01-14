@@ -12,7 +12,7 @@ public class OrderSummaryResponse {
     private Long orderId;
     private Long totalAmount;
     private String status;
-    private LocalDateTime createAd;
+    private LocalDateTime createdAt;
 
     private String firstProductName;
     private String firstOptionSummary;

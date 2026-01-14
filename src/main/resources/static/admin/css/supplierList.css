@@ -1,247 +1,149 @@
-/* 전역 설정 */
-:root {
-    --sidebar-w: 240px;
-    --topbar-h: 64px;
-    --primary-color: #2c3e50;
-    --bg-color: #f8f9fa;
-    --border-color: #ddd;
+/* =========================================
+   여기서부터 카드 디자인 (기존 테이블 CSS 삭제 후 붙여넣기)
+   ========================================= */
+
+/* 상단 헤더 */
+.page-header {
+    display: flex; align-items: center; gap: 15px; margin-bottom: 30px;
+}
+.page-header h2 {
+    margin: 0; font-size: 1.4rem; color: #2c3e50; font-weight: 700;
+}
+.badge-count {
+    background: #e8f0fe; color: #1967d2;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 13px; font-weight: bold;
 }
 
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
+/* 빈 상태 (데이터 없음) */
+.empty-state {
+    text-align: center; padding: 80px 0; color: #adb5bd;
+    background: white; border-radius: 12px;
+}
+.empty-state .material-icons-outlined { font-size: 64px; margin-bottom: 10px; opacity: 0.5; }
+
+/* 카드 그리드 레이아웃 */
+.supplier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 반응형 배치 */
+    gap: 25px;
 }
 
-/* 전체 레이아웃: 수직 쌓기 (헤더 - 바디 - 푸터) */
-.admin-layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-/* 헤더 스타일 */
-.topbar {
-    height: var(--topbar-h);
+/* 개별 카드 스타일 */
+.supplier-card {
     background: white;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    flex: 0 0 auto; /* 높이 고정 */
-    z-index: 100;
-}
-
-/* 바디 영역: 수평 배치 (사이드바 - 컨텐츠) */
-.admin-body {
-    display: flex;
-    flex: 1;
-    min-height: 0; /* flex 자식의 최소 높이 제한 해제 (스크롤 이슈 방지) */
-}
-
-/* 사이드바 스타일 */
-.admin-sidebar-wrapper {
-    flex: 0 0 var(--sidebar-w);
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    padding: 20px 0;
-    height: 100%;
-    min-height: calc(100vh - var(--topbar-h));
-}
-
-.sidebar-title {
-    padding: 10px 25px;
-    font-weight: bold;
-    font-size: 0.9rem;
-    color: #7f8c8d;
-}
-
-.sidebar a {
-    color: #bdc3c7;
-    padding: 15px 25px;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.sidebar a:hover, .sidebar a.active {
-    background-color: #34495e;
-    color: white;
-}
-
-.sidebar-sep {
-    border: 0;
-    border-top: 1px solid #3e4f5f;
-    margin: 10px 0;
-}
-
-/* 메인 컨텐츠 스타일 */
-.admin-content {
-    flex: 1;
-    min-width: 0; /* 가로 너비 부족 시 깨짐 방지 */
-    padding: 30px;
-    background-color: var(--bg-color);
-    overflow-y: auto; /* 내용이 길어지면 메인 영역만 스크롤 */
-}
-
-/* --- 헤더(Topbar) 세부 요소 스타일 추가 --- */
-.topbar-left, .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.brand {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.page-title {
-    font-size: 1rem;
-    color: #666;
-    border-left: 1px solid var(--border-color);
-    padding-left: 20px;
-}
-
-.auth {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.role-tag {
-    background: #e8f0fe;
-    color: #1967d2;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.username {
-    font-weight: 500;
-    color: #333;
-}
-
-.logout {
-    font-size: 0.85rem;
-    color: #d93025;
-    text-decoration: none;
-    border: 1px solid #d93025;
-    padding: 4px 10px;
-    border-radius: 4px;
-    transition: 0.2s;
-}
-
-.logout:hover {
-    background: #d93025;
-    color: white;
-}
-/* supplierList.css */
-
-/* 섹션 타이틀 스타일 */
-section h2 {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--border-color);
-}
-
-/* 테이블 컨테이너 및 기본 스타일 */
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background-color: #fff;
     border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    margin-bottom: 30px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #f1f3f5;
+    display: flex; flex-direction: column;
+}
+.supplier-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-/* 테이블 헤더 */
-th {
-    background-color: #fcfcfd;
-    color: #475569;
-    font-weight: 600;
-    text-align: center;
-    padding: 18px 15px;
-    border-bottom: 2px solid #f1f5f9;
-    font-size: 0.95rem;
+/* 카드 헤더 */
+.card-header {
+    padding: 20px;
+    display: flex; gap: 15px; align-items: center;
+    border-bottom: 1px solid #f8f9fa;
+    background: #fff;
 }
-
-/* 테이블 데이터 셀 */
-td {
-    padding: 16px 15px;
-    text-align: center;
-    border-bottom: 1px solid #f1f5f9;
-    color: #334155;
-    font-size: 0.9rem;
-    vertical-align: middle;
+.icon-box {
+    width: 45px; height: 45px;
+    background: #f1f3f5; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #495057;
 }
+.title-box h3 { margin: 0 0 4px 0; font-size: 17px; color: #343a40; font-weight: 700; }
+.apply-date { font-size: 12px; color: #868e96; }
 
-/* 행 마우스 오버 시 강조 효과 */
-tbody tr:hover {
-    background-color: #f8fafc;
-    transition: background-color 0.2s ease;
+/* 카드 본문 */
+.card-body { padding: 20px; flex: 1; }
+.info-row {
+    display: flex; justify-content: space-between;
+    margin-bottom: 8px; font-size: 14px;
 }
+.info-row .label { color: #868e96; }
+.info-row .value { color: #495057; font-weight: 600; }
 
-/* 승인 버튼 (Green - 성공 및 활기 상징) */
-.approve-btn {
-    background-color: #10b981; /* 에메랄드 그린 */
-    color: white;
+/* 카드 하단 버튼 영역 */
+.card-actions {
+    display: flex;
+    border-top: 1px solid #f1f5f9;
+}
+/* 폼이 50% 너비를 차지하게 설정 */
+.card-actions form { flex: 1; display: flex; }
+
+.card-actions button {
+    flex: 1;
     border: none;
-    padding: 8px 16px;
+    padding: 15px;
+    font-size: 14px;
+    font-weight: bold;
     cursor: pointer;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-    margin-right: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    transition: background 0.2s;
 }
 
-.approve-btn:hover {
-    background-color: #059669;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+/* 승인 버튼 */
+.btn-approve {
+    background: white; color: #10b981;
+    border-right: 1px solid #f1f5f9 !important;
+    width: 100%; /* form 안에서 꽉 차게 */
+}
+.btn-approve:hover { background: #ecfdf5; }
+
+/* 반려 버튼 */
+.btn-reject { background: white; color: #ef4444; }
+.btn-reject:hover { background: #fef2f2; }
+
+
+/* --- 모달 (팝업) 스타일 --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); /* 반투명 배경 */
+    z-index: 2000; /* 최상단 */
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(2px);
 }
 
-/* 반려 버튼 (Red - 경고 및 거절 상징) */
-.reject-btn {
-    background-color: #ef4444; /* 로즈 레드 */
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: all 0.2s;
+.modal-box {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%; max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease;
 }
 
-.reject-btn:hover {
-    background-color: #dc2626;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-/* 버튼 클릭 시 눌리는 효과 */
-.approve-btn:active, .reject-btn:active {
-    transform: translateY(0);
-}
+.modal-box h3 { margin-top: 0; color: #343a40; }
+.modal-box p { color: #868e96; font-size: 14px; margin-bottom: 20px; }
 
-/* 빈 목록 처리 스타일 (필요 시) */
-.no-data {
-    padding: 40px;
-    color: #94a3b8;
-    font-style: italic;
+.modal-box textarea {
+    width: 100%; height: 100px;
+    margin-bottom: 20px; padding: 12px;
+    border: 1px solid #dee2e6; border-radius: 8px;
+    resize: none; font-family: inherit;
+    box-sizing: border-box; /* 패딩 포함 계산 */
 }
+.modal-box textarea:focus { outline: 2px solid #339af0; border-color: transparent; }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.btn-secondary {
+    background: #e9ecef; color: #495057; border: none;
+    padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600;
+}
+.btn-danger {
+    background: #fa5252; color: white; border: none;
+    padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600;
+}
+.btn-secondary:hover { background: #dee2e6; }
+.btn-danger:hover { background: #e03131; }
