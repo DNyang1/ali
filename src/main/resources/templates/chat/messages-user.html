@@ -1,14 +1,13 @@
-<!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/user/layout/base :: layout(~{::body}, ~{::head/link})">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Messages</title>
-  <link rel="stylesheet" href="/chat/css/chat.css"/>
-</head>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{::links})">
 
-<body>
+  <!-- head에 들어갈 CSS(채팅만) -->
+  <th:block th:fragment="links">
+    <link rel="stylesheet" href="/chat/css/chat.css"/>
+  </th:block>
+
+  <!-- 본문 content -->
+  <th:block th:fragment="content">
 
 <!-- 서버에서 내려주는 값들 -->
 <input type="hidden" id="currentUserId" th:value="${currentUserId}">
@@ -103,5 +102,5 @@
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script src="/chat/js/chat.js"></script>
-</body>
-</html>
+  </th:block>
+</th:block>

@@ -9,9 +9,6 @@
 
             <!-- 비로그인 -->
             <div th:if="${session.loginUser == null}" class="auth">
-                <a th:href="@{/cart}" class="chip">
-                    장바구니 <span th:text="${cartCount} ?: 0">0</span>
-                </a>
                 <a th:href="@{/user/login}" class="link">로그인</a>
                 <a th:href="@{/user/register}" class="btn">회원가입</a>
             </div>
@@ -19,10 +16,13 @@
             <!-- 로그인 -->
             <div th:if="${session.loginUser != null}" class="auth">
                 <a th:href="@{/cart}" class="chip">
-                    장바구니 <span th:text="${cartCount} ?: 0">0</span>
+                    장바구니
                 </a>
-                <a th:href="@{/chat/messages-user}" class="chip">
-                    메시지 <span th:text="${unreadChatCount} ?: 0">0</span>
+                <a th:href="@{/chat/messages-user}"
+                   class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
+                    안읽은 메시지
+                    <span id="headerUnreadCount" class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700"
+                          th:text="${unreadChatCount} ?: 0">0</span>
                 </a>
                 <a th:href="@{/user/switch-role}" class="chip">
                     공급자로 전환(임시)

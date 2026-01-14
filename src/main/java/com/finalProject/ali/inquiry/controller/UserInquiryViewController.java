@@ -49,7 +49,7 @@ public class UserInquiryViewController {
 
         List<InquiryDTO> inquiries = inquiryService.findMyInquiries(userId);
         model.addAttribute("inquiries", inquiries);
-
+        model.addAttribute("activeMenu", "inquiry");
         return "inquiry/user/list";
     }
 
