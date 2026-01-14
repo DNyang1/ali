@@ -90,6 +90,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('submitCart')?.addEventListener('click', () => submit('CART'));
 
     function submit(type) {
+        const loginLink = document.querySelector('a.link[href="/user/login"]');
+        if (loginLink) {
+            alert('로그인이 필요합니다.');
+            window.location.href = '/user/login';
+            return;
+        }
+
         const items = collectSkuItems();
         const totalQty = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -519,7 +526,6 @@ function addToCart(items) {
     });
 }
 function buyNow(items) {
-    // 1️⃣ 바로 주문도 checkoutItems로 통일
     localStorage.setItem('checkoutItems', JSON.stringify(items));
 
     location.href = '/order/checkout';
