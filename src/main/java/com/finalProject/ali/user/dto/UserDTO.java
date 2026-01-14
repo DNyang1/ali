@@ -24,4 +24,5 @@ public class UserDTO {
     private String status;
     // 정지 사유
     private String suspensionReason;
+
 }

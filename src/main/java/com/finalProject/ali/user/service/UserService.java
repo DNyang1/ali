@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor // final이 붙은 필드만 생성자 주입 (Autowired 대체)
 public class UserService implements UserDetailsService {
 
-    private final UserDAO userDAO; // 기존 MyBatis (조회용 등)
-    private final UserRepository userRepository; // ✅ JPA (회원가입용)
+    private final UserDAO userDAO;
+    private final UserRepository userRepository; //JPA
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    // ✅ [변경] 회원가입: MyBatis -> JPA 교체 완료
+    // 회원가입: MyBatis -> JPA
     @Transactional
     public void register(UserDTO userDto) {
         // 1. 중복 체크 (JPA)
@@ -54,7 +54,6 @@ public class UserService implements UserDetailsService {
                 .phone(userDto.getPhone())
                 .birth(userDto.getBirth())
                 .address(userDto.getAddress())
-                // .role("ROLE_USER") // 엔티티에 role 필드가 있다면 추가
                 .status("ACTIVE")
                 .build();
 

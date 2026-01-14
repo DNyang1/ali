@@ -129,4 +129,16 @@
         DELETE FROM supplier WHERE user_id = #{userId}
     </delete>
 
+    <select id="countAllUsers" resultType="int">
+        SELECT COUNT(*) FROM users
+    </select>
+
+    <select id="countTodayUsers" resultType="int">
+        SELECT COUNT(*) FROM users WHERE DATE(created_at) = CURDATE()
+    </select>
+
+    <select id="countPendingSuppliers" resultType="int">
+        SELECT COUNT(*) FROM supplier WHERE status = 'WAITING'
+    </select>
+
 </mapper>
