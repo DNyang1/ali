@@ -2,6 +2,7 @@ package com.finalProject.ali.chat.controller;
 
 import com.finalProject.ali.chat.dto.ChatDTO;
 import com.finalProject.ali.chat.dto.ChatSendDTO;
+import com.finalProject.ali.chat.dto.UnreadTotalDTO;
 import com.finalProject.ali.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -47,9 +49,29 @@ public class ChatController {
         payload.setSenderName(senderName);
 
         messagingTemplate.convertAndSend("/topic/rooms/" + req.getRoomId(), payload);
-//        log.info("WS sent => /topic/rooms/{}", req.getRoomId());
-        log.info("WS recv productId => {}", req.getProductId());
 
+        String sender = normalizeUserId(req.getSenderId());
+        List<String> members = chatService.getMemberIds(req.getRoomId());
+
+        if (members != null) {
+            for (String m : members) {
+                String member = normalizeUserId(m);
+
+                // 보낸 사람은 제외(본인 unread 안 늘어남)
+                if (member != null && member.equals(sender)) continue;
+
+                long total = chatService.getUnreadTotal(member);
+                messagingTemplate.convertAndSend(
+                        "/topic/users/" + member + "/unread-total",
+                        new UnreadTotalDTO(total)
+                );
+            }
+        }
+    }
+
+    private String normalizeUserId(String userId) {
+        if (userId == null) return null;
+        return userId.startsWith("s_") ? userId.substring(2) : userId;
     }
 
 }

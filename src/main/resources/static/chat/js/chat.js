@@ -74,6 +74,10 @@ window.addEventListener("DOMContentLoaded", async () => {
         // 혹시 메시지 로딩으로 문맥이 달라질 수 있으니 한 번 더
         await refreshAiBar();
     }
+
+
+    // 안읽은 모든 메세지
+    updateHeaderUnreadTotal();
 });
 
 function connect() {
@@ -426,6 +430,8 @@ function setBadge(roomId, count) {
     const n = Math.max(0, toNum(count) || 0);
     badge.textContent = String(n);
     badge.style.display = n === 0 ? "none" : "";
+
+    updateHeaderUnreadTotal();
 }
 
 function getBadgeEl(roomId) {
@@ -888,4 +894,20 @@ function hideAiSuggestionsLoading() {
     if (!chipsEl) return;
     const el = chipsEl.querySelector(".ai-suggest-loading");
     if (el) el.remove();
+}
+
+// 안읽은 모든 메시지
+function updateHeaderUnreadTotal() {
+    const el = document.getElementById("headerUnreadCount");
+    if (!el) return;
+
+    let total = 0;
+    document.querySelectorAll(".room-item .badge").forEach((b) => {
+        // display:none 이면 0 취급
+        if (b.style.display === "none") return;
+        const n = Number(b.textContent || 0);
+        if (Number.isFinite(n)) total += n;
+    });
+
+    el.textContent = String(total);
 }
