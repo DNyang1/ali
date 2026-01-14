@@ -2,101 +2,183 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>상품 리스트</title>
-    <link rel="stylesheet" href="/products/css/products.css">
+    <title th:text="${pageTitle}">상품 목록</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="/main/css/main-header.css">
     <link rel="stylesheet" href="/main/css/common.css">
+    <link rel="stylesheet" href="/mypage/common/css/layout.css">
 </head>
-<body>
+
+<body class="text-slate-900"
+      th:classappend="${custom == true}
+          ? ' bg-sky-50/40'
+          : ' bg-teal-50/30'">
+
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
-<h2 th:text="${pageTitle}">전체 상품</h2>
-<div class="category-tabs">
+<section class="max-w-[1400px] mx-auto px-6 mt-10
+                grid grid-cols-[260px_1fr] gap-8">
 
-    <a th:href="@{/products/list(
-                custom=${custom},
-                discount=${discount}
-        )}"
-       th:classappend="${category == null} ? 'active' : ''">
-        전체
-    </a>
+    <aside class="sticky top-[90px] h-fit">
 
+        <div class="rounded-xl border shadow-sm p-4"
+             th:classappend="${custom == true}
+                ? ' bg-sky-50/70 border-sky-100'
+                : ' bg-teal-50/60 border-teal-100'">
 
-    <a th:each="c : ${categories}"
-       th:href="@{/products/list(
-        category=${c.categoryId},
-        custom=${custom},
-        discount=${discount}
-   )}"
-       th:text="${c.categoryName}"
-       th:classappend="${category == c.categoryId} ? 'active' : ''">
-        카테고리명
-    </a>
+            <h3 class="font-extrabold text-lg mb-4">
+                카테고리
+            </h3>
 
+            <ul class="space-y-1 text-sm">
 
-</div>
+                <li>
+                    <a th:href="@{/products/list(custom=${custom}, discount=${discount})}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold hover:bg-white/60"
+                       th:classappend="${category == null}
+                            ? (custom == true
+                                ? ' bg-sky-100 text-sky-700'
+                                : ' bg-teal-100 text-teal-700')
+                            : ''">
+                        전체 상품
+                    </a>
+                </li>
 
-<div class="product-grid" id="productGrid">
-    <a class="product-card" th:each="p : ${products}" th:href="@{/products/{id}(id=${p.productId})}">
-        <div class="discount-badge"
-             th:if="${p.discountType != null}"
-             th:text="${p.discountType == 'RATE'
-        ? '-' + p.discountValue + '%'
-        : '-' + p.discountValue + '원'}">
+                <li class="my-2 border-t"></li>
+
+                <li th:each="c : ${categories}">
+                    <a th:href="@{/products/list(
+                            custom=${custom},
+                            discount=${discount},
+                            category=${c.categoryId})}"
+                       class="flex justify-between items-center
+                              px-3 py-2 rounded-lg hover:bg-white/60"
+                       th:classappend="${category == c.categoryId}
+                            ? (custom == true
+                                ? ' bg-sky-100 text-sky-700 font-semibold'
+                                : ' bg-teal-100 text-teal-700 font-semibold')
+                            : ''">
+                        <span th:text="${c.categoryName}"></span>
+                        <span class="text-slate-400">›</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </aside>
+
+    <main class="rounded-2xl p-6"
+          th:classappend="${custom == true}
+                ? ' bg-sky-50/50'
+                : ' bg-teal-50/40'">
+
+        <div class="mb-6">
+            <h1 class="text-2xl font-extrabold flex items-center gap-2">
+                <span th:if="${custom == false}"
+                      class="text-teal-600 font-black tracking-tight">
+                    Ali
+                </span>
+
+                <span th:if="${custom == true}"
+                      class="text-sky-500 font-black tracking-tight">
+                    Custom
+                </span>
+
+                <span class="text-slate-800">상품</span>
+            </h1>
+
         </div>
 
-        <img th:src="@{|https://picsum.photos/300?random=${p.productId}|}"
-             alt="상품 이미지">
+        <div th:if="${#lists.isEmpty(products)}"
+             class="bg-white rounded-xl p-20 text-center text-slate-400 border">
+            상품이 없습니다.
+        </div>
 
-        <div class="info">
-            <p class="title" th:text="${p.productName}"></p>
+        <div th:if="${!#lists.isEmpty(products)}"
+             class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-            <div class="meta">
-                <div class="price-box">
+            <a th:each="p : ${products}"
+               th:href="@{/products/{id}(id=${p.productId})}"
+               class="group relative rounded-2xl border bg-white
+                      overflow-hidden
+                      hover:shadow-xl hover:-translate-y-1
+                      transition-all duration-200">
 
-                    <th:block th:if="${p.discountType != null}">
-                        <span class="time-sale-badge">⏰ 타임딜</span>
-
-                        <div class="price-original">
-                            ₩<span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
-                        </div>
-
-                        <div class="price-discounted">
-                            ₩<span th:text="${#numbers.formatInteger(
-                            (p.discountType == 'RATE'
-                                ? p.minPrice - (p.minPrice * p.discountValue / 100)
-                                : p.minPrice - p.discountValue),
-                            3,
-                            'COMMA'
-                        )}"></span>
-                        </div>
-                    </th:block>
-
-                    <th:block th:if="${p.discountType == null}">
-                        <div class="price-normal" th:if="${p.minPrice != null}">
-                            ₩<span th:text="${#numbers.formatInteger(p.minPrice, 3, 'COMMA')}"></span>
-                            ~
-                            ₩<span th:text="${#numbers.formatInteger(p.maxPrice, 3, 'COMMA')}"></span>
-                        </div>
-
-                        <div class="price-normal" th:if="${p.minPrice == null}">
-                            가격 문의
-                        </div>
-                    </th:block>
-
+                <div th:if="${p.discountType != null}"
+                     class="absolute top-3 left-3 bg-red-500 text-white
+                            text-xs font-bold px-2 py-1 rounded-md z-10"
+                     th:text="${p.discountType == 'RATE'
+                        ? '-' + p.discountValue + '%'
+                        : '-' + p.discountValue + '원'}">
                 </div>
 
+                <img th:src="@{|https://picsum.photos/400?random=${p.productId}|}"
+                     class="w-full aspect-square object-cover
+                            group-hover:scale-105 transition">
 
-                <span class="custom"
-                      th:if="${p.isCustomizable == 1}">
-                    커스터마이징 가능
-                </span>
-                <span class="custom" th:if="${p.isCustomizable == 0}">커스텀 불가</span>
-            </div>
+                <div class="p-4 space-y-2">
+
+                    <p class="text-sm font-medium line-clamp-2"
+                       th:text="${p.productName}">
+                    </p>
+
+                    <div>
+                        <th:block th:if="${p.discountType != null}">
+                            <div class="text-xs line-through text-slate-400">
+                                ₩<span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
+                            </div>
+
+                            <div class="text-lg font-extrabold text-red-600">
+                                ₩<span th:text="${#numbers.formatInteger(
+                                    (p.discountType == 'RATE'
+                                        ? p.minPrice - (p.minPrice * p.discountValue / 100)
+                                        : p.minPrice - p.discountValue),
+                                    3,'COMMA')}"></span>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${p.discountType == null}">
+                            <div th:if="${p.minPrice != null}"
+                                 class="font-bold"
+                                 th:classappend="${custom == true}
+                                    ? ' text-sky-600'
+                                    : ' text-teal-600'">
+                                ₩<span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
+                                ~
+                                ₩<span th:text="${#numbers.formatInteger(p.maxPrice,3,'COMMA')}"></span>
+                            </div>
+
+                            <div th:if="${p.minPrice == null}"
+                                 class="text-sm text-slate-400">
+                                가격 문의
+                            </div>
+                        </th:block>
+                    </div>
+
+                    <span th:if="${p.isCustomizable == 1}"
+                          class="inline-block text-xs font-semibold px-2 py-1 rounded"
+                          th:classappend="${custom == true}
+                            ? ' text-sky-700 bg-sky-100'
+                            : ' text-teal-700 bg-teal-100'">
+                        커스터마이징 가능
+                    </span>
+
+                    <span th:if="${p.isCustomizable == 0}"
+                          class="inline-block text-xs px-2 py-1 rounded
+                                 text-slate-400 bg-slate-100">
+                        커스텀 불가
+                    </span>
+
+                </div>
+            </a>
+
         </div>
-    </a>
-</div>
+    </main>
 
-<script src="/products/js/products.js"></script>
+</section>
+
+<div th:replace="layout/footer :: footer"></div>
 </body>
 </html>
