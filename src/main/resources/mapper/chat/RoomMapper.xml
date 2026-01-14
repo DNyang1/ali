@@ -37,4 +37,12 @@
         CASE WHEN c.chat_id IS NULL THEN 1 ELSE 0 END,
         c.chat_id DESC;
     </select>
+
+    <select id="findOpponentId" resultType="string">
+        SELECT user_id
+        FROM room_members
+        WHERE room_id = #{roomId}
+        AND user_id != #{myUserId}
+        LIMIT 1
+    </select>
 </mapper>

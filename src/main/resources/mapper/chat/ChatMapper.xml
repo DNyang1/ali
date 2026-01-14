@@ -72,4 +72,17 @@
         ORDER BY chat_at DESC
         LIMIT 1
     </select>
+
+    <select id="getUnreadTotal" resultType="long">
+        SELECT COALESCE(SUM(t.cnt), 0) AS total
+        FROM (
+        SELECT COUNT(*) AS cnt
+        FROM room_members rm
+        JOIN chat c ON c.room_id = rm.room_id
+        WHERE rm.user_id = #{userId}
+        AND c.sender_id != #{userId}
+        AND c.chat_id > COALESCE(rm.last_read_chat_id, 0)
+        GROUP BY rm.room_id
+        ) t
+    </select>
 </mapper>

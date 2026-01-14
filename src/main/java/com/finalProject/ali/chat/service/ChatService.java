@@ -37,4 +37,8 @@ public interface ChatService {
 
     String buildConversationContext(Long roomId);
 
+    long getUnreadTotal(String userId);
+
+    List<String> getMemberIds(Long roomId);
+
 }
