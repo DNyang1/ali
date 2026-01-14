@@ -102,6 +102,10 @@ public class ProductService {
         return productDAO.selectDiscountProducts();
     }
 
+    public List<ProductDTO> getPreviewProductsByCategory(String categoryId) {
+        System.out.println("🔥 SERVICE categoryId = " + categoryId);
+        return productDAO.findByCategoryId(categoryId);
+    }
 
 
     //태민

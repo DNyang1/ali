@@ -280,16 +280,38 @@
             parameterType="string"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
 
+        WITH RECURSIVE cat_tree AS (
+        SELECT category_id
+        FROM category
+        WHERE category_id = #{categoryId}
+
+        UNION ALL
+
+        SELECT c.category_id
+        FROM category c
+        JOIN cat_tree ct ON c.parent_id = ct.category_id
+        )
         SELECT
-        p.product_id,
-        p.product_name,
-        p.category_id
+        p.product_id      AS productId,
+        p.product_name    AS productName,
+        p.category_id     AS categoryId,
+        p.is_customizable AS isCustomizable,
+
+        (
+        SELECT MIN(sp.price)
+        FROM sku s
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.product_id = p.product_id
+        ) AS minPrice
+
         FROM products p
-        WHERE p.category_id = #{categoryId}
+        JOIN cat_tree ct ON p.category_id = ct.category_id
         ORDER BY p.created_at DESC
         LIMIT 12
-
     </select>
+
+
+
 
     <select id="findSupplierIdByProductId" resultType="string">
         SELECT supplier_id
