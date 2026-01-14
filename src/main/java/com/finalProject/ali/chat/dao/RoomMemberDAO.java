@@ -21,4 +21,6 @@ public interface RoomMemberDAO {
 
     Long findOpponentLastReadChatId(@Param("roomId") Long roomId, @Param("userId") String userId);
 
+    String findOpponentId(@Param("roomId") Long roomId, @Param("myUserId") String myUserId);
+
 }

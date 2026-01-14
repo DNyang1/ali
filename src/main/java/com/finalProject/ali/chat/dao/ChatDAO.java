@@ -24,4 +24,6 @@ public interface ChatDAO {
 
     Long findLastProductIdInRoom(Long roomId);
 
+    Long getUnreadTotal(@Param("userId") String userId);
+
 }
