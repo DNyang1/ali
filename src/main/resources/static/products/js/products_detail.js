@@ -133,34 +133,44 @@ function renderSkuList(skus) {
         const optionText = sku.optionSummary?.trim() || '옵션 없음';
 
         const row = document.createElement('div');
-        row.className = 'sku-row';
         row.dataset.skuId = sku.skuId;
         row.dataset.unitPrice = unitPrice;
         row.dataset.discountedUnitPrice = discounted;
 
+        /* ===== row ===== */
+        row.className =
+            'sku-row flex justify-between items-center gap-4 ' +
+            'p-3 border border-slate-200 bg-white';
+
         row.innerHTML = `
-            <div class="sku-left">
-                <div class="sku-id">${sku.skuId}</div>
-                <div class="sku-options">${optionText}</div>
-                <div class="sku-stock">재고 ${sku.stockQuantity ?? 0}개</div>
+            <div class="sku-left flex flex-col gap-1">
+                <div class="sku-id font-bold text-sm">${sku.skuId}</div>
+                <div class="sku-options text-xs text-slate-600">
+                    ${optionText}
+                </div>
+                <div class="sku-stock text-xs text-slate-500">
+                    재고 ${sku.stockQuantity ?? 0}개
+                </div>
             </div>
 
-            <div class="sku-right">
-                <div class="sku-price"></div>
+            <div class="sku-right text-right">
+                <div class="sku-price font-bold mb-1">
+                    ₩${discounted.toLocaleString()}
+                </div>
 
-                <div class="qty-box">
-                    <button class="qty-minus">-</button>
-                    <input class="qty-input" type="number" min="0" value="0">
-                    <button class="qty-plus">+</button>
+                <div class="qty-box flex items-center gap-1">
+                    <button class="qty-minus w-7 h-7 border border-slate-300
+                                   bg-slate-50 font-bold">-</button>
+
+                    <input class="qty-input w-10 h-7 text-center
+                                  border border-slate-300"
+                           type="number" min="0" value="0">
+
+                    <button class="qty-plus w-7 h-7 border border-slate-300
+                                  bg-slate-50 font-bold">+</button>
                 </div>
             </div>
         `;
-
-        const priceEl = row.querySelector('.sku-price');
-        priceEl.innerText =
-            discounted !== unitPrice
-                ? `₩${discounted.toLocaleString()} (할인)`
-                : `₩${unitPrice.toLocaleString()}`;
 
         container.appendChild(row);
     });
@@ -170,30 +180,41 @@ function renderSkuList(skus) {
 
 
 
+
 function renderAllSkuInfo() {
-    const skuIdEl = document.getElementById('skuIdText');
-    const skuOptionEl = document.getElementById('skuOptionText');
+    const container = document.getElementById('mainSkuList');
+    if (!container) return;
 
-    if (!skuIdEl || !skuOptionEl) return;
-
-    if (IS_CUSTOM_PRODUCT === true) {
-        skuIdEl.style.display = 'none';
-        skuOptionEl.style.display = 'none';
+    if (!Array.isArray(PARSED_SKUS) || PARSED_SKUS.length === 0) {
+        container.innerHTML =
+            `<div class="text-slate-400 text-sm">SKU 정보 없음</div>`;
         return;
     }
 
-    skuIdEl.innerText = 'SKU 목록';
+    container.innerHTML = PARSED_SKUS.map(sku => {
+        const option =
+            sku.optionSummary && sku.optionSummary.trim() !== ''
+                ? sku.optionSummary
+                : '옵션 없음';
 
-    skuOptionEl.innerHTML = PARSED_SKUS
-        .map(sku => {
-            const option =
-                sku.optionSummary && sku.optionSummary.trim() !== ''
-                    ? sku.optionSummary
-                    : '옵션 없음';
+        return `
+            <div class="flex items-start justify-between
+                        border border-slate-200 rounded-lg
+                        px-3 py-2 mb-2 text-sm">
 
-            return `<div>${sku.skuId} | ${option}</div>`;
-        })
-        .join('');
+                <div class="flex flex-col">
+                    <span class="font-bold">${sku.skuId}</span>
+                    <span class="text-slate-600 text-xs">
+                        ${option}
+                    </span>
+                </div>
+
+                <span class="text-xs text-slate-500">
+                    재고 ${sku.stockQuantity ?? 0}개
+                </span>
+            </div>
+        `;
+    }).join('');
 }
 
 
@@ -342,14 +363,31 @@ function renderPriceTiers(priceRules) {
         const discounted = getDiscountedUnitPrice(original);
 
         const li = document.createElement('li');
+        li.className = 'flex justify-between items-end';
 
         li.innerHTML = `
             <span>
                 ${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개
             </span>
-            <span>
-                ₩${discounted.toLocaleString()}
-            </span>
+
+            ${
+            discounted !== original
+                ? `
+                        <span class="text-right">
+                            <div class="text-xs text-slate-400 line-through">
+                                ₩${original.toLocaleString()}
+                            </div>
+                            <div class="font-bold text-red-600">
+                                ₩${discounted.toLocaleString()}
+                            </div>
+                        </span>
+                      `
+                : `
+                        <span class="font-bold">
+                            ₩${original.toLocaleString()}
+                        </span>
+                      `
+        }
         `;
 
         container.appendChild(li);
@@ -367,25 +405,26 @@ function renderMainPriceTiers(priceRules) {
         const discounted = getDiscountedUnitPrice(original);
 
         const div = document.createElement('div');
-        div.className = 'main-price-tier';
+        div.className = 'p-4 border border-slate-200 rounded-xl';
 
         div.innerHTML = `
-            <div class="tier-qty">
+            <div class="text-xs text-slate-500 mb-1">
                 ${r.maxQty ? `${r.minQty}~${r.maxQty}` : `${r.minQty}+`}개
             </div>
 
             ${
             discounted !== original
                 ? `
-                        <div class="tier-price original">
+                        <del class="text-sm text-slate-400">
                             ₩${original.toLocaleString()}
-                        </div>
-                        <div class="tier-price discounted">
+                        </del>
+
+                        <div class="text-lg font-bold text-red-600">
                             ₩${discounted.toLocaleString()}
                         </div>
                       `
                 : `
-                        <div class="tier-price">
+                        <div class="text-lg font-bold">
                             ₩${original.toLocaleString()}
                         </div>
                       `
@@ -395,6 +434,8 @@ function renderMainPriceTiers(priceRules) {
         container.appendChild(div);
     });
 }
+
+
 
 
 
@@ -453,100 +494,6 @@ function restoreOriginalPrices() {
 
     updateSummary();
 }
-
-
-/* ======================================================
-   🔧 DEV ONLY : SKU 직접 선택 블록 (ORDER / CART 공통)
-   ====================================================== */
-(function () {
-    // 필요하면 로컬에서만 활성화
-    // if (location.hostname !== 'localhost') return;
-
-    window.__DEV_FORCED_SKU_ID__ = null;
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (!Array.isArray(PARSED_SKUS) || PARSED_SKUS.length === 0) return;
-
-        /* ===== DEV 컨테이너 ===== */
-        const box = document.createElement('div');
-        box.style.cssText = `
-            margin-top:16px;
-            padding:12px;
-            border:1px dashed #999;
-            border-radius:8px;
-            background:#fafafa;
-            font-size:13px;
-        `;
-
-        box.innerHTML = `
-            <div style="margin-bottom:6px;font-weight:bold;">🔧 DEV TEST PANEL</div>
-
-            <select id="devSkuSelect" style="width:100%;padding:6px;margin-bottom:6px;">
-                <option value="">SKU 직접 선택</option>
-            </select>
-
-            <input id="devQtyInput" type="number" min="1" value="1"
-                   style="width:100%;padding:6px;margin-bottom:8px;"/>
-
-            <div style="display:flex;gap:6px;">
-                <button id="devAddCart" style="flex:1;">장바구니 담기</button>
-                <button id="devBuyNow" style="flex:1;">바로 주문</button>
-            </div>
-        `;
-
-        /* ===== SKU 옵션 채우기 ===== */
-        const select = box.querySelector('#devSkuSelect');
-        PARSED_SKUS.forEach(sku => {
-            const opt = document.createElement('option');
-            opt.value = sku.skuId;
-            opt.textContent = `${sku.skuId} | ${sku.optionValueIds?.join(', ')}`;
-            select.appendChild(opt);
-        });
-
-        /* ===== 이벤트 ===== */
-        select.addEventListener('change', e => {
-            window.__DEV_FORCED_SKU_ID__ = e.target.value || null;
-            console.log('🔧 [DEV] SKU =', window.__DEV_FORCED_SKU_ID__);
-        });
-
-        box.querySelector('#devAddCart').addEventListener('click', () => {
-            const skuId = window.__DEV_FORCED_SKU_ID__;
-            const qty = Number(box.querySelector('#devQtyInput').value || 1);
-
-            if (!skuId) {
-                alert('SKU를 선택하세요.');
-                return;
-            }
-
-            addToCart(skuId, qty);
-        });
-
-        box.querySelector('#devBuyNow').addEventListener('click', () => {
-            const skuId = window.__DEV_FORCED_SKU_ID__;
-            const qty = Number(box.querySelector('#devQtyInput').value || 1);
-
-            if (!skuId) {
-                alert('SKU를 선택하세요.');
-                return;
-            }
-
-            buyNow(skuId, qty);
-        });
-
-        /* ===== 페이지 하단에 추가 ===== */
-        document.body.appendChild(box);
-    });
-
-    /* ===== resolveSkuId 후킹 (옵션 로직 무시) ===== */
-    const originalResolveSkuId = window.resolveSkuId;
-    window.resolveSkuId = function () {
-        if (window.__DEV_FORCED_SKU_ID__) {
-            return window.__DEV_FORCED_SKU_ID__;
-        }
-        return originalResolveSkuId();
-    };
-})();
-
 
 function addToCart(skuId, quantity) {
     fetch('/api/cart/items', {
