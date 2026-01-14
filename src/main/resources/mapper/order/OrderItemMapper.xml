@@ -51,7 +51,7 @@
         SELECT
             oi.order_item_id        AS orderItemId,
             oi.order_id             AS orderId,
-            o.created_at            AS orderAt,
+            o.created_at            AS orderedAt,
             o.user_id               AS buyerId,
             oi.product_name         AS productName,
             oi.option_summary       AS optionSummary,

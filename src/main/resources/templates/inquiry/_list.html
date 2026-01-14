@@ -2,7 +2,9 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<div th:fragment="inquiryList(inquiries, mode)">
+<div th:fragment="inquiryList(inquiries, mode)"
+     th:attr="data-mode=${mode}"
+     id="inquiry-root">
 
   <!-- Title -->
   <div class="flex items-end justify-between gap-3">
@@ -92,6 +94,8 @@
 
   <!-- ✅ 중요: script를 fragment 안으로 넣어야 th:replace로 같이 포함됨 -->
   <script>
+    const ROOT = document.getElementById('inquiry-root');
+    const MODE = ROOT?.dataset.mode || 'supplier';
     (function () {
       const PAGE_SIZE = 10;
 
@@ -173,11 +177,29 @@
         a.href = href;
         a.textContent = text;
 
-        a.className =
-                'rounded-lg border border-slate-200 bg-blue px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 ' +
-                (active ? 'border-blue-600 bg-blue-600 hover:bg-blue-600' : '');
+        // supplier (기존 유지)
+        const supplierNormal =
+                'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50';
 
-        a.style.setProperty('color', active ? '#ffffff' : '#334155', 'important'); // slate-700
+        const supplierActive =
+                'rounded-lg border border-blue-600 bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600';
+
+        // user (마이페이지 그라데이션)
+        const userNormal =
+                'rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50';
+
+        const userActive =
+                'rounded-xl text-white text-sm font-semibold px-3 py-1.5 ' +
+                'bg-gradient-to-r from-brand-500 to-accent-500 hover:from-brand-600 hover:to-accent-600';
+
+        const isUser = MODE === 'user';
+
+        if (isUser) {
+          a.className = active ? userActive : userNormal;
+        } else {
+          a.className = active ? supplierActive : supplierNormal;
+        }
+
         return a;
       }
 
