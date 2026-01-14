@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ===============================
-       DOM 캐싱
-    =============================== */
     const categoryList = document.getElementById('categoryList');
     const allCategoryList = document.getElementById('allCategoryList');
     const allCategoryGrid = document.getElementById('allCategoryGrid');
@@ -13,9 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('categoryCloseBtn');
     const categoryBox = document.querySelector('.category-box');
 
-    /* ===============================
-       메인 카테고리 로드
-    =============================== */
     fetch('/api/categories/main')
         .then(res => res.json())
         .then(list => {
@@ -36,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
 
-                /* 왼쪽 카테고리 (모달 열기만 함) */
                 const li1 = document.createElement('li');
                 li1.innerHTML = html;
                 li1.addEventListener('click', (e) => {
@@ -45,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 categoryList.appendChild(li1);
 
-                /* 모달 왼쪽 카테고리 */
                 const li2 = document.createElement('li');
                 li2.innerHTML = html;
                 li2.addEventListener('click', () => {
@@ -56,9 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(console.error);
 
-    /* ===============================
-       모달 열기 + 소분류 로드
-    =============================== */
     function openOverlay(categoryId, categoryName) {
         overlay.classList.remove('hidden');
         allCategoryTitle.textContent = categoryName;
@@ -76,9 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(console.error);
     }
 
-    /* ===============================
-       소분류 렌더
-    =============================== */
     function renderSubCategories(categories) {
         allCategoryGrid.innerHTML = categories.map(c => `
       <div
@@ -101,9 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    /* ===============================
-       상품 프리뷰 로드
-    =============================== */
     async function fetchProducts(categoryId) {
         try {
             const res = await fetch(`/api/products/preview?category=${categoryId}`);
@@ -125,10 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img
                     src="https://picsum.photos/seed/${p.productId}/300/200"
                     class="w-full h-32 object-cover">
-                <div class="p-2 text-sm font-bold text-teal-600">
-                    ${p.minPrice
-                ? '₩' + Number(p.minPrice).toLocaleString()
-                : '가격문의'}
+                <div class="text-sm font-semibold text-slate-800 truncate">
+                    ${p.productName}
                 </div>
             </a>
         `).join('');
@@ -139,9 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    /* ===============================
-       모달 닫기
-    =============================== */
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.add('hidden');
     });
@@ -151,3 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
     categoryBox?.addEventListener('click', () => overlay.classList.remove('hidden'));
 
 });
+
+document.querySelectorAll('.category-horizontal-wrap')
+    .forEach(el => {
+        el.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            el.scrollLeft += e.deltaY;
+        }, { passive: false });
+    });
