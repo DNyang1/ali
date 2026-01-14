@@ -24,12 +24,14 @@ public class ChatPageController {
     @GetMapping("/chat/messages-user")
     public String messagesUser(@RequestParam(required = false) Long roomId,
                                HttpSession session, Model model) {
+        model.addAttribute("activeMenu", "chat");
         return renderMessagesPage(roomId, session, model, "chat/messages-user");
     }
 
     @GetMapping("/chat/messages-supplier")
     public String messagesSupplier(@RequestParam(required = false) Long roomId,
                                    HttpSession session, Model model) {
+        model.addAttribute("activeMenu", "chat");
         return renderMessagesPage(roomId, session, model, "chat/messages-supplier");
     }
 

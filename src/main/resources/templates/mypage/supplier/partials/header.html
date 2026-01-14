@@ -22,13 +22,6 @@
 
             <!-- 비로그인 -->
             <div th:if="${session.loginUser == null}" class="flex items-center gap-2">
-                <a th:href="@{/mypage/user/cart}"
-                   class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
-                    장바구니
-                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs"
-                          th:text="${cartCount} ?: 0">0</span>
-                </a>
-
                 <a th:href="@{/user/login}"
                    class="font-semibold text-slate-600 hover:text-slate-900">
                     로그인
@@ -42,7 +35,7 @@
 
             <!-- 로그인 -->
             <div th:if="${session.loginUser != null}" class="flex items-center gap-2">
-                <a th:href="@{/chat/messages-user}"
+                <a th:href="@{/chat/messages-supplier}"
                    class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
                     안읽은 메시지
                     <span id="headerUnreadCount" class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700"

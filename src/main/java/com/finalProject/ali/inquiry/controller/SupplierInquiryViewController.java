@@ -88,7 +88,7 @@ public class SupplierInquiryViewController {
 
         model.addAttribute("inquiries", inquiries);
         model.addAttribute("status", status);
-
+        model.addAttribute("activeMenu", "inquiry");
         return "inquiry/supplier/list";
     }
 

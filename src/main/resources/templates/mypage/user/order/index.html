@@ -1,67 +1,178 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/user/layout/base :: layout(~{::body}, ~{})">
-<head>
-    <meta charset="UTF-8">
-    <title>order-list</title>
-</head>
-<body>
-<div id="order-list"></div>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/user/layout/base :: layout(~{::content}, null)">
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        loadOrders();
-    });
+    <th:block th:fragment="content">
 
-    function loadOrders() {
-        fetch('/api/order/my')
-            .then(res => res.json())
-            .then(renderOrders)
-            .catch(err => {
-                console.error(err);
-                alert('주문 내역을 불러오지 못했습니다.');
-            });
-    }
+        <section class="space-y-4">
+            <header>
+                <h1 class="text-2xl font-bold text-slate-900">내 주문 내역</h1>
+                <p class="text-sm text-slate-500">주문 내역을 확인하고 상세 정보를 볼 수 있어요.</p>
+            </header>
 
-    function renderOrders(orders) {
-        const container = document.getElementById('order-list');
-        container.innerHTML = '';
-
-        if (!orders || orders.length === 0) {
-            container.innerHTML = '<p>주문 내역이 없습니다.</p>';
-            return;
-        }
-
-        orders.forEach(o => {
-            const extra = o.itemCount - 1;
-            const div = document.createElement('div');
-            div.className = 'order-card';
-
-            div.innerHTML = `
-
-            <div>
-            ${o.firstProductName}
-            ${o.firstOptionSummary}
-              ${extra > 0 ? ` 외 ${extra}개 상품` : ''}
+            <div id="user-order-list" class="space-y-4">
+                주문을 불러오는 중...
             </div>
-            <div>주문번호: ${o.orderId}</div>
-            <div>주문일: ${o.createdAt}</div>
-            <div>금액: ${o.totalAmount}원</div>
-            <div>상태: ${o.status}</div>
-            <button onclick="goDetail(${o.orderId})">상세보기</button>
-            <div>---------------------------------------</div>
+        </section>
 
+        <script>
+            fetch('/api/order/my')
+                .then(res => {
+                    if (!res.ok) throw new Error('주문 조회 실패');
+                    return res.json();
+                })
+                .then(list => {
+                    if (!Array.isArray(list)) list = [];
 
-        `;
+                    const params = new URLSearchParams(location.search);
 
-            container.appendChild(div);
-        });
-    }
+                    const status = norm(params.get('status'));
+                    const filtered = status
+                        ? list.filter(o => norm(o.status) === status)
+                        : list;
 
-    function goDetail(orderId) {
-        location.href = `/mypage/user/order/${orderId}`;
-    }
-</script>
+                    const size = 10;
+                    const page = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
+                    const totalPages = Math.max(1, Math.ceil(filtered.length / size));
+                    const safePage = Math.min(page, totalPages);
 
-</body>
-</html>
+                    const start = (safePage - 1) * size;
+                    const sliced = filtered.slice(start, start + size);
+
+                    render(sliced);
+                    renderPager(safePage, totalPages, status);
+
+                    if (safePage !== page) {
+                        const next = new URLSearchParams(location.search);
+                        next.set('page', String(safePage));
+                        if (status) next.set('status', status);
+                        history.replaceState(null, '', `${location.pathname}?${next.toString()}`);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    const el = document.getElementById('user-order-list');
+                    if (el) el.innerText = '주문 정보를 불러오지 못했습니다.';
+                });
+
+            function norm(v) {
+                return (v || '').toString().trim().toUpperCase();
+            }
+
+            function render(list) {
+                const el = document.getElementById('user-order-list');
+                if (!el) return;
+                el.innerHTML = '';
+
+                if (!list || list.length === 0) {
+                    el.innerText = '주문 내역이 없습니다.';
+                    return;
+                }
+
+                list.forEach(o => {
+                    const div = document.createElement('div');
+                    const extra = (o.itemCount || 0) - 1;
+
+                    div.innerHTML = `
+<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-1">
+  <div class="flex items-center justify-between">
+    <div class="text-sm font-bold text-slate-900">주문 #${o.orderId ?? '-'}</div>
+    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+      ${o.status ?? '-'}
+    </span>
+  </div>
+
+  <div class="text-xs text-slate-500">${o.createdAt ?? '-'}</div>
+
+  <div class="pt-2 space-y-1 text-sm">
+    <div class="font-semibold text-slate-900">
+      ${o.firstProductName ?? '-'}
+      <span class="font-medium text-slate-500">${o.firstOptionSummary ?? ''}</span>
+      ${extra > 0 ? `<span class="text-slate-500">외 ${extra}개 상품</span>` : ''}
+    </div>
+    <div class="text-slate-700">
+      <span class="text-slate-500">총액</span>
+      <b>${Number(o.totalAmount || 0).toLocaleString()}</b>원
+    </div>
+  </div>
+
+  <div class="pt-3 text-right">
+    <button onclick="goDetail('${(o.orderId ?? '').toString().replace(/'/g, "\\'")}')"
+      class="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700">
+      상세보기
+    </button>
+  </div>
+</div>
+`;
+                    el.appendChild(div);
+                });
+            }
+
+            function renderPager(page, totalPages, status) {
+                const old = document.getElementById('user-order-pager');
+                if (old) old.remove();
+
+                if (!totalPages || totalPages <= 1) return;
+
+                const pager = document.createElement('div');
+                pager.id = 'user-order-pager';
+                pager.className = 'mt-6 flex flex-wrap items-center justify-center gap-2';
+
+                const makeHref = (p) => {
+                    const qs = new URLSearchParams(location.search);
+                    qs.set('page', String(p));
+                    if (status) qs.set('status', status);
+                    else qs.delete('status');
+                    return `${location.pathname}?${qs.toString()}`;
+                };
+
+                if (page > 1) pager.appendChild(pageBtn('이전', makeHref(page - 1), false));
+
+                const windowSize = 7;
+                let start = Math.max(1, page - Math.floor(windowSize / 2));
+                let end = Math.min(totalPages, start + windowSize - 1);
+                start = Math.max(1, end - windowSize + 1);
+
+                if (start > 1) {
+                    pager.appendChild(pageBtn('1', makeHref(1), page === 1));
+                    if (start > 2) pager.appendChild(ellipsis());
+                }
+
+                for (let p = start; p <= end; p++) {
+                    pager.appendChild(pageBtn(String(p), makeHref(p), p === page));
+                }
+
+                if (end < totalPages) {
+                    if (end < totalPages - 1) pager.appendChild(ellipsis());
+                    pager.appendChild(pageBtn(String(totalPages), makeHref(totalPages), page === totalPages));
+                }
+
+                if (page < totalPages) pager.appendChild(pageBtn('다음', makeHref(page + 1), false));
+
+                const listEl = document.getElementById('user-order-list');
+                listEl.after(pager);
+            }
+
+            function pageBtn(text, href, active) {
+                const a = document.createElement('a');
+                a.href = href;
+                a.textContent = text;
+                a.className =
+                    'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50 ' +
+                    (active ? 'border-blue-600 bg-blue-600 text-white hover:bg-blue-600' : 'text-slate-700');
+                return a;
+            }
+
+            function ellipsis() {
+                const span = document.createElement('span');
+                span.textContent = '...';
+                span.className = 'px-2 text-sm text-slate-400';
+                return span;
+            }
+
+            window.goDetail = function(orderId) {
+                location.href = `/mypage/user/order/${orderId}`;
+            }
+        </script>
+
+    </th:block>
+</th:block>
