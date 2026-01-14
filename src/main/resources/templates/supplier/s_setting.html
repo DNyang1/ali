@@ -1,43 +1,64 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
-<head>
-  <meta charset="UTF-8">
-  <title>공급자 정보 설정</title>
-  <link rel="stylesheet" href="/user/css/s_setting.css"/>
-</head>
-<body>
-<div class="setting-container">
-  <h1 class="page-title">회사 정보 설정</h1>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{::links})">
 
-  <div class="menu-box">
-    <h3 class="box-title">사업자 등록 정보</h3>
+  <!-- page links -->
+  <th:block th:fragment="links">
+    <title>공급자 정보 설정</title>
+  </th:block>
 
-    <div class="info-content" th:if="${supplier != null}">
-      <div class="text-info-section">
-        <div class="info-row">
-          <span class="label">상호명</span>
-          <span class="value" th:text="${supplier.cpName}">ALI 컴퍼니</span>
+  <!-- page content -->
+  <th:block th:fragment="content">
+
+    <div class="max-w-3xl">
+
+      <h1 class="mb-6 text-2xl font-bold tracking-tight text-slate-900">
+        회사 정보 설정
+      </h1>
+
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+        <!-- header -->
+        <header class="border-b border-slate-100 px-6 py-4">
+          <h3 class="text-base font-bold text-slate-800">사업자 등록 정보</h3>
+        </header>
+
+        <!-- body -->
+        <div class="space-y-4 px-6 py-5 text-sm" th:if="${supplier != null}">
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">상호명</span>
+            <span class="font-semibold text-slate-900" th:text="${supplier.cpName}">ALI 컴퍼니</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">사업자 번호</span>
+            <span class="font-semibold text-slate-900" th:text="${supplier.cpNumber}">000-00-00000</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">업체 연락처</span>
+            <span class="font-semibold text-slate-900" th:text="${supplier.cpPhone}">02-1234-5678</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">사업장 소재지</span>
+            <span class="font-semibold text-slate-900" th:text="${supplier.cpAddress}">서울특별시 강남구...</span>
+          </div>
+
         </div>
-        <div class="info-row">
-          <span class="label">사업자 번호</span>
-          <span class="value" th:text="${supplier.cpNumber}">000-00-00000</span>
+
+        <!-- footer -->
+        <div class="border-t border-slate-100 px-6 py-4 text-right">
+          <a th:href="@{/supplier/s_update}"
+             class="inline-flex items-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700">
+            공급자 정보 수정
+          </a>
         </div>
-        <div class="info-row">
-          <span class="label">업체 연락처</span>
-          <span class="value" th:text="${supplier.cpPhone}">02-1234-5678</span>
-        </div>
-        <div class="info-row">
-          <span class="label">사업장 소재지</span>
-          <span class="value" th:text="${supplier.cpAddress}">서울특별시 강남구...</span>
-        </div>
-      </div>
+
+      </section>
+
     </div>
 
-    <div class="action-buttons">
-      <a th:href="@{/supplier/s_update}" class="btn btn-supplier">공급자 정보 수정</a>
-    </div>
-  </div>
-</div>
-</body>
-</html>
+  </th:block>
+
+</th:block>

@@ -17,4 +17,5 @@ public class SupplierOrderItemResponse {
     private Long quantity;
     private Long unitPrice;
     private String orderStatus;
+    private String supplierStatus;
 }

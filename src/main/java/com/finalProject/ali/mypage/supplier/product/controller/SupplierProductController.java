@@ -137,6 +137,21 @@ public class SupplierProductController extends BaseSupplierController {
         List<ProductImageDTO> details = productImageDAO.findByType(productId, "DETAIL");
         model.addAttribute("detailImages", details);
     }
+    @GetMapping("/mypage/supplier/product/low-stock")
+    public String lowStockProducts(Model model) {
+        int threshold = 5;
+
+        model.addAttribute("pageTitle", "재고 위험 상품");
+        model.addAttribute("activeMenu", "product");
+        addCommonAttributes(model);
+
+        var list = productService.findLowStockProducts(supplierId(), threshold);
+
+        model.addAttribute("products", list);
+        model.addAttribute("lowStockThreshold", threshold);
+
+        return "mypage/supplier/product/index";
+    }
 
 
 }

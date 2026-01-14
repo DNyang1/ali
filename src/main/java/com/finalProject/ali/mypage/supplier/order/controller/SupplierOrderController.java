@@ -1,11 +1,14 @@
 package com.finalProject.ali.mypage.supplier.order.controller;
 
 import com.finalProject.ali.mypage.supplier.common.controller.BaseSupplierController;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+@RequiredArgsConstructor
 @Controller
 public class SupplierOrderController extends BaseSupplierController {
 
