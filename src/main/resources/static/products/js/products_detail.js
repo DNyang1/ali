@@ -105,9 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const first = items[0];
 
         if (type === 'ORDER') {
-            buyNow(first.skuId, first.quantity);
+            buyNow(items);
         } else {
-            addToCart(first.skuId, first.quantity);
+            addToCart(items);
         }
     }
 });
@@ -495,31 +495,31 @@ function restoreOriginalPrices() {
     updateSummary();
 }
 
-function addToCart(skuId, quantity) {
+function addToCart(items) {
+    const requests = items.map(item => ({
+        ...item,
+        productId: PRODUCT_ID
+    }));
+
     fetch('/api/cart/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            productId: PRODUCT_ID,
-            skuId: skuId,
-            quantity: quantity
-        })
+        body: JSON.stringify(requests)
     })
-        .then(res => {
-            if (!res.ok) throw new Error('장바구니 추가 실패');
-        })
-        .then(() => {
-            alert('장바구니에 담겼습니다.');
-            closeModal();
-        });
+    .then(res => {
+        if (!res.ok) {
+            throw new Error('장바구니 추가에 실패했습니다. 다시 시도해주세요.');
+        }
+        alert('장바구니에 담겼습니다.');
+        closeModal();
+    })
+    .catch(error => {
+        console.error('Error adding items to cart:', error);
+        alert(error.message);
+    });
 }
-function buyNow(skuId, quantity) {
+function buyNow(items) {
     // 1️⃣ 바로 주문도 checkoutItems로 통일
-    const items = [{
-        skuId: skuId,
-        quantity: quantity
-    }];
-
     localStorage.setItem('checkoutItems', JSON.stringify(items));
 
     location.href = '/order/checkout';
