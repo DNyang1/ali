@@ -9,7 +9,10 @@
 
     <!-- Tailwind (DEV용: CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <th:block th:if="${extraCss != null}">
+        <th:block th:replace="${extraCss}"></th:block>
+    </th:block>
+
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-900">

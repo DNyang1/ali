@@ -1,56 +1,95 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="mypage/supplier/layout/base :: layout(~{::body}, ~{::head/link})">
-<head>
-    <meta charset="UTF-8">
-    <title>공급자 정보 수정 - ALI</title>
-    <link rel="stylesheet" href="/supplier/css/s_update.css"/>
-</head>
-<body>
-<div class="update-container">
-    <h1 class="page-title">공급자 정보 수정</h1>
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:replace="mypage/supplier/layout/base :: layout(~{::content}, ~{::links})">
 
-    <div class="update-box">
-        <h3 class="box-title">사업자 정보를 최신 상태로 관리해 주세요.</h3>
+    <!-- page links -->
+    <th:block th:fragment="links">
+        <title>공급자 정보 수정 - ALI</title>
+    </th:block>
 
-        <form id="supplierUpdateForm" class="form-section">
-            <div class="input-row">
-                <label for="cpName">상호명</label>
-                <div class="input-group">
-                    <input type="text" id="cpName" th:value="${supplier.cpName}" placeholder="상호명 입력">
-                </div>
-            </div>
+    <!-- page content -->
+    <th:block th:fragment="content">
 
-            <div class="input-row">
-                <label for="cpNumber">사업자 등록번호</label>
-                <div class="input-group disabled">
-                    <input type="text" id="cpNumber" th:value="${supplier.cpNumber}" readonly>
-                </div>
-                <small class="input-help">* 사업자번호는 직접 수정이 불가능합니다. 고객센터에 문의하세요.</small>
-            </div>
+        <div class="max-w-3xl">
 
-            <div class="input-row">
-                <label for="cpPhone">업체 전화번호</label>
-                <div class="input-group">
-                    <input type="text" id="cpPhone" th:value="${supplier.cpPhone}" placeholder="전화번호 입력">
-                </div>
-            </div>
+            <h1 class="mb-6 text-2xl font-bold tracking-tight text-slate-900">
+                공급자 정보 수정
+            </h1>
 
-            <div class="input-row">
-                <label for="cpAddress">업체 주소</label>
-                <div class="input-group">
-                    <input type="text" id="cpAddress" th:value="${supplier.cpAddress}" placeholder="사업장 주소 입력">
-                </div>
-            </div>
+            <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-            <div class="btn-group">
-                <button type="button" onclick="updateSupplierInfo()" class="btn btn-supplier">수정 완료</button>
-                <button type="button" onclick="history.back()" class="btn btn-outline">취소</button>
-            </div>
-        </form>
-    </div>
-</div>
+                <header class="border-b border-slate-100 px-6 py-4">
+                    <h3 class="text-base font-bold text-slate-800">
+                        사업자 정보를 최신 상태로 관리해 주세요.
+                    </h3>
+                </header>
 
-<script src="/supplier/js/s_update.js"></script>
-</body>
-</html>
+                <form id="supplierUpdateForm" class="space-y-5 px-6 py-6">
+
+                    <!-- cpName -->
+                    <div>
+                        <label class="mb-1 block text-sm font-semibold text-slate-700">상호명</label>
+                        <input type="text"
+                               id="cpName"
+                               th:value="${supplier.cpName}"
+                               placeholder="상호명 입력"
+                               class="w-full rounded-xl border border-slate-300 px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    </div>
+
+                    <!-- cpNumber -->
+                    <div>
+                        <label class="mb-1 block text-sm font-semibold text-slate-700">사업자 등록번호</label>
+                        <input type="text"
+                               id="cpNumber"
+                               th:value="${supplier.cpNumber}"
+                               readonly
+                               class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-500">
+                        <p class="mt-1 text-xs text-slate-500">
+                            * 사업자번호는 직접 수정이 불가능합니다. 고객센터에 문의하세요.
+                        </p>
+                    </div>
+
+                    <!-- cpPhone -->
+                    <div>
+                        <label class="mb-1 block text-sm font-semibold text-slate-700">업체 전화번호</label>
+                        <input type="text"
+                               id="cpPhone"
+                               th:value="${supplier.cpPhone}"
+                               placeholder="전화번호 입력"
+                               class="w-full rounded-xl border border-slate-300 px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    </div>
+
+                    <!-- cpAddress -->
+                    <div>
+                        <label class="mb-1 block text-sm font-semibold text-slate-700">업체 주소</label>
+                        <input type="text"
+                               id="cpAddress"
+                               th:value="${supplier.cpAddress}"
+                               placeholder="사업장 주소 입력"
+                               class="w-full rounded-xl border border-slate-300 px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    </div>
+
+                    <!-- buttons -->
+                    <div class="flex justify-end gap-2 pt-4">
+                        <button type="button"
+                                onclick="updateSupplierInfo()"
+                                class="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-700">
+                            수정 완료
+                        </button>
+                        <button type="button"
+                                onclick="history.back()"
+                                class="rounded-xl border border-slate-300 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50">
+                            취소
+                        </button>
+                    </div>
+
+                </form>
+
+            </section>
+
+            <script src="/supplier/js/s_update.js"></script>
+
+        </div>
+
+    </th:block>
+
+</th:block>

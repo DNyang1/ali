@@ -79,5 +79,28 @@
         WHERE product_id  = #{productId}
           AND supplier_id = #{supplierId}
     </update>
+    <select id="findLowStockProducts" resultType="com.finalProject.ali.product.dto.ProductDTO">
+        SELECT DISTINCT
+            p.product_id       AS productId,
+            p.product_name     AS productName,
+            p.is_customizable  AS isCustomizable,
+            p.status           AS status
+        FROM products p
+                 JOIN sku s
+                      ON s.product_id = p.product_id
+                          AND s.status = 'ACTIVE'
+        WHERE p.supplier_id = #{supplierId}
+          AND s.stock_quantity &lt;= #{threshold}
+        ORDER BY p.product_id DESC
+    </select>
+    <select id="countLowStockProducts" resultType="int">
+        SELECT COUNT(DISTINCT p.product_id)
+        FROM products p
+                 JOIN sku s
+                      ON s.product_id = p.product_id
+                          AND s.status = 'ACTIVE'
+        WHERE p.supplier_id = #{supplierId}
+          AND s.stock_quantity &lt;= #{threshold}
+    </select>
 
 </mapper>

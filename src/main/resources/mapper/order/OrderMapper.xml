@@ -76,7 +76,8 @@
         oi.option_summary   AS optionSummary,
         oi.quantity         AS quantity,
         oi.unit_price       AS unitPrice,
-        o.status            AS orderStatus
+        o.status            AS orderStatus,
+        oi.supplier_status   AS supplierStatus
 
         FROM order_item oi
         JOIN orders o

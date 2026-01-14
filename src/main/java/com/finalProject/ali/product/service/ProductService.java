@@ -3,6 +3,7 @@ package com.finalProject.ali.product.service;
 import com.finalProject.ali.product.category.dto.CategoryDTO;
 import com.finalProject.ali.product.dao.ProductDAO;
 import com.finalProject.ali.product.dto.ProductDTO;
+import com.finalProject.ali.product.dto.ProductListRow;
 import com.finalProject.ali.product.dto.ProductSearchSummaryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -158,5 +159,11 @@ public class ProductService {
 
     public List<ProductDTO> getDiscountProductsByCategory(String categoryId) {
         return productDAO.selectDiscountProductsByCategory(categoryId);
+    }
+    public List<ProductListRow> findLowStockProducts(String supplierId, int threshold) {
+        return productDAO.findLowStockProducts(supplierId, threshold);
+    }
+    public int countLowStockProducts(String supplierId, int threshold) {
+        return productDAO.countLowStockProducts(supplierId, threshold);
     }
 }

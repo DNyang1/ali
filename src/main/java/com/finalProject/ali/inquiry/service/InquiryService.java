@@ -87,6 +87,11 @@ public class InquiryService {
     public List<InquiryDTO> findBySupplierAll(String supplierId) {
         return inquiryDAO.findBySupplierAll(supplierId);
     }
+    public List<InquiryDTO> findRecentBySupplier(String supplierId, int limit) {
+        List<InquiryDTO> all = inquiryDAO.findBySupplierAll(supplierId);
+        if (all == null) return java.util.List.of();
+        return all.size() > limit ? all.subList(0, limit) : all;
+    }
 }
 
 

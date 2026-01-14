@@ -6,15 +6,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/main/css/main-header.css">
     <link rel="stylesheet" href="/main/css/common.css">
-    <link rel="stylesheet" href="/index/css/index.css">
+    <link rel="stylesheet" href="/mypage/common/css/layout.css">
 </head>
 
 <body class="bg-slate-50 text-slate-900">
 
-<!-- ================= HEADER ================= -->
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
-<!-- ================= HERO SEARCH ================= -->
 <header class="bg-gradient-to-r from-teal-500 to-sky-500 text-white">
     <div class="max-w-[1200px] mx-auto px-6 py-10 text-center">
 
@@ -37,10 +35,8 @@
     </div>
 </header>
 
-<!-- ================= USP ================= -->
 <section class="max-w-[1200px] mx-auto px-6 my-14 grid grid-cols-2 gap-8">
 
-    <!-- Ali Guaranteed -->
     <div class="bg-white rounded-xl p-8 shadow-sm">
         <h2 class="text-xl font-bold mb-2">
             <span class="text-teal-600">Ali</span> Guaranteed
@@ -63,7 +59,6 @@
         </div>
     </div>
 
-    <!-- Custom -->
     <div class="bg-white rounded-xl p-8 shadow-sm">
         <h2 class="text-xl font-bold mb-2">⚡ 빠른 커스터마이징</h2>
         <p class="text-sm text-slate-600 mb-4">
@@ -93,7 +88,6 @@
               gap-6 p-6
               h-[480px]">
 
-        <!-- LEFT : CATEGORY -->
         <aside class="category-box bg-white border border-slate-200 rounded-xl p-4 h-[440px] flex flex-col">
             <div id="allCategoryBtn" class="flex items-center justify-between px-2 py-2 mb-3 rounded-lg cursor-pointer select-none hover:bg-slate-50 transition">
                     <span class="flex items-center gap-2">
@@ -104,13 +98,11 @@
             </div>
 
             <ul id="categoryList" class="mt-2 space-y-1 text-[15px] overflow-y-auto pr-1">
-            <!-- JS로 li 생성 -->
             </ul>
         </aside>
 
 
 
-        <!-- CENTER : RECOMMEND -->
         <main class="h-full overflow-hidden">
 
             <div class="flex gap-6 overflow-x-auto pb-4 h-full items-start">
@@ -121,7 +113,6 @@
                         class="min-w-[320px] h-[420px]
                  bg-white border rounded-2xl p-4 flex flex-col">
 
-                    <!-- header -->
                     <div class="flex justify-between items-center mb-3">
                         <h4 class="font-bold text-sm"
                             th:text="${entry.key}">
@@ -131,7 +122,6 @@
                         </a>
                     </div>
 
-                    <!-- products -->
                     <div class="grid grid-cols-2 gap-3 flex-1">
 
                         <a th:each="p, stat : ${entry.value}"
@@ -157,7 +147,6 @@
 
         </main>
 
-        <!-- RIGHT : DISCOUNT -->
         <div class="bg-gradient-to-b from-teal-500 to-sky-500
          rounded-2xl p-8 text-white
          h-[440px] flex flex-col justify-between">
@@ -180,17 +169,15 @@
         </aside>
 
     </div>
-
+    </div>
 </section>
 
 
-<!-- ================= ALL CATEGORY OVERLAY ================= -->
 <div id="allCategoryOverlay"
      class="hidden fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-6">
 
     <div class="all-category-panel w-[1100px] max-w-[96vw] max-h-[82vh] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
 
-        <!-- 헤더 -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200
                 bg-gradient-to-r from-teal-50 to-sky-50">
             <div class="flex items-center gap-3">
@@ -206,20 +193,15 @@
             </button>
         </div>
 
-        <!-- 바디 -->
         <div class="all-category-wrap grid grid-cols-[260px_1fr] h-[520px]">
 
-        <!-- 왼쪽(메인 카테고리) -->
             <aside class="all-category-left border-r border-slate-200 bg-slate-50/60 p-4 overflow-y-auto">
                 <ul id="allCategoryList" class="space-y-1 text-[15px]">
-                    <!-- JS -->
                 </ul>
             </aside>
 
-            <!-- 오른쪽(하위/상품) -->
             <section class="all-category-right p-6 overflow-y-auto">
                 <div id="allCategoryGrid" class="grid grid-cols-4 gap-3">
-                    <!-- JS -->
                 </div>
             </section>
 
@@ -228,12 +210,10 @@
 </div>
 
 
-
-<!-- ================= JS ================= -->
+<div th:replace="layout/footer :: footer"></div>
 <script src="/index/js/index.js"></script>
 
 <script>
-    // 지금 살펴보기 버튼 이동
     document.querySelectorAll('.explore-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             location.href = `/products/list?custom=${btn.dataset.custom}`;
