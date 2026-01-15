@@ -4,7 +4,6 @@ import com.finalProject.ali.repository.UserRepository;
 import com.finalProject.ali.user.dao.UserDAO;
 import com.finalProject.ali.user.dto.SupplierDTO;
 import com.finalProject.ali.user.dto.UserDTO;
-// ⚠️ 중요: JPA 엔티티는 'UserEntity'라는 별명으로 가져옵니다! (충돌 방지)
 import com.finalProject.ali.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,29 +22,67 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor // final이 붙은 필드만 생성자 주입 (Autowired 대체)
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserDAO userDAO;
-    private final UserRepository userRepository; //JPA
+    private final UserRepository userRepository; // JPA
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    // 회원가입: MyBatis -> JPA
+    // ===================================================================================
+    //  [SECTION 1] 인증 및 로그인 (Authentication & Security)
+    // ===================================================================================
+
+    // Spring Security 필수 구현체
+    @Override
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        UserDTO user = userDAO.findByUserId(userId);
+        if (user == null) throw new UsernameNotFoundException(userId);
+
+        // 정지된 계정 차단
+        if ("SUSPENDED".equals(user.getStatus())) {
+            throw new org.springframework.security.authentication.LockedException("정지된 계정입니다. 사유: " + user.getSuspensionReason());
+        }
+
+        List<String> roles = user.getRoles();
+        if (roles == null || roles.isEmpty()) {
+            roles = List.of("ROLE_USER");
+        }
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUserId())
+                .password(user.getPassword())
+                .authorities(roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    // 수동 로그인 확인 (Security 미사용 시 혹은 보조용)
+    public UserDTO login(String userId, String rawPassword) {
+        UserDTO user = userDAO.findByUserId(userId);
+        if(user != null && passwordEncoder.matches(rawPassword, user.getPassword())) {
+            return user;
+        }
+        return null;
+    }
+
+    // ===================================================================================
+    //  [SECTION 2] 일반 회원 서비스 (User Basic Service)
+    //  : 가입, 조회, 정보수정, 아이디 찾기
+    // ===================================================================================
+
+    // 회원가입 (JPA + MyBatis 권한 부여)
     @Transactional
     public void register(UserDTO userDto) {
-        // 1. 중복 체크 (JPA)
+        // 1. 중복 체크
         if (userRepository.existsByUserId(userDto.getUserId())) {
             throw new RuntimeException("이미 존재하는 아이디입니다.");
         }
-//        if (userRepository.existsByEmail(userDto.getEmail())) {
-//            throw new RuntimeException("이미 존재하는 이메일입니다.");
-//        }
 
-        // 2. 비밀번호 암호화
+        // 2. 비밀번호 암호화 및 Entity 변환
         String encodedPassword = passwordEncoder.encode(userDto.getPassword());
-
-        // 3. DTO -> Entity 변환 (Builder 사용)
         User userEntity = User.builder()
                 .userId(userDto.getUserId())
                 .password(encodedPassword)
@@ -57,69 +94,39 @@ public class UserService implements UserDetailsService {
                 .status("ACTIVE")
                 .build();
 
-        // 4. 저장 (SQL 없이 저장됨)
+        // 3. 저장
         userRepository.save(userEntity);
 
-        // 5. 권한 저장 (권한 테이블은 아직 MyBatis라면 유지, JPA로 바꿨다면 여기도 수정 필요)
-        // 일단 기존 호환성을 위해 유지
+        // 4. 권한 부여 (기본 유저)
         userDAO.insertUserRole(userDto.getUserId(), "ROLE_USER");
     }
 
-    // --- 아래는 기존 유지 ---
-
+    // 회원 정보 조회
     public UserDTO findByUserId(String userId) {
         return userDAO.findByUserId(userId);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        UserDTO user = userDAO.findByUserId(userId);
-        if (user == null) throw new UsernameNotFoundException(userId);
-
-        if ("SUSPENDED".equals(user.getStatus())) {
-            throw new org.springframework.security.authentication.LockedException("정지된 계정입니다. 사유: " + user.getSuspensionReason());
-        }
-
-        List<String> roles = user.getRoles();
-        if (roles == null || roles.isEmpty()) {
-            roles = List.of("ROLE_USER");
-        }
-
-        // 여기의 User는 스프링 시큐리티의 User입니다. (import 충돌 주의)
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUserId())
-                .password(user.getPassword())
-                .authorities(roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList()))
-                .build();
+    // 회원 정보 수정
+    public void updateUserInfo(UserDTO userDTO) {
+        userDAO.updateUser(userDTO);
     }
 
-    // 로그인 확인
-    public UserDTO login(String userId, String rawPassword) {
-        UserDTO user = userDAO.findByUserId(userId);
-        if(user != null && passwordEncoder.matches(rawPassword, user.getPassword())) {
-            return user;
+    // 아이디 찾기
+    public String findId(String name, String type, String value) {
+        if ("phone".equals(type)) {
+            return userDAO.findIdByPhone(name, value);
+        } else if ("email".equals(type)) {
+            return userDAO.findIdByEmail(name, value);
         }
         return null;
     }
 
-    // 업데이트
-    public void updateUserInfo(UserDTO userDTO) {
-        userDAO.updateUser(userDTO);
-    }
-    public void updateSupplier(SupplierDTO supplierDTO) {
-        userDAO.updateSupplier(supplierDTO);
-    }
+    // ===================================================================================
+    //  [SECTION 3] 비밀번호 및 계정 보안 (Password & Account Security)
+    //  : 비밀번호 변경, 찾기(임시발급), 토큰 검증
+    // ===================================================================================
 
-    public SupplierDTO getSupplierInfo(String userId) {
-        return userDAO.findSupplierByUserId(userId);
-    }
-
-    public void registerSupplier(SupplierDTO supplierDTO) {
-        userDAO.insertSupplier(supplierDTO);
-    }
-
+    // 비밀번호 변경 (마이페이지)
     public boolean changePassword(String userId, String currentPassword, String newPassword) {
         UserDTO user = userDAO.findByUserId(userId);
         if (user == null) return false;
@@ -130,6 +137,7 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
+    // 비밀번호 업데이트 (공통 내부 로직)
     public boolean updatePassword(String userId, String newPassword) {
         String password = passwordEncoder.encode(newPassword);
         Map<String, String> params = new HashMap<>();
@@ -138,20 +146,13 @@ public class UserService implements UserDetailsService {
         return userDAO.updatePassword(params) > 0;
     }
 
-    public String findId(String name, String type, String value) {
-        if ("phone".equals(type)) {
-            return userDAO.findIdByPhone(name, value);
-        } else if ("email".equals(type)) {
-            return userDAO.findIdByEmail(name, value);
-        }
-        return null;
-    }
-
+    // 비밀번호 찾기 전 검증
     public boolean checkUserForReset(String userId, String email) {
         UserDTO user = userDAO.findByUserId(userId);
         return user != null && user.getEmail().equals(email);
     }
 
+    // 임시 비밀번호 발송
     public void processForgotPassword(String userId, String email) {
         String tempPassword = UUID.randomUUID().toString().substring(0, 8);
         updatePassword(userId, tempPassword);
@@ -160,10 +161,12 @@ public class UserService implements UserDetailsService {
         emailService.sendSimpleEmail(email, subject, text);
     }
 
+    // 비밀번호 재설정 토큰 검증
     public String verifyResetToken(String token) {
         return userDAO.getUserIdByToken(token, LocalDateTime.now());
     }
 
+    // 토큰을 이용한 비밀번호 재설정 완료
     public boolean resetPasswordWithToken(String token, String userId, String newPassword) {
         boolean isUpdated = updatePassword(userId, newPassword);
         if (isUpdated) {
@@ -172,42 +175,66 @@ public class UserService implements UserDetailsService {
         return isUpdated;
     }
 
+    // ===================================================================================
+    //  [SECTION 4] 판매자 서비스 (Supplier Service)
+    //  : 입점 신청, 정보 조회/수정
+    // ===================================================================================
+
+    // 입점 신청
+    public void registerSupplier(SupplierDTO supplierDTO) {
+        userDAO.insertSupplier(supplierDTO);
+    }
+
+    // 판매자 정보 조회
+    public SupplierDTO getSupplierInfo(String userId) {
+        return userDAO.findSupplierByUserId(userId);
+    }
+
+    // 판매자 정보 수정
+    public void updateSupplier(SupplierDTO supplierDTO) {
+        userDAO.updateSupplier(supplierDTO);
+    }
+
+    // ===================================================================================
+    //  [SECTION 5] 관리자 기능 (Admin Service)
+    //  : 회원 관리, 판매자 승인/반려, 권한 제어
+    // ===================================================================================
+
+    // 전체 회원 조회
+    public List<UserDTO> getAllUsers() {
+        return userDAO.findAllUsers();
+    }
+
+    // 회원 상태 변경 (정지/해제)
+    public void updateUserStatus(String userId, String status, String reason) {
+        userDAO.updateUserStatus(userId, status, reason);
+    }
+
+    // 승인 대기중인 판매자 목록
     public List<SupplierDTO> getPendingSuppliers() {
         return userDAO.findPendingSuppliers();
     }
 
+    // 판매자 승인 처리
     @Transactional
     public void approveSupplier(String supplierId, String userId) {
         userDAO.updateSupplierStatus(supplierId, "APPROVED", null);
         try {
             userDAO.insertUserRole(userId, "ROLE_SUPPLIER");
         } catch (Exception e) {
+            // 이미 권한이 있는 경우 무시
         }
     }
 
+    // 판매자 반려 또는 상태 변경
     public void updateSupplierStatus(String supplierId, String status, String memo) {
         userDAO.updateSupplierStatus(supplierId, status, memo);
     }
 
-    public List<UserDTO> getAllUsers() {
-        return userDAO.findAllUsers();
-    }
-
-    public void updateUserStatus(String userId, String status, String reason) {
-        userDAO.updateUserStatus(userId, status, reason);
-    }
-
-    @Transactional
-    public void changeUserRole(String userId, String roleName, boolean isAdd) {
-        if (isAdd) {
-            userDAO.insertUserRole(userId, roleName);
-        } else {
-            userDAO.deleteUserRole(userId, roleName);
-        }
-    }
-
+    // 권한 강제 변경 (관리자용)
     @Transactional
     public void setAuthority(String userId, String targetRole) {
+        // 일단 기본 유저 권한은 보장
         try {
             userDAO.insertUserRole(userId, "ROLE_USER");
         } catch (Exception e) {}
@@ -220,7 +247,17 @@ public class UserService implements UserDetailsService {
         } else if ("ROLE_USER".equals(targetRole)) {
             userDAO.deleteUserRole(userId, "ROLE_SUPPLIER");
             userDAO.deleteUserRole(userId, "ROLE_ADMIN");
-            userDAO.deleteSupplier(userId);
+            userDAO.deleteSupplier(userId); // 판매자 정보도 삭제할지 정책에 따라 결정
+        }
+    }
+
+    // 권한 추가/삭제 헬퍼 메소드
+    @Transactional
+    public void changeUserRole(String userId, String roleName, boolean isAdd) {
+        if (isAdd) {
+            userDAO.insertUserRole(userId, roleName);
+        } else {
+            userDAO.deleteUserRole(userId, roleName);
         }
     }
 }
