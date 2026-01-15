@@ -13,9 +13,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
         .loader {
-            border: 4px solid #f3f3f3; /* Light grey */
-            border-top: 4px solid #0d9488; /* Teal-600 */
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0d9488;
             border-radius: 50%;
             width: 32px;
             height: 32px;
@@ -26,9 +34,55 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* --- Payment Overlay & Toast --- */
+        .payment-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .progress-steps .step .bar {
+            transition: width 0.4s ease-in-out;
+        }
+        .toast-message {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
+
+<!-- ====== 결제 진행 오버레이 ====== -->
+<div id="payment-overlay" class="payment-overlay hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 opacity-0">
+    <button class="absolute top-4 right-4 w-10 h-10 rounded-full text-white/70 hover:bg-white/10 text-2xl" onclick="cancelOrder()">&times;</button>
+    <div class="spinner"></div>
+    <h2 id="payment-status-text" class="text-white text-2xl font-bold mt-6 mb-8">결제를 준비 중입니다...</h2>
+
+    <div class="w-full max-w-md">
+        <ul id="progress-steps" class="flex justify-between items-center text-sm text-white/50">
+            <li class="step text-center w-1/3" data-step="1">
+                <div class="font-bold">결제 요청</div>
+                <div class="relative w-full h-1 bg-white/20 rounded-full mt-2">
+                    <div class="bar absolute top-0 left-0 h-full bg-teal-400 rounded-full w-0"></div>
+                </div>
+            </li>
+            <li class="step text-center w-1/3" data-step="2">
+                <div class="font-bold">주문 생성</div>
+                <div class="relative w-full h-1 bg-white/20 rounded-full mt-2">
+                    <div class="bar absolute top-0 left-0 h-full bg-teal-400 rounded-full w-0"></div>
+                </div>
+            </li>
+            <li class="step text-center w-1/3" data-step="3">
+                <div class="font-bold">완료</div>
+                <div class="relative w-full h-1 bg-white/20 rounded-full mt-2">
+                    <div class="bar absolute top-0 left-0 h-full bg-teal-400 rounded-full w-0"></div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- ====== 토스트 메시지 ====== -->
+<div id="toast-message" class="toast-message hidden fixed top-8 right-8 text-white py-3 px-6 rounded-lg shadow-lg opacity-0 transform translate-x-12 z-50">
+    <p id="toast-text"></p>
+</div>
+
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
 <main class="max-w-[1200px] mx-auto px-6 py-12">
@@ -40,7 +94,9 @@
             <!-- 주문 상품 -->
             <div class="bg-white rounded-xl shadow-sm">
                 <div class="p-6 border-b border-slate-200">
-                    <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-shopping-bag text-teal-600"></i> 주문 상품</h2>
+                    <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-shopping-bag text-teal-600"></i> 주문 상품
+                        <span id="order-item-count" class="ml-auto text-sm font-normal text-slate-400"></span>
+                    </h2>
                 </div>
                 <div id="order-item-list" class="p-6">
                     <div class="loader"></div>
@@ -92,6 +148,14 @@
                     <div class="flex justify-between items-center text-slate-600">
                         <span>배송비</span>
                         <span id="shipping-fee" class="font-medium text-slate-900">0 원</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span>총 상품 개수</span>
+                        <span id="total-item-types" class="font-medium text-slate-900">0 개</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-600">
+                        <span>총 수량</span>
+                        <span id="total-item-quantity" class="font-medium text-slate-900">0 개</span>
                     </div>
                     <div class="border-t pt-4 mt-4">
                         <div class="flex justify-between items-center text-lg font-bold">
@@ -167,6 +231,7 @@
     let selectedAddressId = null;
     let selectedPaymentMethod = 'MOCK';
     let currentCheckoutData = {};
+    let isOrderProcessing = false;
 
     document.addEventListener("DOMContentLoaded", () => {
         loadCheckout();
@@ -252,7 +317,7 @@
             document.getElementById('total-amount').innerText = `${convertedAmount} ${result.currency}`;
         } catch (error) {
             console.error('Error converting currency:', error);
-            alert('환율 변환에 실패했습니다.');
+            showToast('환율 변환에 실패했습니다.', 'error');
             selector.value = 'KRW';
         }
     }
@@ -260,8 +325,8 @@
     async function loadCheckout() {
         const items = JSON.parse(localStorage.getItem('checkoutItems'));
         if (!items || items.length === 0) {
-            alert('결제할 상품 정보가 없습니다. 장바구니로 돌아갑니다.');
-            location.href = '/cart';
+            showToast('결제할 상품 정보가 없습니다. 장바구니로 돌아갑니다.', 'info');
+            setTimeout(() => location.href = '/cart', 2000);
             return;
         }
         const sheetId = sessionStorage.getItem('checkoutSheetId');
@@ -287,6 +352,10 @@
     function renderOrderItems(data) {
         const container = document.getElementById('order-item-list');
         container.innerHTML = '';
+        const countEl = document.getElementById('order-item-count');
+        if (countEl && data.items) {
+            countEl.innerText = `${data.items.length}개 항목`;
+        }
         if (!data.items || data.items.length === 0) {
             container.innerHTML = '<p class="text-center text-slate-500 py-4">주문할 상품이 없습니다.</p>';
             return;
@@ -310,6 +379,18 @@
         document.getElementById('subtotal').innerText = `${data.totalAmount.toLocaleString()} 원`;
         document.getElementById('shipping-fee').innerText = `0 원`;
         document.getElementById('total-amount').innerText = `${data.totalAmount.toLocaleString()} 원`;
+
+        let totalItemTypes = 0;
+        let totalQuantity = 0;
+
+        if (data.items && data.items.length > 0) {
+            totalItemTypes = data.items.length;
+            totalQuantity = data.items.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        document.getElementById('total-item-types').innerText = `${totalItemTypes} 개`;
+        document.getElementById('total-item-quantity').innerText = `${totalQuantity} 개`;
+
         handleCurrencyChange();
     }
 
@@ -378,7 +459,7 @@
             await loadAddresses();
         } catch (error) {
             console.error('Error saving address:', error);
-            alert('배송지 저장에 실패했습니다. 다시 시도해주세요.');
+            showToast('배송지 저장에 실패했습니다. 다시 시도해주세요.', 'error');
         }
     }
 
@@ -406,40 +487,171 @@
     }
 
     async function order() {
+        if (isOrderProcessing) return;
+
         if (!selectedAddressId) {
-            alert('배송지를 선택해주세요.');
+            showToast('배송지를 선택해주세요.', 'error');
             return;
         }
-        const sheetId = sessionStorage.getItem('checkoutSheetId');
+
+        isOrderProcessing = true;
+        showOverlay();
+
+        const steps = [
+            { text: "결제 요청 중...", duration: 1500, step: 1 },
+            { text: "주문 생성 중...", duration: 1500, step: 2 },
+            { text: "거의 다 됐습니다!", duration: 1000, step: 3 }
+        ];
+
         try {
+            for (const step of steps) {
+                await runStep(step.text, step.duration, step.step);
+            }
+
+            const sheetId = sessionStorage.getItem('checkoutSheetId');
             const payload = { ...currentCheckoutData, addressId: selectedAddressId };
             if (sheetId) payload.sheetId = Number(sheetId);
+
             const orderRes = await fetch('/api/order', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
-            if (!orderRes.ok) throw new Error('주문 생성 실패');
+            if (!orderRes.ok) throw new Error(`주문 생성에 실패했습니다. (${orderRes.status})`);
             const orderData = await orderRes.json();
+
             const paymentRes = await fetch('/api/payments', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId: orderData.orderId, method: selectedPaymentMethod })
             });
-            if (!paymentRes.ok) throw new Error('결제 요청 실패');
+            if (!paymentRes.ok) throw new Error(`결제 요청에 실패했습니다. (${paymentRes.status})`);
             const paymentData = await paymentRes.json();
+
             if (paymentData.status === 'SUCCESS') {
+                updateStepUI(3, 100, true);
+                document.getElementById('payment-status-text').innerText = "✅ 결제 성공!";
                 sessionStorage.removeItem('checkoutSheetId');
                 localStorage.removeItem('checkoutItems');
-                alert(`결제 성공! 주문번호: ${orderData.orderId}`);
-                location.href = `/order/complete?orderId=${orderData.orderId}`;
+                
+                showToast(`결제 성공! 주문번호: ${orderData.orderId}`, 'success');
+
+                setTimeout(() => {
+                    location.href = `/order/complete?orderId=${orderData.orderId}`;
+                }, 1000);
+
             } else {
-                alert('결제에 실패했습니다. 다시 시도해주세요.');
+                throw new Error('결제 시스템에서 오류가 발생했습니다.');
             }
         } catch (error) {
             console.error('Order processing failed:', error);
-            alert('주문 처리 중 오류가 발생했습니다.');
+            handleOrderFailure(error.message);
         }
     }
-</script>
 
+    function runStep(text, duration, step) {
+        return new Promise(resolve => {
+            document.getElementById('payment-status-text').innerText = text;
+            updateStepUI(step, 0);
+
+            let progress = 0;
+            const interval = 20;
+            const increments = 100 / (duration / interval);
+
+            const progressInterval = setInterval(() => {
+                progress += increments;
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    updateStepUI(step, 100);
+                    resolve();
+                } else {
+                    updateStepUI(step, progress);
+                }
+            }, interval);
+        });
+    }
+
+    function handleOrderFailure(errorMessage) {
+        hideOverlay();
+        showToast(errorMessage, 'error');
+        isOrderProcessing = false;
+    }
+    
+    function cancelOrder() {
+        if(isOrderProcessing) {
+            hideOverlay();
+            showToast('결제가 중단되었습니다.', 'info');
+            isOrderProcessing = false;
+        }
+    }
+
+    function showOverlay() {
+        const overlay = document.getElementById('payment-overlay');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+        resetSteps();
+    }
+    
+    function hideOverlay() {
+        const overlay = document.getElementById('payment-overlay');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
+    
+    function resetSteps() {
+        document.querySelectorAll('#progress-steps .step').forEach(stepEl => {
+            stepEl.classList.remove('text-white', 'text-teal-400');
+            stepEl.querySelector('.bar').style.width = '0%';
+        });
+        document.getElementById('payment-status-text').innerText = "결제를 준비 중입니다...";
+    }
+
+    function updateStepUI(step, progress, isSuccess = false) {
+        const stepEl = document.querySelector(`#progress-steps .step[data-step="${step}"]`);
+        if (!stepEl) return;
+        
+        stepEl.classList.add('text-white');
+        stepEl.querySelector('.bar').style.width = `${progress}%`;
+
+        if (progress >= 100) {
+             stepEl.classList.add('text-teal-400');
+        }
+        if (isSuccess) {
+            const successEl = document.querySelector(`#progress-steps .step[data-step="3"]`);
+            successEl.classList.add('text-teal-400');
+            successEl.querySelector('.bar').style.width = `100%`;
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast-message');
+        if (!toast) {
+            console.error('Toast message element not found!');
+            return;
+        }
+        const toastText = document.getElementById('toast-text');
+        
+        toast.className = 'toast-message fixed top-20 right-8 text-white py-3 px-6 rounded-lg shadow-lg opacity-0 transform translate-x-12 z-50'; // Reset classes
+        
+        switch (type) {
+            case 'success':
+                toast.classList.add('bg-green-600');
+                break;
+            case 'error':
+                toast.classList.add('bg-red-600');
+                break;
+            default:
+                toast.classList.add('bg-gray-800');
+        }
+        
+        toastText.innerText = message;
+        
+        toast.classList.remove('hidden', 'opacity-0', 'translate-x-12');
+        toast.classList.add('opacity-100', 'translate-x-0');
+
+        setTimeout(() => {
+            toast.classList.remove('opacity-100', 'translate-x-0');
+            toast.classList.add('opacity-0', 'translate-x-12');
+             setTimeout(() => toast.classList.add('hidden'), 300);
+        }, 4000);
+    }
+</script>
 </body>
 </html>
-

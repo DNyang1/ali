@@ -27,7 +27,7 @@
             <!-- 장바구니 아이템이 여기에 동적으로 추가됩니다. -->
         </div>
 
-        <div class="p-6 bg-white rounded-xl shadow-sm sticky top-8">
+        <div class="p-6 bg-white rounded-xl shadow-sm sticky top-14">
             <h2 class="text-xl font-bold mb-6 border-b pb-4">주문 요약</h2>
 
             <div class="flex justify-between items-center text-lg font-bold mb-6">
@@ -38,6 +38,14 @@
             <button class="checkout-btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg transition-colors" onclick="goCheckout()">
                 주문하기
             </button>
+        </div>
+    </div>
+    
+    <!-- ====== 최근 본 상품 ====== -->
+    <div id="recently-viewed-container" class="mt-16">
+        <h2 class="text-2xl font-extrabold mb-6 text-slate-800">🧐 &nbsp;최근 본 상품</h2>
+        <div id="recently-viewed-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            <!-- 최근 본 상품이 여기에 동적으로 추가됩니다. -->
         </div>
     </div>
 </main>
@@ -163,7 +171,39 @@
     }
 
     loadCart();
+
+    // --- 최근 본 상품 로드 ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const recentlyViewedList = document.getElementById('recently-viewed-list');
+        const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+        if (recentlyViewed.length === 0) {
+            const emptyMessage = `
+                <div class="col-span-full text-center p-8 bg-white rounded-xl shadow-sm text-slate-500">
+                    최근 본 상품이 없습니다.
+                </div>
+            `;
+            recentlyViewedList.innerHTML = emptyMessage;
+            return;
+        }
+
+        recentlyViewed.forEach(item => {
+            // 현재 보고 있는 장바구니 상품은 제외하고 렌더링 (선택적)
+            // if (isProductInCart(item.id)) return;
+
+            const productCard = `
+                <a href="/products/${item.id}" class="block bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <img src="${item.imageUrl}" alt="${item.name}" class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300">
+                    <div class="p-3">
+                        <p class="text-sm font-semibold text-slate-800 truncate group-hover:underline">${item.name}</p>
+                    </div>
+                </a>
+            `;
+            recentlyViewedList.innerHTML += productCard;
+        });
+    });
 </script>
+
 
 </body>
 </html>
