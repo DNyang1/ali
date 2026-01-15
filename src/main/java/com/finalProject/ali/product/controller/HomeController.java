@@ -61,6 +61,12 @@ public class HomeController {
                 productService.findMaxDiscountRate()
         );
 
+        model.addAttribute("aliRandomProducts",
+                productService.getRandomAliProducts());
+
+        model.addAttribute("customRandomProducts",
+                productService.getRandomCustomProducts());
+
         return "index/index";
     }
 }
