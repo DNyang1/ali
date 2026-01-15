@@ -1,6 +1,7 @@
 package com.finalProject.ali.admin.controller;
 
 import com.finalProject.ali.admin.dto.AdminDashboardDTO;
+import com.finalProject.ali.admin.dto.UserSearchDTO;
 import com.finalProject.ali.repository.QnaRepository;
 import com.finalProject.ali.user.dao.UserDAO;
 import com.finalProject.ali.user.dto.SupplierDTO;
@@ -12,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -21,16 +24,16 @@ public class AdminController {
     private UserService userService;
 
     @Autowired
-    private UserDAO userDAO; // 👈 회원 통계 데이터용 (MyBatis)
+    private UserDAO userDAO;
 
     @Autowired
-    private QnaRepository qnaRepository; // 👈 QnA 개수 확인용 (JPA)
+    private QnaRepository qnaRepository;
 
-    // 대시보드 페이지 (DTO 조립)
+    // ✅ 대시보드 페이지 (통계 + 차트 통합)
     @GetMapping("/adminpage")
     public String adminpage(Model model) {
 
-        // 1. DTO 조립 (Builder 패턴 사용)
+        // 1. [기존 기능] 상단 통계 카드 데이터 (dashboard)
         AdminDashboardDTO dashboard = AdminDashboardDTO.builder()
                 .totalUsers(userDAO.countAllUsers())
                 .todayUsers(userDAO.countTodayUsers())
@@ -38,14 +41,30 @@ public class AdminController {
                 .waitingQna(qnaRepository.findByStatusOrderByCreatedAtDesc("WAITING").size())
                 .build();
 
-        // 2. 완성된 DTO를 화면으로 전송
-        model.addAttribute("dashboard", dashboard);
+        // 2. [차트 기능] 최근 7일 가입자 통계 (chartLabels, chartData)
+        List<Map<String, Object>> stats = userDAO.getDailySignupStats();
+
+        // 날짜 리스트 변환 (예: "['01-01', '01-02']")
+        String chartLabels = stats.stream()
+                .map(m -> "'" + m.get("date").toString() + "'")
+                .collect(Collectors.joining(", ", "[", "]"));
+
+        // 숫자 리스트 변환 (예: "[5, 10]")
+        String chartData = stats.stream()
+                .map(m -> m.get("count").toString())
+                .collect(Collectors.joining(", ", "[", "]"));
+
+        // 3. 화면으로 데이터 전송 (변수명 HTML과 일치)
+        model.addAttribute("dashboard", dashboard);     // 숫자 통계
+        model.addAttribute("chartLabels", chartLabels); // 차트 날짜
+        model.addAttribute("chartData", chartData);     // 차트 수치
         model.addAttribute("pageTitle", "관리자 대시보드");
 
         return "admin/adminpage";
     }
 
-    // 1. 공급자 입점 신청 대기 목록
+    // --- 아래는 기존 기능 유지 ---
+
     @GetMapping("/supplier/list")
     public String supplierList(Model model) {
         List<SupplierDTO> pendingList = userService.getPendingSuppliers();
@@ -54,7 +73,6 @@ public class AdminController {
         return "admin/supplierList";
     }
 
-    // 공급자 승인
     @PostMapping("/supplier/approve")
     public String approveSupplier(@RequestParam("supplierId") String supplierId,
                                   @RequestParam("userId") String userId) {
@@ -62,7 +80,6 @@ public class AdminController {
         return "redirect:/admin/supplier/list";
     }
 
-    // 공급자 반려
     @PostMapping("/supplier/reject")
     public String rejectSupplier(@RequestParam("supplierId") String supplierId,
                                  @RequestParam("memo") String memo) {
@@ -70,26 +87,18 @@ public class AdminController {
         return "redirect:/admin/supplier/list";
     }
 
-    // 2. 회원 관리 페이지
-    // 2. 회원 관리 페이지 (필터 + 페이징 적용)
     @GetMapping("/users")
-    public String userList(@ModelAttribute com.finalProject.ali.admin.dto.UserSearchDTO searchDTO, Model model) {
-
-        // 1. 데이터 조회
+    public String userList(@ModelAttribute UserSearchDTO searchDTO, Model model) {
         List<UserDTO> users = userService.getUsersWithPaging(searchDTO);
         int totalCount = userService.getUsersCount(searchDTO);
 
-        // 2. 페이징 계산 (전체 페이지 수)
         int totalPages = (int) Math.ceil((double) totalCount / searchDTO.getSize());
-
-        // 3. 페이지 네비게이션 범위 계산 (예: 1 2 3 4 5)
         int startPage = Math.max(1, searchDTO.getPage() - 4);
         int endPage = Math.min(totalPages, startPage + 9);
-        if (endPage == 0) endPage = 1; // 데이터가 없을 때 1페이지로 고정
+        if (endPage == 0) endPage = 1;
 
-        // 4. 모델 담기
         model.addAttribute("users", users);
-        model.addAttribute("searchDTO", searchDTO); // 검색 상태 유지
+        model.addAttribute("searchDTO", searchDTO);
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("startPage", startPage);
@@ -99,7 +108,6 @@ public class AdminController {
         return "admin/userList";
     }
 
-    // 계정 상태 변경
     @PostMapping("/users/status")
     public String updateUserStatus(@RequestParam("userId") String userId,
                                    @RequestParam("status") String status,
@@ -108,7 +116,6 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // 권한 변경
     @PostMapping("/users/role")
     public String updateUserRole(@RequestParam("userId") String userId,
                                  @RequestParam("role") String role) {

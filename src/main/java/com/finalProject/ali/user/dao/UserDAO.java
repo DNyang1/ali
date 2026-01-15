@@ -70,4 +70,9 @@ public interface UserDAO {
 
     // [관리자] 필터 적용 전체 개수
     int countUsersWithPaging(com.finalProject.ali.admin.dto.UserSearchDTO searchDTO);
+
+    // [관리자] 대시보드 차트용 일별 통계
+    List<Map<String, Object>> getDailySignupStats();
+
+    String findProfileImgByUserId(@Param("userId") String userId);
 }
