@@ -1,276 +1,271 @@
-.layout { display:flex; height: 90vh; }
-.chat-sidebar { width: 320px; border-right:1px solid #ddd; padding:12px; box-sizing:border-box; }
-.content { flex:1; display:flex; flex-direction:column; }
-.room-list { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
-.room-item { padding:10px; border:1px solid #eee; cursor:pointer; border-radius: 8px; }
-.room-item.active { border-color:#999; }
-.chat-header { padding:12px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; }
-.chat-body {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-.chat-input { padding:12px; border-top:1px solid #ddd; display:flex; gap:8px; }
-.msg {
-    display: inline-block;
-    width: fit-content;
-    max-width: 70%;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 8px 12px;
-}
-.msg.me {
-    margin-left: auto;
+/* =============================
+   Chat UI (Unified)
+   - 중복/충돌 제거 버전
+   ============================= */
+
+.layout{
+    display:flex;
+    gap:16px;
+    width:100%;
+    height:90vh;
+    min-height:520px;
 }
 
-.meta { font-size:12px; opacity:.7; margin-top:2px; }
+/* ===== LEFT SIDEBAR ===== */
+.chat-sidebar{
+    width:300px;
+    flex:0 0 300px;
+    display:flex;
+    flex-direction:column;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.sidebar-top{
+    flex-shrink:0;
+    padding:14px;
+    border-bottom:1px solid #eef2f7;
+}
+
+.sidebar-top .title{
+    font-size:16px;
+    font-weight:800;
+    margin-bottom:10px;
+}
+
+.sidebar-top .search{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid #e5e7eb;
+    border-radius:8px;
+    outline:none;
+    font-size:13px;
+    background:#fff;
+}
+
+.sidebar-top .search:focus{
+    border-color:#c7d2fe;
+    box-shadow:0 0 0 3px rgba(199,210,254,0.35);
+}
+
+.room-list{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+.room-list::-webkit-scrollbar{ width:6px; }
+.room-list::-webkit-scrollbar-thumb{ background:#d1d5db; border-radius:4px; }
+.room-list::-webkit-scrollbar-track{ background:transparent; }
+
+/* 방 아이템: 아바타 + 텍스트 */
+.room-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    border-bottom:1px solid #f1f5f9;
+    cursor:pointer;
+    background:#fff;
+}
+
+.room-item:hover{ background:#f8fafc; }
+.room-item.active{ background:#eef2ff; }
+
+.room-avatar{
+    width:40px;
+    height:40px;
+    border-radius:9999px;
+    object-fit:cover;
+    border:1px solid #e2e8f0;
+    flex:0 0 auto;
+}
+
+.room-info{
+    flex:1;
+    min-width:0;
+}
+
+.room-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    font-weight:800;
+}
+
+.room-sub{
+    margin-top:6px;
+    font-size:12px;
+    color:#64748b;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
 .badge{
     display:inline-flex;
-    min-width:18px;
-    height:18px;
+    min-width:20px;
+    height:20px;
     padding:0 6px;
     border-radius:999px;
     font-size:12px;
     align-items:center;
     justify-content:center;
-    margin-left:8px;
-    background:#ff3b30;
-    color:white;
-    font-weight:700;
-}
-.msg .meta {
-    margin-top: 4px;
-    font-size: 12px;
-    opacity: 0.6;
-    display: flex;
-    gap: 6px;
-    justify-content: flex-start;
+    background:#ef4444;
+    color:#fff;
+    font-weight:800;
 }
 
-.msg.me .meta {
-    justify-content: flex-end;
+/* ===== RIGHT CONTENT ===== */
+.content{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    overflow:hidden;
 }
 
-
-.msg .read {
-    font-size: 12px;
-    color: blue;
-    font-weight: bold;
-}
-
-.msg.me .read {
-    color: #0058ff;
-    font-weight: bold;
-}
-/* =============================
-   (추가) MyPage 채팅 화면 보정
-   - 기존 스타일 크게 안 건드림
-   - 마이페이지에서도 자연스럽게 보이게만
-   ============================= */
-
-/* 1) 전체 레이아웃: 너무 찌그러지지 않게 */
-.layout{
-    display: flex;
-    gap: 16px;
-    width: 100%;
-    min-height: 520px;
-}
-
-/* 2) 왼쪽 사이드: 검게 나오는 거 방지 + 카드처럼 자연스럽게 */
-.layout > .chat-sidebar{
-    width: 300px;
-    flex: 0 0 300px;
-    background: #fff;                 /* 검은색 방지 */
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-/* 사이드 상단 */
-.sidebar-top{
-    padding: 14px;
-    border-bottom: 1px solid #eef2f7;
-}
-.sidebar-top .title{
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-.sidebar-top .search{
-    width: 91%;
-    padding: 9px 10px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    outline: none;
-    font-size: 13px;
-    background: #fff;
-}
-.sidebar-top .search:focus{
-    border-color: #c7d2fe;
-    box-shadow: 0 0 0 3px rgba(199,210,254,0.35);
-}
-
-/* 3) 방 리스트 */
-.room-list{
-    max-height: calc(100vh - 240px);
-    overflow: auto;
-}
-.room-item{
-    padding: 12px 14px;
-    border-bottom: 1px solid #f1f5f9;
-    cursor: pointer;
-    background: #fff;
-}
-.room-item:hover{
-    background: #f8fafc;
-}
-.room-item.active{
-    background: #eef2ff;
-}
-.room-title{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-}
-.room-sub{
-    margin-top: 6px;
-    font-size: 12px;
-    color: #64748b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* unread badge 살짝 정리 */
-.badge{
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 999px;
-    font-size: 12px;
-    line-height: 20px;
-    text-align: center;
-    background: #ef4444;
-    color: #fff;
-}
-
-/* 4) 오른쪽 컨텐츠: 카드처럼 보이게 + 높이 확보 */
-.layout > .content{
-    flex: 1;
-    min-width: 0;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-/* header */
 .chat-header{
-    padding: 14px 16px;
-    border-bottom: 1px solid #eef2f7;
-    background: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding:14px 16px;
+    border-bottom:1px solid #eef2f7;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#fff;
 }
+
 .chat-title{
-    font-weight: 800;
-    font-size: 15px;
+    font-weight:900;
+    font-size:15px;
 }
+
 .chat-sub{
-    margin-top: 3px;
-    font-size: 12px;
-    color: #64748b;
+    margin-top:3px;
+    font-size:12px;
+    color:#64748b;
 }
+
 .chat-actions button{
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    border-radius: 8px;
-    padding: 6px 10px;
-    cursor: pointer;
+    border:1px solid #e5e7eb;
+    background:#fff;
+    border-radius:8px;
+    padding:6px 10px;
+    cursor:pointer;
 }
 
-/* body */
+/* ===== CHAT BODY ===== */
 .chat-body{
-    flex: 1;
-    overflow: auto;
-    padding: 16px;
-    background: #f8fafc;  /* 메세지 영역만 톤 다운해서 자연스럽게 */
+    flex:1;
+    overflow:auto;
+    padding:16px;
+    background:#f8fafc;
+    display:block; /* 중요: msg-wrap 정렬 안정 */
 }
 
-/* msg bubble이 너무 날것이면 최소 보정 (기존 chat.css가 있으면 자연스럽게 덮임) */
-.msg{
-    margin-bottom: 10px;
+/* 메시지 덩어리 */
+.msg-wrap{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start; /* 상대 기본 */
+    margin:10px 0;
 }
 
-.meta{
-    margin-top: 4px;
-    font-size: 11px;
-    color: #64748b;
+.msg-wrap.me{
+    align-items:flex-end; /* 내 메시지 */
 }
 
-/* input */
+/* 상대 메시지: 프로필+이름 줄 */
+.msg-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:0 0 4px 2px;
+}
+
+.avatar{
+    width:28px;
+    height:28px;
+    border-radius:9999px;
+    object-fit:cover;
+    border:1px solid #e2e8f0;
+}
+
+.sender{
+    font-size:12px;
+    color:#64748b;
+}
+
+/* 말풍선 */
+.msg-wrap .msg{
+    display:inline-block;
+    width:fit-content;
+    max-width:70%;
+    border:1px solid #e5e7eb;
+    background:#fff;
+    border-radius:10px;
+    padding:8px 12px;
+}
+
+.msg-wrap.me .msg{
+    background:#eef2ff;
+    border-color:#c7d2fe;
+}
+
+/* meta */
+.msg-wrap .meta{
+    margin-top:4px;
+    font-size:11px;
+    color:#64748b;
+    display:flex;
+    gap:6px;
+    justify-content:flex-end;
+}
+
+.msg-wrap .read{
+    font-size:11px;
+    color:#0058ff;
+    font-weight:800;
+}
+
+/* ===== INPUT ===== */
 .chat-input{
-    border-top: 1px solid #eef2f7;
-    background: #fff;
-    padding: 12px;
-    display: flex;
-    gap: 10px;
+    padding:12px;
+    border-top:1px solid #eef2f7;
+    display:flex;
+    gap:10px;
+    background:#fff;
 }
+
 .chat-input input{
-    flex: 1;
-    padding: 10px 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    outline: none;
+    flex:1;
+    padding:10px 12px;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    outline:none;
 }
+
 .chat-input input:focus{
-    border-color: #c7d2fe;
-    box-shadow: 0 0 0 3px rgba(199,210,254,0.35);
+    border-color:#c7d2fe;
+    box-shadow:0 0 0 3px rgba(199,210,254,0.35);
 }
+
 .chat-input button{
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid #111827;
-    background: #111827;
-    color: #fff;
-    cursor: pointer;
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid #111827;
+    background:#111827;
+    color:#fff;
+    cursor:pointer;
 }
 
-/* 사이드바 전체를 column 구조로 */
-.chat-sidebar{
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* 중요 */
-}
-/* 상단 영역은 고정 */
-.sidebar-top{
-    flex-shrink: 0;
-}
-/* 채팅방 리스트만 스크롤 */
-.room-list{
-    flex: 1;                 /* 남은 영역 전부 차지 */
-    overflow-y: auto;        /* 마우스 휠 스크롤 */
-    overflow-x: hidden;
-    margin-top: 12px;
-}
-/* (선택) 스크롤바 살짝 정리 */
-.room-list::-webkit-scrollbar{
-    width: 6px;
-}
-.room-list::-webkit-scrollbar-thumb{
-    background: #d1d5db;
-    border-radius: 4px;
-}
-.room-list::-webkit-scrollbar-track{
-    background: transparent;
-}
-
-/* ===== (추가) 상품 링크 드래프트 카드 ===== */
+/* ===== PRODUCT DRAFT ===== */
 .product-draft{
     display:flex;
     align-items:center;
@@ -280,17 +275,20 @@
     border-top:1px solid #eef2f7;
     background:#fff;
 }
+
 .product-draft__left{
     display:flex;
     flex-direction:column;
     gap:4px;
     min-width:0;
 }
+
 .product-draft__title{
     font-size:12px;
-    font-weight:700;
+    font-weight:800;
     color:#111827;
 }
+
 .product-draft__link{
     font-size:12px;
     color:#2563eb;
@@ -298,15 +296,17 @@
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width: 520px;
+    max-width:520px;
 }
+
 .product-draft__img img{
-    width: 44px;
-    height: 44px;
-    object-fit: cover;
-    border-radius: 8px;
-    display: none; /* JS가 있으면 display 켬 */
+    width:44px;
+    height:44px;
+    object-fit:cover;
+    border-radius:8px;
+    display:none;
 }
+
 .product-draft__remove{
     border:1px solid #e5e7eb;
     background:#fff;
@@ -315,124 +315,38 @@
     cursor:pointer;
     flex-shrink:0;
 }
-/* 말풍선 wrapper */
-.msg .bubble{
-    display: inline-block;
-    width: fit-content;
-    max-width: 70%;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 8px 12px;
-    background: #fff;
-}
 
-.msg.me .bubble{
-    background: #eef2ff;
-    border-color: #c7d2fe;
-}
-
-/* 상품 카드 */
+/* ===== PRODUCT CARD IN MESSAGE ===== */
 .product-card{
-    gap: 10px;
-    width: 100%;
-    text-decoration: none;
-    color: inherit;
+    display:flex;
+    gap:10px;
+    width:100%;
+    text-decoration:none;
+    color:inherit;
 }
+
 .product-card .pc-thumb{
-    width:52px; height:52px;
+    width:52px;
+    height:52px;
     object-fit:cover;
     border-radius:8px;
     flex:0 0 auto;
 }
+
 .product-card .pc-name{
-    font-size:12px; opacity:.7; margin-top:4px;
-}
-.product-card .pc-sub{
-    font-size: 12px;
-    opacity: .75;
-}
-
-.sender{
     font-size:12px;
-    opacity:.7;
-    margin: 0 0 4px 2px;
-}
-.msg.me .sender{ display:none; }
-.msg-wrap{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin: 8px 0;
-}
-.msg-wrap.me{
-    align-items: flex-end;
-}
-/* 말풍선 위 이름 */
-.msg-name{
-    font-size: 12px;
-    color: #64748b;
-    margin: 0 0 4px 6px; /* 말풍선 살짝 들여쓰기 */
-}
-.msg-wrap.me .msg-name{
-    display: none;
-}
-/* wrapper: 한 메시지 덩어리 */
-.msg-wrap{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;   /* 기본 = 왼쪽(상대) */
-    margin: 10px 0;
+    color:#64748b;
+    margin-top:4px;
 }
 
-/* 내 메시지 덩어리는 오른쪽 */
-.msg-wrap.me{
-    align-items: flex-end;
-}
-
-/* 이름은 말풍선 밖 */
-.msg-wrap .sender{
-    font-size: 12px;
-    color: #64748b;
-    margin: 0 0 4px 6px;
-}
-
-/* 말풍선 자체는 내용 길이에 맞게 */
-.msg-wrap .msg{
-    display: inline-block;
-    width: fit-content;
-    max-width: 70%;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    border-radius: 10px;
-    padding: 8px 12px;
-}
-
-/* 내 말풍선만 살짝 구분 */
-.msg-wrap.me .msg{
-    background: #eef2ff;
-    border-color: #c7d2fe;
-}
-
-/* meta는 말풍선 바닥 정렬 */
-.msg-wrap .meta{
-    margin-top: 4px;
-    font-size: 11px;
-    color: #64748b;
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-}
-.chat-body{
-    display: block;   /* 제일 안전 */
-}
-
+/* ===== AI BAR ===== */
 .ai-bar{
     display:flex;
     gap:10px;
     align-items:center;
-    padding:10px;
-    border-top:1px solid #eee;
+    padding:10px 12px;
+    border-top:1px solid #eef2f7;
+    background:#fff;
 }
 
 .ai-chips{
@@ -443,7 +357,7 @@
 }
 
 .ai-chip{
-    border:1px solid #ddd;
+    border:1px solid #e5e7eb;
     border-radius:999px;
     padding:6px 10px;
     background:#fff;
@@ -452,11 +366,11 @@
 }
 
 .ai-chip.active{
-    border-color:#333;
+    border-color:#111827;
 }
 
 .ai-draft-btn{
-    border:1px solid #333;
+    border:1px solid #111827;
     border-radius:10px;
     padding:8px 12px;
     background:#fff;
