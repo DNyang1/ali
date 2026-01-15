@@ -33,15 +33,16 @@
         </div>
 
                                 <div class="p-6 bg-white rounded-xl shadow-sm sticky top-14">
-                                    <h2 class="text-xl font-bold mb-6 border-b pb-4">주문 요약</h2>
-                                    <div id="selected-products-list" class="text-sm text-slate-600 mb-4 space-y-1">
+
+                                    <h2 class="text-xl font-bold mb-6 border-b pb-4"><i class="fas fa-shopping-bag text-teal-600"></i> 주문 요약</h2>
+                                    <div id="selected-products-list" class="text-sm text-slate-500 mb-4 space-y-1">
                                         <!-- Selected product names will be listed here -->
                                     </div>
                                     <div class="flex justify-between items-center text-sm text-slate-500 mb-2">
                                         <span>선택 상품 개수</span>
                                         <span id="selected-item-count">0개</span>
                                     </div>
-                                    <div class="flex justify-between items-center text-lg font-bold mb-6">
+                                    <div class="flex justify-between items-center text-lg font-bold mb-6 pt-4 border-t border-slate-100">
                                         <span>총 주문 예상 금액</span>
                                         <span id="total-amount">0 원</span>
                                     </div>            <button class="checkout-btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg transition-colors" onclick="goCheckout()">
@@ -51,9 +52,11 @@
     </div>
     
     <!-- ====== 최근 본 상품 ====== -->
-    <div id="recently-viewed-container" class="mt-16">
-        <h2 class="text-2xl font-extrabold mb-6 text-slate-800">🧐 &nbsp;최근 본 상품</h2>
-        <div id="recently-viewed-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+    <div id="recently-viewed-container" class="mt-16 bg-white rounded-xl shadow-sm">
+        <div class="p-6 border-b border-slate-200">
+            <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-history text-slate-500"></i> 최근 본 상품</h2>
+        </div>
+        <div id="recently-viewed-list" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             <!-- 최근 본 상품이 여기에 동적으로 추가됩니다. -->
         </div>
     </div>
@@ -103,7 +106,7 @@
         const header = document.createElement('div');
         header.className = 'flex items-center p-4 border-b border-slate-200 text-slate-600';
         header.innerHTML = `
-            <input type="checkbox" id="check-all" class="cart-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 mr-6">
+            <input type="checkbox" id="check-all" class="cart-check h-5 w-5 rounded-md border-2 border-slate-300 text-teal-600 focus:ring-teal-500 mr-6">
             <span>전체 선택</span>
         `;
         container.appendChild(header);
@@ -113,7 +116,7 @@
             const itemElement = document.createElement('div');
             itemElement.className = 'cart-item-row flex items-center gap-4 p-6 border-b border-slate-200';
             itemElement.innerHTML = `
-                <input type="checkbox" class="cart-check item-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
+                <input type="checkbox" class="cart-check item-check h-5 w-5 rounded-md border-2 border-slate-300 text-teal-600 focus:ring-teal-500" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
                 <a href="/products/${item.productId}" class="block w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
                      <img src="https://picsum.photos/seed/${item.skuId}/200" alt="${item.productName}" class="w-full h-full object-cover">
                 </a>
@@ -241,8 +244,9 @@
 
         if (recentlyViewed.length === 0) {
             const emptyMessage = `
-                <div class="col-span-full text-center p-8 bg-white rounded-xl shadow-sm text-slate-500">
-                    최근 본 상품이 없습니다.
+                <div class="col-span-full text-center text-slate-500 py-12">
+                    <i class="fas fa-eye-slash text-4xl mb-4 text-slate-300"></i>
+                    <p>최근 본 상품이 없습니다.</p>
                 </div>
             `;
             recentlyViewedList.innerHTML = emptyMessage;
