@@ -120,7 +120,7 @@
                 <a href="/products/${item.productId}" class="block w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
                      <img src="https://picsum.photos/seed/${item.skuId}/200" alt="${item.productName}" class="w-full h-full object-cover">
                 </a>
-                <div class="flex-1">
+                <div class="flex-1 min-w-[250px]">
                     <a href="/products/${item.productId}" class="font-bold text-lg text-slate-800 hover:underline">${item.productName}</a>
                     <div class="text-sm text-slate-500 mt-1">옵션: ${item.optionSummary || '-'}</div>
                     <div class="text-sm text-slate-500">수량: ${item.quantity}개</div>
