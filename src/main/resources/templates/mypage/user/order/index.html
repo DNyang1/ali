@@ -25,11 +25,20 @@
 
                     const params = new URLSearchParams(location.search);
 
+                    // ✅ 기존 필터(주문 상태): ?status=PAID 등
                     const status = norm(params.get('status'));
-                    const filtered = status
-                        ? list.filter(o => norm(o.status) === status)
-                        : list;
 
+                    // ✅ 추가 필터(배송 상태): ?shipStatus=READY / SHIPPED
+                    const shipStatus = norm(params.get('shipStatus'));
+
+                    // ✅ 2필터 AND 적용
+                    const filtered = list.filter(o => {
+                        const okStatus = !status || norm(o.status) === status;
+                        const okShip = !shipStatus || norm(o.shipStatus) === shipStatus;
+                        return okStatus && okShip;
+                    });
+
+                    // ✅ 프론트 페이징(10개씩)
                     const size = 10;
                     const page = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
                     const totalPages = Math.max(1, Math.ceil(filtered.length / size));
@@ -39,12 +48,19 @@
                     const sliced = filtered.slice(start, start + size);
 
                     render(sliced);
-                    renderPager(safePage, totalPages, status);
+                    renderPager(safePage, totalPages, status, shipStatus);
 
+                    // page가 범위를 벗어나면 URL 정리(필터 유지)
                     if (safePage !== page) {
                         const next = new URLSearchParams(location.search);
                         next.set('page', String(safePage));
+
                         if (status) next.set('status', status);
+                        else next.delete('status');
+
+                        if (shipStatus) next.set('shipStatus', shipStatus);
+                        else next.delete('shipStatus');
+
                         history.replaceState(null, '', `${location.pathname}?${next.toString()}`);
                     }
                 })
@@ -74,11 +90,20 @@
 
                     div.innerHTML = `
 <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-1">
-  <div class="flex items-center justify-between">
+  <div class="flex items-center justify-between gap-2">
     <div class="text-sm font-bold text-slate-900">주문 #${o.orderId ?? '-'}</div>
-    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
-      ${o.status ?? '-'}
-    </span>
+
+    <div class="flex items-center gap-2">
+      <!-- 주문 상태 -->
+      <span class="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+        ${o.status ?? '-'}
+      </span>
+
+      <!-- 배송 상태(없을 수도 있음) -->
+      <span class="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+        ${o.shipStatus ?? '-'}
+      </span>
+    </div>
   </div>
 
   <div class="text-xs text-slate-500">${o.createdAt ?? '-'}</div>
@@ -97,12 +122,12 @@
 
   <div class="pt-3 text-right">
     <button onclick="goDetail(${Number(o.orderId)})"
-  class="inline-flex items-center justify-center rounded-xl
-         bg-gradient-to-r from-brand-500 to-accent-500
-         px-4 py-2 text-xs font-bold text-white
-         hover:from-brand-600 hover:to-accent-600">
-  상세보기
-</button>
+      class="inline-flex items-center justify-center rounded-xl
+             bg-gradient-to-r from-brand-500 to-accent-500
+             px-4 py-2 text-xs font-bold text-white
+             hover:from-brand-600 hover:to-accent-600">
+      상세보기
+    </button>
   </div>
 </div>
 `;
@@ -110,7 +135,8 @@
                 });
             }
 
-            function renderPager(page, totalPages, status) {
+            // ✅ 페이지네이션 UI (status + shipStatus 둘 다 유지)
+            function renderPager(page, totalPages, status, shipStatus) {
                 const old = document.getElementById('user-order-pager');
                 if (old) old.remove();
 
@@ -123,8 +149,13 @@
                 const makeHref = (p) => {
                     const qs = new URLSearchParams(location.search);
                     qs.set('page', String(p));
+
                     if (status) qs.set('status', status);
                     else qs.delete('status');
+
+                    if (shipStatus) qs.set('shipStatus', shipStatus);
+                    else qs.delete('shipStatus');
+
                     return `${location.pathname}?${qs.toString()}`;
                 };
 
@@ -160,12 +191,8 @@
                 a.href = href;
                 a.textContent = text;
 
-                const base =
-                    'rounded-xl border px-3 py-1.5 text-sm font-semibold ';
-
-                const normal =
-                    'border-slate-200 bg-white text-slate-700 hover:bg-slate-50';
-
+                const base = 'rounded-xl border px-3 py-1.5 text-sm font-semibold ';
+                const normal = 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50';
                 const activeCls =
                     'border-transparent text-white ' +
                     'bg-gradient-to-r from-brand-500 to-accent-500 ' +
@@ -184,8 +211,9 @@
 
             window.goDetail = function(orderId) {
                 location.href = `/mypage/user/order/${orderId}`;
-            }
+            };
         </script>
+
 
     </th:block>
 </th:block>

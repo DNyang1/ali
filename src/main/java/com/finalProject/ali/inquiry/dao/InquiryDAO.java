@@ -11,6 +11,8 @@ public interface InquiryDAO {
     int insertInquiry(InquiryDTO dto);
 
     List<InquiryDTO> findMyInquiries(@Param("userId") String userId);
+    List<InquiryDTO> findMyInquiriesByStatus(@Param("userId") String userId,
+                                             @Param("status") int status);
 
     InquiryDTO findById(@Param("inquiryId") Long inquiryId);
 

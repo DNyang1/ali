@@ -59,4 +59,13 @@
         WHERE supplier_id = #{supplierId}
         ORDER BY created_at DESC
     </select>
+
+    <select id="findMyInquiriesByStatus" resultType="com.finalProject.ali.inquiry.dto.InquiryDTO">
+        SELECT inquiry_id AS inquiryId, user_id AS userId, supplier_id AS supplierId,
+        product_id AS productId, quantity, content, status, created_at AS createdAt
+        FROM inquiry
+        WHERE user_id = #{userId}
+        AND status = #{status}
+        ORDER BY created_at DESC
+    </select>
 </mapper>

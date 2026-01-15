@@ -89,6 +89,7 @@ public class SupplierInquiryViewController {
         model.addAttribute("inquiries", inquiries);
         model.addAttribute("status", status);
         model.addAttribute("activeMenu", "inquiry");
+        model.addAttribute("pageTitle", "문의 관리");
         return "inquiry/supplier/list";
     }
 

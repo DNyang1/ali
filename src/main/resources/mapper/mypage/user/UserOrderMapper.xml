@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finalProject.ali.mypage.user.order.dao.UserOrderDAO">
+
+    <select id="findRecentOrdersByUserId"
+            resultType="com.finalProject.ali.mypage.user.order.dto.UserRecentOrderResponse">
+        SELECT
+        o.order_id     AS orderId,
+        o.order_id     AS orderNo,
+        o.created_at   AS createdAt,
+        o.status       AS status,
+        o.total_amount AS totalAmount
+        FROM orders o
+        WHERE o.user_id = #{userId}
+        ORDER BY o.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+
+</mapper>

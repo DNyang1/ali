@@ -44,12 +44,19 @@ public class UserInquiryViewController {
 
     // 구매자 문의 목록
     @GetMapping("/list")
-    public String list(HttpSession session, Model model) {
+    public String list(@RequestParam(required = false) Integer status,
+                       HttpSession session,
+                       Model model) {
+
         String userId = getLoginId(session);
 
-        List<InquiryDTO> inquiries = inquiryService.findMyInquiries(userId);
+        List<InquiryDTO> inquiries = inquiryService.findMyInquiries(userId, status);
+
         model.addAttribute("inquiries", inquiries);
         model.addAttribute("activeMenu", "inquiry");
+        model.addAttribute("pageTitle", "문의 내역");
+        model.addAttribute("status", status);
+
         return "inquiry/user/list";
     }
 

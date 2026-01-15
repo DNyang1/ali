@@ -80,48 +80,60 @@
 
         <div class="px-5 py-4">
           <ul class="divide-y divide-slate-100 text-sm">
-            <li class="flex items-center justify-between gap-4 py-3">
-              <span class="font-semibold text-slate-700">미결제/견적대기</span>
-              <div class="flex items-center gap-3">
-                                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
-                                      th:text="${summary.pendingPayOrQuoteCount}">0</span>
-                <a th:href="@{/mypage/user/payments}"
-                   class="font-semibold text-brand-600 hover:underline">처리</a>
-              </div>
+
+            <li class="grid grid-cols-[1fr_auto_auto] items-center gap-6 py-3">
+              <span class="font-semibold text-slate-700">배송 준비중</span>
+
+              <span class="min-w-[56px] text-center rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700"
+                    th:text="${summary != null ? summary.readyShippingCount : 0}">0</span>
+
+              <a th:href="@{/mypage/user/order(shipStatus='READY')}"
+                 class="inline-flex items-center justify-center h-8 min-w-[64px] px-4 rounded-xl border border-slate-200 bg-white
+              text-sm font-bold text-teal-700 hover:bg-slate-50 transition">
+                조회
+              </a>
             </li>
 
-            <li class="flex items-center justify-between gap-4 py-3">
-              <span class="font-semibold text-slate-700">미읽음 메시지</span>
-              <div class="flex items-center gap-3">
-                                <span class="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-bold text-brand-700"
-                                      th:text="${summary.unreadMessageCount}">0</span>
-                <a th:href="@{/mypage/user/inquiry}"
-                   class="font-semibold text-brand-600 hover:underline">확인</a>
-              </div>
+            <li class="grid grid-cols-[1fr_auto_auto] items-center gap-6 py-3">
+              <span class="font-semibold text-slate-700">배송중</span>
+
+              <span class="min-w-[56px] text-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700"
+                    th:text="${summary != null ? summary.shippingCount : 0}">0</span>
+
+              <a th:href="@{/mypage/user/order(shipStatus='SHIPPED')}"
+                 class="inline-flex items-center justify-center h-8 min-w-[64px] px-4 rounded-xl border border-slate-200 bg-white
+              text-sm font-bold text-teal-700 hover:bg-slate-50 transition">
+                조회
+              </a>
             </li>
 
-            <li class="flex items-center justify-between gap-4 py-3">
-              <span class="font-semibold text-slate-700">진행 중 주문</span>
-              <div class="flex items-center gap-3">
-                                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
-                                      th:text="${summary.activeOrderCount}">0</span>
-                <a th:href="@{/mypage/user/orders}"
-                   class="font-semibold text-brand-600 hover:underline">보기</a>
-              </div>
+            <li class="grid grid-cols-[1fr_auto_auto] items-center gap-6 py-3">
+              <span class="font-semibold text-slate-700">진행중인 문의</span>
+
+              <span class="min-w-[56px] text-center rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700"
+                    th:text="${summary != null ? summary.activeInquiryCount : 0}">0</span>
+
+              <a th:href="@{/inquiry/user/list(status=1)}"
+                 class="inline-flex items-center justify-center h-8 min-w-[64px] px-4 rounded-xl border border-slate-200 bg-white
+              text-sm font-bold text-teal-700 hover:bg-slate-50 transition">
+                확인
+              </a>
             </li>
           </ul>
         </div>
       </section>
 
+
+
+
       <!-- Two Column Grid -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
-        <!-- Recent Orders -->
         <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
             <h3 class="text-base font-bold text-slate-900">최근 주문</h3>
             <a class="text-sm font-semibold text-brand-600 hover:underline"
-               th:href="@{/mypage/user/orders}">전체 보기</a>
+               th:href="@{/mypage/user/order}">전체 보기</a>
           </header>
 
           <div class="px-5 py-4">
@@ -136,32 +148,13 @@
                   <th class="py-2"></th>
                 </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                <tr th:each="o : ${recentOrders}">
-                  <td class="py-3 font-semibold text-slate-700" th:text="${o.orderNo}">
-                    20260106-0001
-                  </td>
-                  <td class="py-3 text-slate-600"
-                      th:text="${#temporals.format(o.createdAt,'yyyy-MM-dd')}">2026-01-06
-                  </td>
-                  <td class="py-3">
-                                        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
-                                              th:text="${o.status}">PAID</span>
-                  </td>
-                  <td class="py-3 text-right font-semibold text-slate-700"
-                      th:text="${#numbers.formatInteger(o.totalAmount,0,'COMMA')}">120,000
-                  </td>
-                  <td class="py-3 text-right">
-                    <a class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
-                       th:href="@{/mypage/user/orders/{id}(id=${o.orderId})}">상세</a>
-                  </td>
-                </tr>
 
-                <tr th:if="${recentOrders == null or #lists.isEmpty(recentOrders)}">
-                  <td colspan="5" class="py-8 text-center text-sm text-slate-500">최근 주문이 없습니다.
-                  </td>
+                <tbody id="recent-user-orders-body" class="divide-y divide-slate-100">
+                <tr>
+                  <td colspan="5" class="py-3 text-slate-500">불러오는 중...</td>
                 </tr>
                 </tbody>
+
               </table>
             </div>
           </div>
@@ -170,34 +163,33 @@
         <!-- Recent Inquiries -->
         <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <header class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-            <h3 class="text-base font-bold text-slate-900">최근 문의</h3>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">최근 문의</h3>
+            </div>
             <a class="text-sm font-semibold text-brand-600 hover:underline"
-               th:href="@{/mypage/user/inquiry}">전체 보기</a>
+               th:href="@{/inquiry/user/list}">전체 보기</a>
           </header>
 
           <div class="px-5 py-4">
-            <ul class="divide-y divide-slate-100 text-sm">
-              <li th:each="q : ${recentInquiries}">
-                <a th:href="@{/mypage/user/inquiry}"
-                   class="flex items-center justify-between gap-4 rounded-xl px-3 py-3 hover:bg-slate-50">
-                  <div class="min-w-0">
-                    <div class="truncate font-semibold text-slate-700"
-                         th:text="${q.title}">문의 제목 샘플
-                    </div>
-                    <div class="mt-0.5 text-xs text-slate-500"
-                         th:text="${#temporals.format(q.createdAt,'MM-dd')}">01-06
-                    </div>
-                  </div>
-                  <span class="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700"
-                        th:text="${q.status}">PENDING</span>
-                </a>
-              </li>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="bg-slate-50 text-left text-slate-500">
+                <tr>
+                  <th class="py-2 font-semibold">문의ID</th>
+                  <th class="py-2 font-semibold">상품ID</th>
+                  <th class="py-2 font-semibold">작성일</th>
+                  <th class="py-2 font-semibold">상태</th>
+                  <th class="py-2"></th>
+                </tr>
+                </thead>
 
-              <li th:if="${recentInquiries == null or #lists.isEmpty(recentInquiries)}"
-                  class="py-8 text-center text-sm text-slate-500">
-                최근 문의가 없습니다.
-              </li>
-            </ul>
+                <tbody id="recent-user-inquiries-body" class="divide-y divide-slate-100">
+                <tr>
+                  <td colspan="5" class="py-3 text-slate-500">불러오는 중...</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -230,6 +222,161 @@
           </div>
         </div>
       </section>
+      <script>
+        fetch('/api/mypage/user/order/recent?limit=5')
+                .then(res => {
+                  if (!res.ok) throw new Error('최근 주문 조회 실패');
+                  return res.json();
+                })
+                .then(list => {
+                  if (!Array.isArray(list)) list = [];
+
+                  const tbody = document.getElementById('recent-user-orders-body');
+                  if (!tbody) return;
+
+                  tbody.innerHTML = '';
+
+                  if (list.length === 0) {
+                    tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-sm text-slate-500">
+              최근 주문이 없습니다.
+            </td>
+          </tr>`;
+                    return;
+                  }
+
+                  list.slice(0, 5).forEach(o => {
+                    const orderId = o.orderId ?? '-';
+                    const orderNo = o.orderNo ?? orderId ?? '-';
+                    const status = o.status ?? '-';
+
+                    // createdAt이 "2026-01-06T12:34:56" 형태라고 가정
+                    const createdAt = (o.createdAt ?? '').toString();
+                    const dateText = createdAt ? createdAt.substring(0, 10) : '-';
+
+                    const totalAmount = Number(o.totalAmount ?? 0);
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+          <td class="py-3 font-semibold text-slate-700">${esc(orderNo)}</td>
+          <td class="py-3 text-slate-600">${esc(dateText)}</td>
+          <td class="py-3">
+            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+              ${esc(status)}
+            </span>
+          </td>
+          <td class="py-3 text-right font-semibold text-slate-700">
+            ${totalAmount.toLocaleString()}
+          </td>
+          <td class="py-3 text-right">
+            <a class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+               href="/mypage/user/order/${encodeURIComponent(orderId)}">상세</a>
+          </td>
+        `;
+                    tbody.appendChild(tr);
+                  });
+                })
+                .catch(err => {
+                  console.error(err);
+                  const tbody = document.getElementById('recent-user-orders-body');
+                  if (tbody) {
+                    tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-sm text-slate-500">
+              주문 정보를 불러오지 못했습니다.
+            </td>
+          </tr>`;
+                  }
+                });
+
+        function esc(s){
+          return String(s ?? '')
+                  .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+                  .replaceAll('"','&quot;').replaceAll("'","&#039;");
+        }
+      </script>
+
+      <script>
+        fetch('/api/inquiry/user/recent?limit=5')
+                .then(res => {
+                  if (!res.ok) throw new Error('최근 문의 조회 실패');
+                  return res.json();
+                })
+                .then(list => {
+                  if (!Array.isArray(list)) list = [];
+
+                  const tbody = document.getElementById('recent-user-inquiries-body');
+                  if (!tbody) return;
+
+                  tbody.innerHTML = '';
+
+                  if (list.length === 0) {
+                    tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-sm text-slate-500">
+              최근 문의가 없습니다.
+            </td>
+          </tr>`;
+                    return;
+                  }
+
+                  const statusLabel = (raw) => {
+                    const n = Number(raw);
+                    if (!Number.isNaN(n)) {
+                      if (n === 0) return '답변대기';
+                      if (n === 1) return '진행중';
+                      if (n === 2) return '종료';
+                    }
+                    return raw ?? '-';
+                  };
+
+                  list.slice(0, 5).forEach(q => {
+                    const inquiryId = q.inquiryId ?? q.id ?? '-';
+                    const productId = q.productId ?? '-';
+                    const status = statusLabel(q.status);
+                    const createdAt = (q.createdAt ?? '').toString();
+                    const mmdd = createdAt ? createdAt.substring(5, 10) : '-';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+          <td class="py-3 font-semibold text-slate-700">#${esc(inquiryId)}</td>
+          <td class="py-3 text-slate-700">${esc(productId)}</td>
+          <td class="py-3 text-slate-600">${esc(mmdd)}</td>
+          <td class="py-3">
+            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+              ${esc(status)}
+            </span>
+          </td>
+          <td class="py-3 text-right">
+            <a class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+               href="/inquiry/user/detail/${encodeURIComponent(inquiryId)}">상세</a>
+          </td>
+        `;
+                    tbody.appendChild(tr);
+                  });
+                })
+                .catch(err => {
+                  console.error(err);
+                  const tbody = document.getElementById('recent-user-inquiries-body');
+                  if (tbody) {
+                    tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-sm text-slate-500">
+              문의 정보를 불러오지 못했습니다.
+            </td>
+          </tr>`;
+                  }
+                });
+
+        function esc(s){
+          return String(s ?? '')
+                  .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+                  .replaceAll('"','&quot;').replaceAll("'","&#039;");
+        }
+      </script>
+
+
 
     </section>
 
