@@ -57,4 +57,7 @@ public interface ProductDAO {
     List<ProductDTO> selectDiscountProductsByCategory(String categoryId);
 
 
+    List<ProductDTO> selectRandomAliProducts();
+
+    List<ProductDTO> selectRandomCustomProducts();
 }

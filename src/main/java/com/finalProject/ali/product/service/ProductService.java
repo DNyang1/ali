@@ -108,6 +108,15 @@ public class ProductService {
         return productDAO.findByCategoryId(categoryId);
     }
 
+    public List<ProductDTO> getRandomAliProducts() {
+        return productDAO.selectRandomAliProducts();
+    }
+
+    public List<ProductDTO> getRandomCustomProducts() {
+        return productDAO.selectRandomCustomProducts();
+    }
+
+
 
     //태민
     public List<ProductDTO> list(String supplierId) {
