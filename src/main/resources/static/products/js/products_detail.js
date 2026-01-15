@@ -556,6 +556,29 @@ document.querySelector('.btn.chat')?.addEventListener('click', async (e) => {
 
     location.href = `/chat/messages-user?roomId=${data.roomId}&productId=${productId}`;
 });
+document.getElementById('btnInquiry')?.addEventListener('click', () => {
+    const loginId = window.LOGIN_USER_ID || '';
+    const supplierId = window.SUPPLIER_ID || '';
+    const productId = window.PRODUCT_ID;
+
+    const normalize = (id) => {
+        if (!id) return '';
+        return id.startsWith('s_') ? id.substring(2) : id;
+    };
+
+    if (!loginId) {
+        alert('로그인이 필요합니다.');
+        location.href = '/user/login';
+        return;
+    }
+
+    if (normalize(loginId) === normalize(supplierId)) {
+        alert('본인 상품에는 문의를 등록할 수 없습니다.');
+        return;
+    }
+    
+    location.href = `/inquiry/create?productId=${productId}`;
+});
 
 // --- 최근 본 상품 로직 추가 ---
 (function() {
