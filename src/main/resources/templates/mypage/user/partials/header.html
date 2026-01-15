@@ -46,16 +46,16 @@
                 <!-- 메시지 pill(공급자 pill 스펙 그대로) -->
                 <a th:href="@{/chat/messages-user}"
                    class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 hover:bg-slate-50">
-                    안읽은 메시지
+                    채팅
                     <span id="headerUnreadCount" class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700"
                           th:text="${unreadChatCount} ?: 0">0</span>
                 </a>
 
-                <!-- 이름 표시도 공급자처럼 -->
-                <span class="hidden text-sm font-semibold text-slate-700 md:inline"
-                      th:text="${session.loginUser?.name} ?: '사용자'">
-                    사용자
-                </span>
+                <img th:src="${session.loginUser.profileImg != null ? session.loginUser.profileImg : '/images/default.png'}"
+                     class="h-7 w-7 rounded-full object-cover border border-slate-200"
+                     alt="profile">
+                <span class="text-sm font-bold text-slate-800"
+                      th:text="${session.loginUser.name + '님'}">홍길동님</span>
 
                 <a th:href="@{/user/logout}"
                    class="font-semibold text-rose-600 hover:text-rose-700">
