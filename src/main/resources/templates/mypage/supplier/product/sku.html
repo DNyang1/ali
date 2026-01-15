@@ -212,8 +212,7 @@
                           : ''))"
                         th:text="${s.displayStatus == 'ACTIVE' ? '판매중'
                            : (s.displayStatus == 'INACTIVE' ? '판매중지'
-                           : (s.displayStatus == 'ENDED' ? '판매종료'
-                           : (s.displayStatus == 'SOLD_OUT' ? '재고없음' : s.displayStatus)))}">
+                           : (s.displayStatus == 'SOLD_OUT' ? '재고없음' : s.displayStatus))}">
                   </span>
                 </td>
 
@@ -231,7 +230,6 @@
                                      disabled:bg-slate-50 disabled:text-slate-400">
                         <option value="ACTIVE" th:selected="${s.status == 'ACTIVE'}">판매중</option>
                         <option value="INACTIVE" th:selected="${s.status == 'INACTIVE'}">판매중지</option>
-                        <option value="ENDED" th:selected="${s.status == 'ENDED'}">판매종료</option>
                       </select>
 
                       <button type="submit"
