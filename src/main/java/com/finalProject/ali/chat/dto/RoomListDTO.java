@@ -1,11 +1,12 @@
 package com.finalProject.ali.chat.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter @Setter
+@Data
 public class RoomListDTO {
     private Long roomId;
     private String lastMessage;
@@ -14,5 +15,6 @@ public class RoomListDTO {
     private Long unreadCount;
     private String opponentId;
     private String opponentName;
+    private String opponentProfileImg;
 }
 
