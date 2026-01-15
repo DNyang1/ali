@@ -39,7 +39,7 @@
             transition: opacity 0.3s ease-in-out;
         }
         .progress-steps .step .bar {
-            transition: width 0.4s ease-in-out;
+            transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         .toast-message {
             transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -47,6 +47,10 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
+<div class="pointer-events-none fixed inset-0">
+    <div class="absolute -top-24 left-1/2 h-72 w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-r from-teal-200/60 to-sky-200/60 blur-3xl"></div>
+    <div class="absolute -bottom-24 left-1/3 h-72 w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-r from-sky-200/40 to-teal-200/40 blur-3xl"></div>
+</div>
 
 <!-- ====== 결제 진행 오버레이 ====== -->
 <div id="payment-overlay" class="payment-overlay hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 opacity-0">
@@ -92,7 +96,7 @@
         <!-- Left Column -->
         <div class="space-y-8">
             <!-- 주문 상품 -->
-            <div class="bg-white rounded-xl shadow-sm">
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-100">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-shopping-bag text-teal-600"></i> 주문 상품
                         <span id="order-item-count" class="ml-auto text-sm font-normal text-slate-400"></span>
@@ -104,10 +108,10 @@
             </div>
 
             <!-- 배송지 -->
-            <div class="bg-white rounded-xl shadow-sm">
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-100">
                 <div class="p-6 border-b border-slate-200 flex justify-between items-center">
                     <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-truck text-teal-600"></i> 배송지 선택</h2>
-                    <button class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg" onclick="addNewAddress()">+ 새 배송지 추가</button>
+                    <button class="rounded-xl px-4 py-2 text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition shadow-sm" onclick="addNewAddress()">+ 새 배송지 추가</button>
                 </div>
                 <div id="address-list" class="p-6 space-y-3">
                     <div class="loader"></div>
@@ -115,19 +119,57 @@
             </div>
 
             <!-- 결제 수단 -->
-            <div class="bg-white rounded-xl shadow-sm">
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-100">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-credit-card text-teal-600"></i> 결제 수단</h2>
                 </div>
                 <div class="p-6">
                     <div class="payment-method-list grid grid-cols-2 gap-4">
-                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="MOCK">
-                            <i class="fas fa-money-check-alt text-2xl text-slate-400"></i>
-                            <span class="font-semibold">가상 결제</span>
+                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="CARD">
+                            <i class="fas fa-credit-card text-2xl text-slate-400"></i>
+                            <span class="font-semibold">신용카드</span>
+                        </div>
+                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="NAVER_PAY">
+                            <i class="fas fa-leaf text-2xl text-slate-400"></i>
+                            <span class="font-semibold">네이버페이</span>
+                        </div>
+                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="KAKAO_PAY">
+                            <i class="fas fa-comment text-2xl text-slate-400"></i>
+                            <span class="font-semibold">카카오페이</span>
                         </div>
                         <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="TOSS">
                             <i class="fas fa-coins text-2xl text-slate-400"></i>
                             <span class="font-semibold">토스페이먼츠</span>
+                        </div>
+                         <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="MOCK">
+                            <i class="fas fa-money-check-alt text-2xl text-slate-400"></i>
+                            <span class="font-semibold">가상 결제</span>
+                        </div>
+                    </div>
+                    
+                    <!--결제수단별 상세정보 -->
+                    <div id="payment-details" class="mt-6 space-y-4">
+                        <div id="details-CARD" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="font-semibold mb-2 text-slate-700">신용카드 정보 입력</p>
+                             <div class="space-y-2">
+                                <input type="text" placeholder="카드 번호" class="w-full p-2 border rounded-md" readonly>
+                                <div class="flex gap-2">
+                                    <input type="text" placeholder="만료일 (MM/YY)" class="w-1/2 p-2 border rounded-md" readonly>
+                                    <input type="text" placeholder="CVC" class="w-1/2 p-2 border rounded-md" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="details-NAVER_PAY" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="text-center text-slate-600">결제하기 버튼을 누르면 네이버페이로 연결됩니다.</p>
+                        </div>
+                        <div id="details-KAKAO_PAY" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="text-center text-slate-600">결제하기 버튼을 누르면 카카오페이로 연결됩니다.</p>
+                        </div>
+                        <div id="details-TOSS" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="text-center text-slate-600">결제하기 버튼을 누르면 토스페이먼츠로 연결됩니다.</p>
+                        </div>
+                        <div id="details-MOCK" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                             <p class="text-center text-slate-600">가상 결제는 테스트용 결제 수단입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -136,7 +178,7 @@
 
         <!-- Right Column (Sidebar) -->
         <div class="sticky top-8">
-            <div class="bg-white rounded-xl shadow-sm">
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-100">
                 <div class="p-6 border-b border-slate-200">
                     <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-receipt text-teal-600"></i> 결제 요약</h2>
                 </div>
@@ -177,7 +219,7 @@
                         </div>
                     </div>
 
-                    <button class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg text-lg transition-colors mt-4" onclick="order()">결제하기</button>
+                    <button class="w-full inline-flex items-center justify-center rounded-xl px-6 py-3.5 text-base font-extrabold bg-gradient-to-r from-teal-500 to-sky-500 text-white shadow-lg transition hover:from-teal-600 hover:to-sky-600 active:scale-[0.99] mt-4" onclick="order()">결제하기</button>
                 </div>
             </div>
         </div>
@@ -205,7 +247,7 @@
                 <div class="space-y-2">
                     <div class="flex gap-2">
                         <input type="text" id="zipcode" class="w-full p-2 border border-slate-300 rounded-md bg-slate-50" placeholder="우편번호" readonly required>
-                        <button type="button" class="bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-md whitespace-nowrap" onclick="execDaumPostcode()">검색</button>
+                        <button type="button" class="rounded-lg px-4 py-2 text-sm font-semibold bg-slate-600 text-white hover:bg-slate-700 transition shadow-sm whitespace-nowrap" onclick="execDaumPostcode()">검색</button>
                     </div>
                     <input type="text" id="address1" class="w-full p-2 border border-slate-300 rounded-md bg-slate-50" placeholder="기본 주소" readonly required>
                     <input type="text" id="address2" class="w-full p-2 border border-slate-300 rounded-md" placeholder="상세 주소 입력">
@@ -219,13 +261,13 @@
                 </div>
             </div>
             <div class="pt-4 border-t flex justify-end gap-3">
-                <button type="button" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg" onclick="closeAddressModal()">취소</button>
-                <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg">저장하기</button>
+                <button type="button" class="rounded-xl px-5 py-2.5 text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition shadow-sm" onclick="closeAddressModal()">취소</button>
+                <button type="submit" class="rounded-xl px-5 py-2.5 text-sm font-semibold bg-teal-600 text-white hover:bg-teal-700 transition shadow-md">저장하기</button>
             </div>
         </form>
     </div>
 </div>
-
+<div th:replace="layout/footer :: footer"></div>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
     let selectedAddressId = null;
@@ -317,7 +359,7 @@
             document.getElementById('total-amount').innerText = `${convertedAmount} ${result.currency}`;
         } catch (error) {
             console.error('Error converting currency:', error);
-            showToast('환율 변환에 실패했습니다.', 'error');
+            showToast('환율 정보 불러오기에 실패했습니다.', 'error');
             selector.value = 'KRW';
         }
     }
@@ -366,7 +408,7 @@
                     <div class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
                          <img src="https://picsum.photos/seed/${item.skuId}/200" alt="${item.productName}" class="w-full h-full object-cover">
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-[250px]">
                         <div class="font-bold text-slate-800">${item.productName}</div>
                         <div class="text-sm text-slate-500 mt-1">${item.optionSummary} / ${item.quantity}개</div>
                     </div>
@@ -498,9 +540,9 @@
         showOverlay();
 
         const steps = [
-            { text: "결제 요청 중...", duration: 1500, step: 1 },
-            { text: "주문 생성 중...", duration: 1500, step: 2 },
-            { text: "거의 다 됐습니다!", duration: 1000, step: 3 }
+            { text: "결제 요청 중...", duration: 1200, step: 1 },
+            { text: "주문 생성 중...", duration: 800, step: 2 },
+            { text: "거의 다 됐습니다!", duration: 2000, step: 3 }
         ];
 
         try {
@@ -551,20 +593,25 @@
             document.getElementById('payment-status-text').innerText = text;
             updateStepUI(step, 0);
 
-            let progress = 0;
-            const interval = 20;
-            const increments = 100 / (duration / interval);
+            let startTime = null;
+            const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
-            const progressInterval = setInterval(() => {
-                progress += increments;
-                if (progress >= 100) {
-                    clearInterval(progressInterval);
+            function animate(time) {
+                if (!startTime) startTime = time;
+                const elapsedTime = time - startTime;
+                let progress = Math.min(elapsedTime / duration, 1);
+                progress = easeOutCubic(progress);
+
+                updateStepUI(step, progress * 100);
+
+                if (elapsedTime < duration) {
+                    requestAnimationFrame(animate);
+                } else {
                     updateStepUI(step, 100);
                     resolve();
-                } else {
-                    updateStepUI(step, progress);
                 }
-            }, interval);
+            }
+            requestAnimationFrame(animate);
         });
     }
 

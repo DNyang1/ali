@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/cart/css/cart.css">
     <style>
         .cart-check:checked {
             background-color: #0d9488; /* Tailwind's teal-600 */
@@ -21,44 +23,52 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
+<div class="pointer-events-none fixed inset-0">
+    <div class="absolute -top-24 left-1/2 h-72 w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-r from-teal-200/60 to-sky-200/60 blur-3xl"></div>
+    <div class="absolute -bottom-24 left-1/3 h-72 w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-r from-sky-200/40 to-teal-200/40 blur-3xl"></div>
+</div>
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
 <main class="max-w-[1200px] mx-auto px-6 py-12">
     <h1 class="text-3xl font-extrabold mb-8 text-slate-800">🛒 &nbsp;My Cart</h1>
 
     <div class="grid grid-cols-[1fr_360px] gap-8 items-start">
-        <div class="bg-white rounded-xl shadow-sm" id="cart-items-container">
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-100" id="cart-items-container">
             <!-- 장바구니 아이템이 여기에 동적으로 추가됩니다. -->
         </div>
 
-                                <div class="p-6 bg-white rounded-xl shadow-sm sticky top-14">
-                                    <h2 class="text-xl font-bold mb-6 border-b pb-4">주문 요약</h2>
-                                    <div id="selected-products-list" class="text-sm text-slate-600 mb-4 space-y-1">
-                                        <!-- Selected product names will be listed here -->
-                                    </div>
-                                    <div class="flex justify-between items-center text-sm text-slate-500 mb-2">
-                                        <span>선택 상품 개수</span>
-                                        <span id="selected-item-count">0개</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-lg font-bold mb-6">
-                                        <span>총 주문 예상 금액</span>
-                                        <span id="total-amount">0 원</span>
-                                    </div>            <button class="checkout-btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg transition-colors" onclick="goCheckout()">
-                주문하기
+        <div class="p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-100 sticky top-14">
+
+            <h2 class="text-xl font-bold mb-6 border-b pb-4"><i class="fas fa-shopping-bag text-teal-600"></i> 주문 요약</h2>
+            <div id="selected-products-list" class="text-sm text-slate-500 mb-4 space-y-1">
+                <!-- Selected product names will be listed here -->
+            </div>
+            <div class="flex justify-between items-center text-sm text-slate-500 mb-2">
+                <span>선택 상품 개수</span>
+                <span id="selected-item-count">0개</span>
+            </div>
+            <div class="flex justify-between items-center text-lg font-bold mb-6 pt-4 border-t border-slate-100">
+                <span>총 주문 예상 금액</span>
+                <span id="total-amount">0 원</span>
+            </div>
+            <button class="checkout-btn w-full inline-flex items-center justify-center rounded-xl px-6 py-3.5 text-base font-extrabold bg-gradient-to-r from-teal-500 to-sky-500 text-white shadow-lg transition hover:from-teal-600 hover:to-sky-600 active:scale-[0.99]" onclick="goCheckout()">
+                <span>주문하기</span>
             </button>
         </div>
     </div>
     
     <!-- ====== 최근 본 상품 ====== -->
-    <div id="recently-viewed-container" class="mt-16">
-        <h2 class="text-2xl font-extrabold mb-6 text-slate-800">🧐 &nbsp;최근 본 상품</h2>
-        <div id="recently-viewed-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+    <div id="recently-viewed-container" class="mt-16 bg-white rounded-xl shadow-sm">
+        <div class="p-6 border-b border-slate-200">
+            <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-history text-slate-500"></i> 최근 본 상품</h2>
+        </div>
+        <div id="recently-viewed-list" class="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             <!-- 최근 본 상품이 여기에 동적으로 추가됩니다. -->
         </div>
     </div>
 </main>
 
-
+<div th:replace="layout/footer :: footer"></div>
 <script>
     function loadCart() {
         fetch('/api/cart/view')
@@ -89,11 +99,11 @@
         }
 
 
-        // Add the "주문 상품" heading with item count
+        // Add the "장바구니 항목" heading with item count
         const orderProductsHeader = document.createElement('div');
         orderProductsHeader.className = 'p-6 border-b border-slate-200';
         orderProductsHeader.innerHTML = `
-            <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-shopping-bag text-teal-600"></i> 주문 상품
+            <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-shopping-cart text-teal-600"></i> 장바구니
                 <span id="cart-selected-item-display" class="ml-auto text-sm font-normal text-slate-400"></span>
             </h2>
         `;
@@ -102,7 +112,7 @@
         const header = document.createElement('div');
         header.className = 'flex items-center p-4 border-b border-slate-200 text-slate-600';
         header.innerHTML = `
-            <input type="checkbox" id="check-all" class="cart-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 mr-6">
+            <input type="checkbox" id="check-all" class="cart-check h-5 w-5 rounded-md border-2 border-slate-300 text-teal-600 focus:ring-teal-500 mr-6">
             <span>전체 선택</span>
         `;
         container.appendChild(header);
@@ -112,11 +122,11 @@
             const itemElement = document.createElement('div');
             itemElement.className = 'cart-item-row flex items-center gap-4 p-6 border-b border-slate-200';
             itemElement.innerHTML = `
-                <input type="checkbox" class="cart-check item-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
+                <input type="checkbox" class="cart-check item-check h-5 w-5 rounded-md border-2 border-slate-300 text-teal-600 focus:ring-teal-500" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
                 <a href="/products/${item.productId}" class="block w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
                      <img src="https://picsum.photos/seed/${item.skuId}/200" alt="${item.productName}" class="w-full h-full object-cover">
                 </a>
-                <div class="flex-1">
+                <div class="flex-1 min-w-[250px]">
                     <a href="/products/${item.productId}" class="font-bold text-lg text-slate-800 hover:underline">${item.productName}</a>
                     <div class="text-sm text-slate-500 mt-1">옵션: ${item.optionSummary || '-'}</div>
                     <div class="text-sm text-slate-500">수량: ${item.quantity}개</div>
@@ -152,30 +162,32 @@
     function updateTotal() {
         let total = 0;
         let itemCount = 0;
-        const selectedProductsInfo = []; // To store { name, quantity, price }
+        const newSelectedProducts = new Map();
 
+        // 1. Get New State from checkboxes
         document.querySelectorAll('.item-check').forEach(cb => {
             const itemRow = cb.closest('.cart-item-row');
-            const productNameElement = itemRow.querySelector('.flex-1 a'); // Selects the anchor containing the product name
-
             if (cb.checked) {
-                const itemPrice = Number(cb.dataset.price); // Get price from data-price attribute
-                total += itemPrice;
-                itemCount++;
-                itemRow.classList.add('selected-item');
+                const productNameElement = itemRow.querySelector('.flex-1 a');
                 if (productNameElement) {
-                    const quantity = cb.dataset.quantity; // Get quantity from data-quantity attribute
-                    selectedProductsInfo.push({
+                    newSelectedProducts.set(cb.dataset.skuId, {
                         name: productNameElement.innerText,
-                        quantity: quantity,
-                        price: itemPrice // Store the price
+                        quantity: cb.dataset.quantity,
+                        price: Number(cb.dataset.price),
+                        skuId: cb.dataset.skuId
                     });
                 }
+                itemRow.classList.add('selected-item');
             } else {
                 itemRow.classList.remove('selected-item');
             }
         });
 
+        // 2. Update total and item counts
+        newSelectedProducts.forEach(prod => {
+            total += prod.price;
+            itemCount++;
+        });
         document.getElementById('total-amount').innerText = `${total.toLocaleString()} 원`;
         document.getElementById('selected-item-count').innerText = `${itemCount}개`;
         const cartSelectedItemDisplay = document.getElementById('cart-selected-item-display');
@@ -183,19 +195,52 @@
             cartSelectedItemDisplay.innerText = `${itemCount}개 항목`;
         }
 
-        const selectedProductsListDiv = document.getElementById('selected-products-list');
-        if (selectedProductsListDiv) {
-            if (selectedProductsInfo.length > 0) {
-                selectedProductsListDiv.innerHTML = selectedProductsInfo.map(info => `
-                    <div class="flex justify-between items-center">
-                        <span>• ${info.name} (${info.quantity}개)</span>
-                        <span>${info.price.toLocaleString()} 원</span>
-                    </div>
-                `).join('');
-            } else {
-                selectedProductsListDiv.innerHTML = ''; // Keep it empty if no items are selected
+        const listDiv = document.getElementById('selected-products-list');
+        if (!listDiv) return;
+
+        const currentElements = new Map(
+            Array.from(listDiv.children).map(el => [el.dataset.skuId, el])
+        );
+
+        // 3. Handle removals
+        currentElements.forEach((el, skuId) => {
+            if (!newSelectedProducts.has(skuId)) {
+                el.classList.add('summary-item-exit');
+                // *** FIX IS HERE ***
+                // Add listener to recalculate height AFTER item is removed.
+                el.addEventListener('animationend', () => {
+                    el.remove();
+                    if (document.contains(listDiv)) {
+                        listDiv.style.maxHeight = listDiv.scrollHeight + 'px';
+                    }
+                }, { once: true });
             }
-        }
+        });
+
+        // 4. Handle additions
+        newSelectedProducts.forEach(info => {
+            if (!currentElements.has(info.skuId)) {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'summary-item-enter flex justify-between items-center';
+                itemDiv.dataset.skuId = info.skuId;
+                itemDiv.innerHTML = `
+                    <span>• ${info.name} (${info.quantity}개)</span>
+                    <span>${info.price.toLocaleString()} 원</span>
+                `;
+                listDiv.appendChild(itemDiv);
+            }
+        });
+
+        // 5. Animate height
+        // This timeout handles the EXPANSION case correctly, as it calculates
+        // the height after new items have been appended to the DOM.
+        // The SHRINK case is now handled by the animationend listener.
+        setTimeout(() => {
+            if (document.contains(listDiv)) {
+                const hasVisibleItems = newSelectedProducts.size > 0;
+                listDiv.style.maxHeight = hasVisibleItems ? (listDiv.scrollHeight + 'px') : '0px';
+            }
+        }, 0);
     }
 
     function deleteItem(cartItemId) {
@@ -240,8 +285,9 @@
 
         if (recentlyViewed.length === 0) {
             const emptyMessage = `
-                <div class="col-span-full text-center p-8 bg-white rounded-xl shadow-sm text-slate-500">
-                    최근 본 상품이 없습니다.
+                <div class="col-span-full text-center text-slate-500 py-12">
+                    <i class="fas fa-eye-slash text-4xl mb-4 text-slate-300"></i>
+                    <p>최근 본 상품이 없습니다.</p>
                 </div>
             `;
             recentlyViewedList.innerHTML = emptyMessage;

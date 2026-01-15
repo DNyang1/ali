@@ -152,13 +152,13 @@
 
             <th:block th:if="${product.isCustomizable == 1}">
 
-                <button class="h-14 w-full
+                <button id="btnInquiry" class="h-14 w-full
                        bg-sky-500 text-white
                        font-bold rounded-xl
                        text-base
                        hover:bg-sky-600 transition
                        whitespace-nowrap"
-                        th:onclick="|location.href='/inquiry/create?productId=${product.productId}'|">
+                        th:attr="data-product-id=${product.productId}">
                     문의 전송
                 </button>
 
@@ -234,6 +234,16 @@
     window.MOQ = /*[[${product.moq}]]*/ 1;
     window.PRODUCT_ID = /*[[${product.productId}]]*/ 0;
 </script>
+<script th:inline="javascript">
+    window.SKUS = /*[[${skusJson}]]*/ [];
+    window.DEFAULT_PRICE_RULES = /*[[${defaultPriceRulesJson}]]*/ [];
+    window.MOQ = /*[[${product.moq}]]*/ 1;
+    window.PRODUCT_ID = /*[[${product.productId}]]*/ 0;
+
+    window.LOGIN_USER_ID = /*[[${session.loginUser != null ? session.loginUser.userId : ''}]]*/ '';
+    window.SUPPLIER_ID   = /*[[${product.supplierId}]]*/ '';
+</script>
+
 
 <script th:src="@{/products/js/products_detail.js}"></script>
 

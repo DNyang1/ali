@@ -137,7 +137,7 @@
         <section class="space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-slate-900">SKU 목록</h3>
-            <p class="text-xs text-slate-500">재고 저장/상태 변경/옵션 수정</p>
+            <p class="text-xs text-slate-500">재고 저장/옵션 수정</p>
           </div>
 
           <div class="overflow-x-auto rounded-2xl border border-slate-200">
@@ -152,14 +152,13 @@
                 <th class="px-4 py-3 font-semibold">생성일</th>
                 <th class="px-4 py-3 font-semibold">구간단가</th>
                 <th class="px-4 py-3 font-semibold">상태</th>
-                <th class="px-4 py-3 font-semibold">상태 변경</th>
                 <th class="px-4 py-3 font-semibold">옵션</th>
               </tr>
               </thead>
 
               <tbody class="divide-y divide-slate-100">
               <tr th:if="${#lists.isEmpty(skus)}">
-                <td colspan="10" class="px-4 py-5 text-slate-500">SKU가 없습니다.</td>
+                <td colspan="9" class="px-4 py-5 text-slate-500">SKU가 없습니다.</td>
               </tr>
 
               <tr th:each="s : ${skus}" class="align-middle">
@@ -202,49 +201,15 @@
                   </button>
                 </td>
 
-                <!-- 상태 표시 -->
+                <!-- 상태 표시 (ACTIVE/INACTIVE만) -->
                 <td class="px-4 py-3">
                   <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold
                                bg-slate-100 text-slate-700 ring-1 ring-slate-200"
-                        th:classappend="${s.displayStatus == 'ACTIVE'} ? ' bg-emerald-50 text-emerald-700 ring-emerald-200'
-                          : (${s.displayStatus == 'SOLD_OUT'} ? ' bg-amber-50 text-amber-700 ring-amber-200'
-                          : (${s.displayStatus == 'ENDED'} ? ' bg-slate-200 text-slate-800 ring-slate-200'
-                          : ''))"
-                        th:text="${s.displayStatus == 'ACTIVE' ? '판매중'
-                           : (s.displayStatus == 'INACTIVE' ? '판매중지'
-                           : (s.displayStatus == 'ENDED' ? '판매종료'
-                           : (s.displayStatus == 'SOLD_OUT' ? '재고없음' : s.displayStatus)))}">
+                        th:classappend="${s.status == 'ACTIVE'} ? ' bg-emerald-50 text-emerald-700 ring-emerald-200'
+                          : (${s.status == 'INACTIVE'} ? ' bg-slate-200 text-slate-800 ring-slate-200' : '')"
+                        th:text="${s.status == 'ACTIVE' ? '판매중'
+                           : (s.status == 'INACTIVE' ? '판매중지' : s.status)}">
                   </span>
-                </td>
-
-                <!-- 상태 변경 -->
-                <td class="px-4 py-3">
-                  <form th:action="@{/mypage/supplier/sku/{skuId}/status(skuId=${s.skuId})}"
-                        method="post"
-                        class="flex flex-col gap-2">
-                    <div class="flex items-center gap-2">
-                      <input type="hidden" name="productId" th:value="${productId}">
-
-                      <select name="status"
-                              th:disabled="${s.displayStatus == 'SOLD_OUT'}"
-                              class="w-32 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500
-                                     disabled:bg-slate-50 disabled:text-slate-400">
-                        <option value="ACTIVE" th:selected="${s.status == 'ACTIVE'}">판매중</option>
-                        <option value="INACTIVE" th:selected="${s.status == 'INACTIVE'}">판매중지</option>
-                        <option value="ENDED" th:selected="${s.status == 'ENDED'}">판매종료</option>
-                      </select>
-
-                      <button type="submit"
-                              class="inline-flex items-center rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700">
-                        저장
-                      </button>
-                    </div>
-
-                    <small th:if="${s.displayStatus == 'SOLD_OUT'}"
-                           class="text-xs text-slate-500">
-                      재고가 0이라 ‘재고없음’으로 표시됩니다. 재고를 올린 뒤 판매중으로 변경하세요.
-                    </small>
-                  </form>
                 </td>
 
                 <!-- 옵션 수정 -->
@@ -270,8 +235,6 @@
 
     <!-- ✅ 기존 JS 유지 -->
     <script src="/mypage/supplier/js/sku.js"></script>
-
-
 
   </th:block>
 </th:block>
