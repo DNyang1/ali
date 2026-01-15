@@ -11,13 +11,15 @@
 
     <select id="findChatsByRoomId" resultType="com.finalProject.ali.chat.dto.ChatDTO">
         SELECT
-        c.chat_id   AS chatId,
-        c.room_id   AS roomId,
-        c.sender_id AS senderId,
-        u.name      AS senderName,
-        c.message   AS message,
+        c.chat_id    AS chatId,
+        c.room_id    AS roomId,
+        c.sender_id  AS senderId,
+        c.message    AS message,
+        c.chat_at    AS chatAt,
         c.product_id AS productId,
-        c.chat_at   AS chatAt
+
+        u.name       AS senderName,
+        u.profile_img AS senderProfileImg
         FROM chat c
         JOIN users u ON u.user_id = c.sender_id
         WHERE c.room_id = #{roomId}
@@ -85,4 +87,5 @@
         GROUP BY rm.room_id
         ) t
     </select>
+
 </mapper>

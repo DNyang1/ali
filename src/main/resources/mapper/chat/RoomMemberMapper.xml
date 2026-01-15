@@ -12,6 +12,7 @@
 
         u.user_id AS opponentId,
         u.name    AS opponentName,
+        u.profile_img AS opponentProfileImg,
 
         (SELECT c.message
         FROM chat c
