@@ -183,7 +183,9 @@ public class ProductOptionSkuService {
         if (moq < 1) throw new IllegalArgumentException("MOQ는 1 이상이어야 합니다.");
         sku.setMoq(moq);
 
-        sku.setStatus("ACTIVE");
+        long stock = (form.getStock() == null ? 0L : form.getStock());
+        sku.setStockQuantity(stock);
+        sku.setStatus(stock > 0 ? "ACTIVE" : "INACTIVE");
         sku.setCreatedAt(LocalDate.now());
 
         if (form.getBasePrice() == null || form.getBasePrice() <= 0) {
@@ -261,36 +263,23 @@ public class ProductOptionSkuService {
 
     @Transactional
     public void updateStatus(String skuId, String status) {
-        if (!List.of("ACTIVE", "INACTIVE", "ENDED").contains(status)) {
-            throw new IllegalArgumentException("허용되지 않은 상태");
+        if (!"ACTIVE".equals(status) && !"INACTIVE".equals(status)) {
+            throw new IllegalArgumentException("status는 ACTIVE 또는 INACTIVE만 가능합니다.");
         }
-
-        var sku = skuDAO.findBySkuId(skuId);
-        if (sku == null) throw new IllegalArgumentException("SKU 없음");
-
-        if ("ACTIVE".equals(status) && sku.getStockQuantity() != null && sku.getStockQuantity() <= 0) {
-            throw new IllegalStateException("재고가 0이라 판매중(ACTIVE)으로 변경 불가");
-        }
-
         skuDAO.updateStatus(skuId, status);
     }
 
+
     private void applyDisplayStatus(SkuDTO s) {
-        if ("ACTIVE".equals(s.getStatus())
-                && s.getStockQuantity() != null
-                && s.getStockQuantity() <= 0) {
-            s.setDisplayStatus("SOLD_OUT");
-        } else {
-            s.setDisplayStatus(s.getStatus());
-        }
+        long stock = (s.getStockQuantity() == null ? 0L : s.getStockQuantity());
+        s.setDisplayStatus(stock > 0 ? "ACTIVE" : "INACTIVE");
     }
     @Transactional
-    public void updateStock(String skuId, long stock){
-        if(stock < 0){
-            throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
-        }
+    public void updateStock(String skuId, Long stock) {
+        if (stock < 0) throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
         skuDAO.updateStock(skuId, stock);
     }
+
 
     @Transactional
     public void updateOptionValue(String optionId, String optionValue){
