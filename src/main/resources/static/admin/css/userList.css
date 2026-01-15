@@ -1,10 +1,12 @@
-/* userList.css */
+/* =========================================
+   1. 기존 스타일 (테이블, 배지, 버튼 등)
+   - 이 영역은 기존 디자인 유지를 위해 건드리지 않습니다.
+   ========================================= */
 
-/* 1. 공통 테이블 스타일 (supplierList와 디자인 통일) */
 section h2 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: var(--primary-color, #2c3e50); /* 변수가 없으면 기본색 사용 */
+    color: var(--primary-color, #2c3e50);
     margin-bottom: 25px;
     padding-bottom: 10px;
     border-bottom: 2px solid #ddd;
@@ -45,7 +47,7 @@ tbody tr:hover {
     transition: background-color 0.2s ease;
 }
 
-/* 2. 권한 변경 셀렉트 박스 스타일 */
+/* 권한 선택 박스 */
 .role-select {
     padding: 6px 10px;
     border-radius: 6px;
@@ -60,22 +62,13 @@ tbody tr:hover {
 }
 
 .role-select:focus {
-    border-color: #3b82f6; /* 포커스 시 파란 테두리 */
+    border-color: #3b82f6;
 }
 
-/* 권한별 텍스트 색상 강조 */
-.admin-role {
-    color: #e11d48; /* 관리자는 붉은색 */
-    font-weight: 700;
-}
+.admin-role { color: #e11d48; font-weight: 700; }
+.supplier-role { color: #2563eb; font-weight: 700; }
 
-.supplier-role {
-    color: #2563eb; /* 판매자는 파란색 */
-    font-weight: 700;
-}
-
-
-/* 3. 계정 상태 배지 (Badge) */
+/* 상태 배지 */
 .badge {
     display: inline-block;
     padding: 4px 10px;
@@ -86,16 +79,10 @@ tbody tr:hover {
     letter-spacing: 0.5px;
 }
 
-.badge.active {
-    background-color: #10b981; /* 활동중: 에메랄드 그린 */
-}
+.badge.active { background-color: #10b981; }
+.badge.suspended { background-color: #94a3b8; }
 
-.badge.suspended {
-    background-color: #94a3b8; /* 정지됨: 회색 (비활성 느낌) */
-}
-
-/* 4. 제재/해제 버튼 스타일 */
-/* 공통 버튼 속성 */
+/* 정지/해제 버튼 */
 .btn-suspend, .btn-activate {
     border: none;
     padding: 8px 16px;
@@ -107,29 +94,151 @@ tbody tr:hover {
     color: white;
 }
 
-/* 정지 버튼 (위험/경고 - Red) */
-.btn-suspend {
-    background-color: #ef4444;
-}
-
+.btn-suspend { background-color: #ef4444; }
 .btn-suspend:hover {
     background-color: #dc2626;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
 }
 
-/* 해제 버튼 (복구/긍정 - Blue) */
-.btn-activate {
-    background-color: #3b82f6;
-}
-
+.btn-activate { background-color: #3b82f6; }
 .btn-activate:hover {
     background-color: #2563eb;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
 }
 
-/* 버튼 클릭 효과 */
 .btn-suspend:active, .btn-activate:active {
     transform: translateY(0);
+}
+
+
+/* =========================================
+   2. [신규 추가] 검색창 & 페이징 스타일
+   - 독립적인 클래스명을 사용하여 위 스타일과 충돌하지 않음
+   ========================================= */
+
+/* 검색 컨테이너 (우측 정렬 및 배경) */
+.search-container {
+    background-color: #f8f9fa; /* 배경색 유지 */
+    padding: 15px 20px;       /* 여백을 조금 더 넉넉하게 */
+    border-radius: 8px;
+    margin-bottom: 20px;
+
+    display: flex;
+    justify-content: flex-start; /* 👈 핵심: 왼쪽 정렬로 변경 */
+    gap: 12px;                  /* 요소 간격을 조금 더 넓힘 */
+    align-items: center;
+    border: 1px solid #e2e8f0;  /* 테두리를 연하게 추가하여 정돈된 느낌 */
+}
+
+/* (선택사항) 입력창 너비를 조금 더 늘려서 시원하게 */
+.search-input {
+    width: 250px; /* 기존 200px -> 250px */
+}
+
+/* 검색 필터 (셀렉트박스, 입력창 공통) */
+.search-select, .search-input {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #334155;
+    outline: none;
+}
+
+.search-select:focus, .search-input:focus {
+    border-color: #3b82f6;
+}
+
+/* 검색 버튼 (검정색) */
+.btn-search {
+    background-color: #334155;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 4px;
+    height: 38px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+    background-color: #1e293b;
+}
+
+/* 초기화 버튼 (회색) */
+.btn-reset {
+    background-color: #64748b;
+    color: white;
+    text-decoration: none;
+    padding: 0 15px;
+    border-radius: 4px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-reset:hover {
+    background-color: #475569;
+}
+
+/* 페이지네이션 컨테이너 */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.pagination {
+    list-style: none;
+    display: flex;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+}
+
+/* 페이지 번호 링크 */
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid #e2e8f0;
+    background-color: #fff;
+    color: #64748b;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.page-link:hover {
+    background-color: #f1f5f9;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+
+/* 현재 활성화된 페이지 */
+.page-item.active .page-link {
+    background-color: #3b82f6; /* 파란색 포인트 */
+    color: white;
+    border-color: #3b82f6;
+    font-weight: 600;
+}
+
+/* 비활성화된 버튼 (이전/다음 없을 때) */
+.page-item.disabled .page-link {
+    color: #cbd5e1;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    pointer-events: none;
 }
