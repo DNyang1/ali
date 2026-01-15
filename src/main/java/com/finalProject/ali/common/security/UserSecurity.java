@@ -75,7 +75,8 @@ public class UserSecurity {
                                 "/user/login", "/user/register", "/user/signup",
                                 "/user/find_id", "/user/reset_pw**",
                                 "/user/send**", "/user/verify**",
-                                "/v3/api-docs/**", "/swagger-ui/**"
+                                "/v3/api-docs/**", "/swagger/**","/swagger-ui/index.html#/",
+                                "/api/**"
                         ).permitAll()
 
                         .requestMatchers("/supplier/api/**").authenticated()
