@@ -39,7 +39,7 @@
             transition: opacity 0.3s ease-in-out;
         }
         .progress-steps .step .bar {
-            transition: width 0.4s ease-in-out;
+            transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         .toast-message {
             transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -121,13 +121,51 @@
                 </div>
                 <div class="p-6">
                     <div class="payment-method-list grid grid-cols-2 gap-4">
-                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="MOCK">
-                            <i class="fas fa-money-check-alt text-2xl text-slate-400"></i>
-                            <span class="font-semibold">가상 결제</span>
+                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="CARD">
+                            <i class="fas fa-credit-card text-2xl text-slate-400"></i>
+                            <span class="font-semibold">신용카드</span>
+                        </div>
+                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="NAVER_PAY">
+                            <i class="fas fa-leaf text-2xl text-slate-400"></i>
+                            <span class="font-semibold">네이버페이</span>
+                        </div>
+                        <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="KAKAO_PAY">
+                            <i class="fas fa-comment text-2xl text-slate-400"></i>
+                            <span class="font-semibold">카카오페이</span>
                         </div>
                         <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="TOSS">
                             <i class="fas fa-coins text-2xl text-slate-400"></i>
                             <span class="font-semibold">토스페이먼츠</span>
+                        </div>
+                         <div class="payment-method p-4 border rounded-lg cursor-pointer hover:border-teal-500 flex items-center gap-4" data-method="MOCK">
+                            <i class="fas fa-money-check-alt text-2xl text-slate-400"></i>
+                            <span class="font-semibold">가상 결제</span>
+                        </div>
+                    </div>
+                    
+                    <!--결제수단별 상세정보 -->
+                    <div id="payment-details" class="mt-6 space-y-4">
+                        <div id="details-CARD" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="font-semibold mb-2 text-slate-700">신용카드 정보 입력</p>
+                             <div class="space-y-2">
+                                <input type="text" placeholder="카드 번호" class="w-full p-2 border rounded-md" readonly>
+                                <div class="flex gap-2">
+                                    <input type="text" placeholder="만료일 (MM/YY)" class="w-1/2 p-2 border rounded-md" readonly>
+                                    <input type="text" placeholder="CVC" class="w-1/2 p-2 border rounded-md" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="details-NAVER_PAY" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="text-center text-slate-600">결제하기 버튼을 누르면 네이버페이로 연결됩니다.</p>
+                        </div>
+                        <div id="details-KAKAO_PAY" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="text-center text-slate-600">결제하기 버튼을 누르면 카카오페이로 연결됩니다.</p>
+                        </div>
+                        <div id="details-TOSS" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                            <p class="text-center text-slate-600">결제하기 버튼을 누르면 토스페이먼츠로 연결됩니다.</p>
+                        </div>
+                        <div id="details-MOCK" class="payment-detail-content hidden p-4 bg-slate-50 rounded-lg">
+                             <p class="text-center text-slate-600">가상 결제는 테스트용 결제 수단입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -317,7 +355,7 @@
             document.getElementById('total-amount').innerText = `${convertedAmount} ${result.currency}`;
         } catch (error) {
             console.error('Error converting currency:', error);
-            showToast('환율 변환에 실패했습니다.', 'error');
+            showToast('환율 정보 불러오기에 실패했습니다.', 'error');
             selector.value = 'KRW';
         }
     }
@@ -498,9 +536,9 @@
         showOverlay();
 
         const steps = [
-            { text: "결제 요청 중...", duration: 1500, step: 1 },
-            { text: "주문 생성 중...", duration: 1500, step: 2 },
-            { text: "거의 다 됐습니다!", duration: 1000, step: 3 }
+            { text: "결제 요청 중...", duration: 1200, step: 1 },
+            { text: "주문 생성 중...", duration: 800, step: 2 },
+            { text: "거의 다 됐습니다!", duration: 2000, step: 3 }
         ];
 
         try {
@@ -551,20 +589,25 @@
             document.getElementById('payment-status-text').innerText = text;
             updateStepUI(step, 0);
 
-            let progress = 0;
-            const interval = 20;
-            const increments = 100 / (duration / interval);
+            let startTime = null;
+            const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
-            const progressInterval = setInterval(() => {
-                progress += increments;
-                if (progress >= 100) {
-                    clearInterval(progressInterval);
+            function animate(time) {
+                if (!startTime) startTime = time;
+                const elapsedTime = time - startTime;
+                let progress = Math.min(elapsedTime / duration, 1);
+                progress = easeOutCubic(progress);
+
+                updateStepUI(step, progress * 100);
+
+                if (elapsedTime < duration) {
+                    requestAnimationFrame(animate);
+                } else {
                     updateStepUI(step, 100);
                     resolve();
-                } else {
-                    updateStepUI(step, progress);
                 }
-            }, interval);
+            }
+            requestAnimationFrame(animate);
         });
     }
 
