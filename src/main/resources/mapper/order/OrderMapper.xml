@@ -53,7 +53,12 @@
 
             MIN(oi.product_name)  AS firstProductName,
             MIN(oi.option_summary) AS firstOptionSummary,
-            COUNT(*)              AS itemCount
+            COUNT(*)              AS itemCount,
+            CASE
+                WHEN SUM(CASE WHEN oi.supplier_status='SHIPPED' THEN 1 ELSE 0 END) > 0 THEN 'SHIPPED'
+                WHEN SUM(CASE WHEN oi.supplier_status='READY'  THEN 1 ELSE 0 END) > 0 THEN 'READY'
+                ELSE NULL
+            END AS shipStatus
 
         FROM orders o
         JOIN order_item oi

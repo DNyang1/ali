@@ -17,4 +17,6 @@ public class OrderSummaryResponse {
     private String firstProductName;
     private String firstOptionSummary;
     private int itemCount;
+
+    private String shipStatus;
 }

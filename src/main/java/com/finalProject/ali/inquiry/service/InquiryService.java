@@ -45,8 +45,9 @@ public class InquiryService {
     }
 
     // 구매자 문의 목록
-    public List<InquiryDTO> findMyInquiries(String userId) {
-        return inquiryDAO.findMyInquiries(userId);
+    public List<InquiryDTO> findMyInquiries(String userId, Integer status) {
+        if (status == null) return inquiryDAO.findMyInquiries(userId); // 기존 SQL 사용
+        return inquiryDAO.findMyInquiriesByStatus(userId, status);     // 새 SQL 사용
     }
 
     // 문의 단건 조회
