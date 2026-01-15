@@ -24,7 +24,7 @@ function updateInfo() {
         .then(res => {
             if (res.ok) {
                 alert('정보가 수정되었습니다.');
-                location.href = '/user/setting';
+                location.href = '/mypage/user/dashboard';
             } else {
                 alert('수정 실패');
             }

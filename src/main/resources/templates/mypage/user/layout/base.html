@@ -1,31 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(content, links)">
+      th:fragment="layout(content, extraCss)">
+
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="${pageTitle} ?: '유저 마이페이지'">유저 마이페이지</title>
 
-    <link rel="stylesheet" href="/mypage/common/css/layout.css"/>
-    <link rel="stylesheet" href="/mypage/user/css/layout.css"/>
+    <!-- Tailwind (DEV용: CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 페이지별 추가 css 들어오는 자리 -->
-    <th:block th:replace="${links}" />
+    <!-- index 색감 (Teal/Sky) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e'
+                        },
+                        accent: {
+                            50: '#f0f9ff',
+                            500: '#0ea5e9',
+                            600: '#0284c7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 채팅 등 페이지별 CSS 슬롯 -->
+    <th:block th:if="${extraCss != null}">
+        <th:block th:replace="${extraCss}"></th:block>
+    </th:block>
 </head>
 
-<body>
-<div class="mypage-layout">
+<body class="min-h-screen bg-gradient-to-b from-brand-50 to-accent-50 text-slate-900">
+<div class="min-h-screen">
+
+    <!-- Header -->
     <div th:replace="mypage/user/partials/header :: header"></div>
 
-    <div class="mypage-body">
-        <div th:replace="mypage/user/partials/sidebar :: sidebar"></div>
+    <!-- Layout -->
+    <div class="mx-auto max-w-[1400px] px-4 py-6 lg:px-6">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
 
-        <main class="mypage-content content">
-            <th:block th:replace="${content}" />
-        </main>
+            <!-- Sidebar -->
+            <aside class="lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
+                <div th:replace="mypage/user/partials/sidebar :: sidebar"></div>
+            </aside>
+
+            <!-- Content -->
+            <main class="min-w-0">
+                <th:block th:replace="${content}"></th:block>
+            </main>
+
+        </div>
     </div>
 
+    <!-- Footer -->
     <footer th:replace="layout/footer :: footer"></footer>
 </div>
+
+<!-- 실시간 메시지/알림용 (기능) -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="/common/js/header-unread.js"></script>
+
 </body>
 </html>

@@ -18,6 +18,7 @@ public class UserDashboardController extends BaseUserController {
         model.addAttribute("recentOrders", List.of());
         model.addAttribute("favoriteProducts", List.of());
         model.addAttribute("recentInquiries", List.of());
+        model.addAttribute("activeMenu", "dashboard");
         model.addAttribute("user", new UserProfileView("사용자", "user@email.com"));
         return "mypage/user/dashboard/index";
     }
