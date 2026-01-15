@@ -14,6 +14,10 @@
             background-color: #0d9488; /* Tailwind's teal-600 */
             border-color: #0d9488;
         }
+        .selected-item {
+            background-color: #f0fdfa; /* Tailwind's teal-50 */
+            border-left: 4px solid #0d9488; /* Tailwind's teal-600 */
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -22,20 +26,24 @@
 <main class="max-w-[1200px] mx-auto px-6 py-12">
     <h1 class="text-3xl font-extrabold mb-8 text-slate-800">🛒 &nbsp;My Cart</h1>
 
-    <div class="grid grid-cols-[1fr_360px] gap-12 items-start">
+    <div class="grid grid-cols-[1fr_360px] gap-8 items-start">
         <div class="bg-white rounded-xl shadow-sm" id="cart-items-container">
             <!-- 장바구니 아이템이 여기에 동적으로 추가됩니다. -->
         </div>
 
-        <div class="p-6 bg-white rounded-xl shadow-sm sticky top-14">
-            <h2 class="text-xl font-bold mb-6 border-b pb-4">주문 요약</h2>
-
-            <div class="flex justify-between items-center text-lg font-bold mb-6">
-                <span>총 주문 예상 금액</span>
-                <span id="total-amount">0 원</span>
-            </div>
-
-            <button class="checkout-btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg transition-colors" onclick="goCheckout()">
+                                <div class="p-6 bg-white rounded-xl shadow-sm sticky top-14">
+                                    <h2 class="text-xl font-bold mb-6 border-b pb-4">주문 요약</h2>
+                                    <div id="selected-products-list" class="text-sm text-slate-600 mb-4 space-y-1">
+                                        <!-- Selected product names will be listed here -->
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm text-slate-500 mb-2">
+                                        <span>선택 상품 개수</span>
+                                        <span id="selected-item-count">0개</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-lg font-bold mb-6">
+                                        <span>총 주문 예상 금액</span>
+                                        <span id="total-amount">0 원</span>
+                                    </div>            <button class="checkout-btn w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg transition-colors" onclick="goCheckout()">
                 주문하기
             </button>
         </div>
@@ -80,20 +88,32 @@
             return;
         }
 
+
+        // Add the "주문 상품" heading with item count
+        const orderProductsHeader = document.createElement('div');
+        orderProductsHeader.className = 'p-6 border-b border-slate-200';
+        orderProductsHeader.innerHTML = `
+            <h2 class="text-xl font-bold flex items-center gap-3"><i class="fas fa-shopping-bag text-teal-600"></i> 주문 상품
+                <span id="cart-selected-item-display" class="ml-auto text-sm font-normal text-slate-400"></span>
+            </h2>
+        `;
+        container.appendChild(orderProductsHeader);
+
         const header = document.createElement('div');
-        header.className = 'flex items-center p-6 border-b border-slate-200 font-bold text-slate-600';
+        header.className = 'flex items-center p-4 border-b border-slate-200 text-slate-600';
         header.innerHTML = `
             <input type="checkbox" id="check-all" class="cart-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 mr-6">
             <span>전체 선택</span>
         `;
         container.appendChild(header);
 
+
         cart.items.forEach(item => {
             const itemElement = document.createElement('div');
-            itemElement.className = 'flex items-center gap-6 p-6 border-b border-slate-200';
+            itemElement.className = 'cart-item-row flex items-center gap-4 p-6 border-b border-slate-200';
             itemElement.innerHTML = `
                 <input type="checkbox" class="cart-check item-check h-5 w-5 rounded border-slate-300 text-teal-600 focus:ring-teal-500" data-item-id="${item.cartItemId}" data-price="${item.lineAmount}" data-sku-id="${item.skuId}" data-quantity="${item.quantity}">
-                <a href="/products/${item.productId}" class="block w-24 h-24 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
+                <a href="/products/${item.productId}" class="block w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
                      <img src="https://picsum.photos/seed/${item.skuId}/200" alt="${item.productName}" class="w-full h-full object-cover">
                 </a>
                 <div class="flex-1">
@@ -131,10 +151,51 @@
     
     function updateTotal() {
         let total = 0;
-        document.querySelectorAll('.item-check:checked').forEach(cb => {
-            total += Number(cb.dataset.price);
+        let itemCount = 0;
+        const selectedProductsInfo = []; // To store { name, quantity, price }
+
+        document.querySelectorAll('.item-check').forEach(cb => {
+            const itemRow = cb.closest('.cart-item-row');
+            const productNameElement = itemRow.querySelector('.flex-1 a'); // Selects the anchor containing the product name
+
+            if (cb.checked) {
+                const itemPrice = Number(cb.dataset.price); // Get price from data-price attribute
+                total += itemPrice;
+                itemCount++;
+                itemRow.classList.add('selected-item');
+                if (productNameElement) {
+                    const quantity = cb.dataset.quantity; // Get quantity from data-quantity attribute
+                    selectedProductsInfo.push({
+                        name: productNameElement.innerText,
+                        quantity: quantity,
+                        price: itemPrice // Store the price
+                    });
+                }
+            } else {
+                itemRow.classList.remove('selected-item');
+            }
         });
+
         document.getElementById('total-amount').innerText = `${total.toLocaleString()} 원`;
+        document.getElementById('selected-item-count').innerText = `${itemCount}개`;
+        const cartSelectedItemDisplay = document.getElementById('cart-selected-item-display');
+        if (cartSelectedItemDisplay) {
+            cartSelectedItemDisplay.innerText = `${itemCount}개 항목`;
+        }
+
+        const selectedProductsListDiv = document.getElementById('selected-products-list');
+        if (selectedProductsListDiv) {
+            if (selectedProductsInfo.length > 0) {
+                selectedProductsListDiv.innerHTML = selectedProductsInfo.map(info => `
+                    <div class="flex justify-between items-center">
+                        <span>• ${info.name} (${info.quantity}개)</span>
+                        <span>${info.price.toLocaleString()} 원</span>
+                    </div>
+                `).join('');
+            } else {
+                selectedProductsListDiv.innerHTML = ''; // Keep it empty if no items are selected
+            }
+        }
     }
 
     function deleteItem(cartItemId) {
@@ -203,7 +264,5 @@
         });
     });
 </script>
-
-
 </body>
 </html>
