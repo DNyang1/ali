@@ -22,6 +22,7 @@ public class AdminQnaController {
         // 관리자는 "전체"를 봐야 함 (isAdmin = true, userId는 상관없음)
         List<QnaDTO> qnaList = qnaService.getQnaList("admin", true);
         model.addAttribute("qnaList", qnaList);
+        model.addAttribute("activeMenu", "qna");
 
         return "admin/qna/a_list";
     }

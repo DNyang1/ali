@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{admin/layout/base :: layout(~{::section}, ~{::head/link})}">
+      th:replace="~{admin/layout/base :: layout(~{::section}, ~{::head/script})}">
 <head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="/admin/css/adminpage.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <section>
     <h2>📊 대시보드 현황</h2>
     <br>
+
     <div class="dashboard-grid">
         <a th:href="@{/admin/users}" style="text-decoration: none;">
-        <div class="stat-card">
-            <div class="stat-info">
-                <h3>총 회원 수</h3>
-                <p th:text="${dashboard.totalUsers} + '명'">0명</p>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>총 회원 수</h3>
+                    <p th:text="${dashboard.totalUsers} + '명'">0명</p>
+                </div>
+                <div class="stat-icon bg-blue">
+                    <span class="material-icons-outlined">people</span>
+                </div>
             </div>
-            <div class="stat-icon bg-blue">
-                <span class="material-icons-outlined">people</span>
-            </div>
-        </div>
         </a>
-
 
         <a th:href="@{/admin/qna/list}" style="text-decoration: none;">
             <div class="stat-card">
@@ -46,6 +47,7 @@
                 </div>
             </div>
         </a>
+
         <div class="stat-card">
             <div class="stat-info">
                 <h3>오늘 신규 가입</h3>
@@ -57,11 +59,80 @@
         </div>
     </div>
 
-    <div class="shortcut-section">
-        <h3>👋 관리자님, 환영합니다!</h3>
-        <p>상단의 카드를 클릭하면 해당 관리 페이지로 바로 이동할 수 있습니다.</p>
+    <div style="display: flex; gap: 20px; margin-top: 20px;">
+        <div style="flex: 2; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: #555; font-size: 1.1rem;">
+                📅 최근 7일 가입자 추이
+            </h3>
+            <div style="height: 300px;">
+                <canvas id="signupChart"></canvas>
+            </div>
+        </div>
+
+        <div class="shortcut-section" style="flex: 1; margin: 0; display: flex; flex-direction: column; justify-content: center;">
+            <h3 style="color: #2c3e50;">👋 관리자님, 환영합니다!</h3>
+            <p style="color: #7f8c8d; line-height: 1.6;">
+                현재 대시보드에서 주요 현황을 한눈에 확인하실 수 있습니다.<br>
+                왼쪽 메뉴를 통해 세부 관리를 진행해주세요.
+            </p>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                <strong style="display:block; margin-bottom:10px; color:#555;">📌 바로가기</strong>
+                <a th:href="@{/admin/users}" style="display:block; padding:8px 0; color:#3498db; text-decoration:none;">
+                    👉 전체 회원 관리
+                </a>
+                <a th:href="@{/admin/supplier/list}" style="display:block; padding:8px 0; color:#3498db; text-decoration:none;">
+                    👉 입점 신청 승인
+                </a>
+            </div>
+        </div>
     </div>
 
+    <script th:inline="javascript">
+        /* Controller에서 넘겨준 데이터 받기 */
+        const labels = /*[[${chartLabels}]]*/ [];
+        const data = /*[[${chartData}]]*/ [];
+
+        // 문자열로 넘어왔을 경우 배열로 변환 (안전장치)
+        const parsedLabels = (typeof labels === 'string') ? JSON.parse(labels.replace(/'/g, '"')) : labels;
+        const parsedData = (typeof data === 'string') ? JSON.parse(data) : data;
+
+        const ctx = document.getElementById('signupChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line', // 꺾은선 그래프
+            data: {
+                labels: parsedLabels,
+                datasets: [{
+                    label: '신규 가입자',
+                    data: parsedData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3, // 부드러운 곡선
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#3b82f6',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 } // 정수 단위 표시
+                    },
+                    x: {
+                        grid: { display: false } // X축 격자 숨김 (깔끔하게)
+                    }
+                },
+                plugins: {
+                    legend: { display: false } // 범례 숨김
+                }
+            }
+        });
+    </script>
 </section>
 </body>
 </html>
