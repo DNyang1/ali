@@ -18,6 +18,10 @@ public class InquiryService {
     private final InquiryDAO inquiryDAO;
     private final ProductDAO productDAO; // product_id → supplier_id 조회용
 
+    private String normalizeUserId(String id) {
+        if (id == null) return null;
+        return id.startsWith("s_") ? id.substring(2) : id;
+    }
 
     // 구매자 문의 등록
     @Transactional
@@ -30,6 +34,12 @@ public class InquiryService {
         String supplierId = productDAO.findSupplierIdByProductId(request.getProductId());
         if (supplierId == null) {
             throw new IllegalArgumentException("존재하지 않는 상품입니다.");
+        }
+
+        String u = normalizeUserId(userId);
+        String s = normalizeUserId(supplierId);
+        if (u.equals(s)) {
+            throw new IllegalStateException("본인 상품에는 문의를 등록할 수 없습니다.");
         }
 
         InquiryDTO inquiry = new InquiryDTO();
