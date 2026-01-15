@@ -14,26 +14,39 @@
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
 <header class="bg-gradient-to-r from-teal-500 to-sky-500 text-white">
-    <div class="max-w-[1200px] mx-auto px-6 py-10 text-center">
+    <div class="max-w-[1200px] mx-auto px-6 py-12 text-center">
 
-        <div class="flex justify-center gap-8 text-2xl font-bold mb-6">
-            <span class="border-b-4 border-white pb-1">제품</span>
-            <span class="opacity-70">제조업체</span>
-        </div>
+        <h1 class="text-white text-3xl font-black tracking-tight">
+            ALI MARKET
+        </h1>
+        <p class="mt-2 text-white/80 text-sm">
+            글로벌 제조업체와 연결되는 B2B 마켓
+        </p>
 
         <form action="/products/search"
               method="get"
-              class="bg-white max-w-[820px] mx-auto flex rounded-full overflow-hidden shadow">
-            <input name="keyword"
-                   class="flex-1 px-6 py-4 text-black outline-none"
-                   placeholder="여성 의류">
-            <button class="bg-teal-500 px-10 font-bold">
+              class="mt-8 bg-white max-w-[760px] mx-auto
+                     flex rounded-full overflow-hidden
+                     shadow-xl">
+
+            <input
+                    name="keyword"
+                    class="flex-1 px-6 py-4 text-slate-800
+                       outline-none text-sm"
+                    placeholder="여성 의류, 가방, 전자제품…">
+
+            <button
+                    class="px-8 font-extrabold text-white
+                       bg-gradient-to-r from-teal-500 to-sky-500
+                       hover:from-teal-600 hover:to-sky-600
+                       transition">
                 검색
             </button>
         </form>
 
     </div>
 </header>
+
 
 <section class="max-w-[1200px] mx-auto px-6 my-14 grid grid-cols-2 gap-8">
 

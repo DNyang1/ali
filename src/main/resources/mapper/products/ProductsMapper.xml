@@ -32,6 +32,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -42,6 +43,9 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+                        WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -73,6 +77,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -84,6 +89,10 @@
         AND NOW() BETWEEN e.start_at AND e.end_at
 
         WHERE p.is_customizable = #{isCustomizable}
+            AND p.status = 'ACTIVE'
+
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -127,6 +136,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -137,6 +147,8 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s WHERE s.product_id = p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -178,6 +190,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -189,6 +202,10 @@
         AND NOW() BETWEEN e.start_at AND e.end_at
 
         WHERE p.is_customizable = #{isCustomizable}
+            AND p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s
+            WHERE s.product_id = p.product_id
+            AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -234,6 +251,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -244,9 +262,12 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
-        WHERE
-        p.product_name LIKE CONCAT('%', #{keyword}, '%')
-        OR c.category_name LIKE CONCAT('%', #{keyword}, '%')
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
+            AND (p.product_name LIKE CONCAT('%', #{keyword}, '%')
+            OR c.category_name LIKE CONCAT('%', #{keyword}, '%'))
+
 
         ORDER BY p.created_at DESC
     </select>
@@ -282,6 +303,7 @@
 
         FROM products p
         JOIN cat_tree ct ON p.category_id = ct.category_id
+        WHERE EXISTS (SELECT 1 FROM sku s WHERE s.product_id = p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
         LIMIT 12
     </select>
@@ -324,6 +346,7 @@
         FROM products p
         JOIN cat_tree ct ON p.category_id = ct.category_id
         WHERE p.status = 'ACTIVE'
+            AND EXISTS ( SELECT 1 FROM sku s WHERE s.product_id = p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
         LIMIT #{limit};
     </select>
@@ -348,7 +371,7 @@
         e.end_at          AS eventEndAt
 
         FROM products p
-        LEFT JOIN sku s ON s.product_id = p.product_id
+        LEFT JOIN sku s ON s.product_id = p.product_id AND s.status = 'ACTIVE'
         LEFT JOIN sku_price sp ON sp.sku_id = s.sku_id
 
         LEFT JOIN event e
@@ -410,6 +433,7 @@
         MAX(sp.price) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr
         ON pr.product_id = p.product_id
@@ -421,6 +445,10 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s
+            WHERE s.product_id = p.product_id
+            AND s.status = 'ACTIVE')
         ORDER BY e.discount_value DESC
     </select>
 
@@ -467,8 +495,8 @@
         MIN(sp.price) AS min_price,
         MAX(sp.price) AS max_price
         FROM sku s
-        JOIN sku_price sp
-        ON sp.sku_id = s.sku_id
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr
         ON pr.product_id = p.product_id
@@ -480,6 +508,10 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s
+            WHERE s.product_id = p.product_id
+            AND s.status = 'ACTIVE')
         ORDER BY e.discount_value DESC, p.created_at DESC
     </select>
 
@@ -490,6 +522,9 @@
         p.product_name AS productName
         FROM products p
         WHERE p.is_customizable = 0
+            AND p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY RAND()
         LIMIT 4
     </select>
@@ -501,6 +536,9 @@
         p.product_name AS productName
         FROM products p
         WHERE p.is_customizable = 1
+            AND p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY RAND()
         LIMIT 4
     </select>
