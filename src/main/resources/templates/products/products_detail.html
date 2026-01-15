@@ -16,11 +16,28 @@
 <!-- HEADER -->
 <div th:replace="layout/mainHeader :: mainHeader"></div>
 
-<nav class="max-w-[1280px] mx-auto px-6 mt-4 text-sm text-slate-500">
-    <a href="/" class="hover:underline">홈</a> /
-    <a href="/products/list" class="hover:underline">상품</a> /
-    <span class="font-medium" th:text="${product.productName}"></span>
+<nav class="mb-6">
+    <ol class="inline-flex items-center gap-2
+               px-3 py-1.5 rounded-full
+               bg-slate-100
+               text-sm text-slate-500">
+        <li>
+            <a href="/" class="hover:text-slate-800 transition">
+                홈
+            </a>
+        </li>
+        <li class="text-slate-400">›</li>
+        <li>
+            <a th:href="${backUrl}" class="hover:text-slate-800 transition">
+                상품
+            </a>
+        </li>
+        <li class="text-slate-400">›</li>
+        <li class="font-semibold text-slate-900" th:text="${product.productName}">
+        </li>
+    </ol>
 </nav>
+
 
 <section class="max-w-[1280px] mx-auto px-6 mt-4
                 grid grid-cols-1 lg:grid-cols-[600px_1fr] gap-8">
@@ -45,6 +62,10 @@
                   class="px-3 py-1 border border-sky-500 text-sky-700">
                 커스터마이징 가능
             </span>
+
+            <div class="mt-2 text-sm text-slate-500">
+                판매자 · <span class="font-semibold text-slate-800" th:text="${product.supplierId}">s_q</span>
+            </div>
         </div>
 
         <div th:if="${product.discountType != null}"
@@ -178,11 +199,6 @@
         </button>
 
         <h3 class="text-lg font-bold mb-4">옵션 및 수량 선택</h3>
-
-        <div class="text-sm mb-3">
-            MOQ :
-            <b th:text="${product.moq}"></b> 개
-        </div>
 
         <div class="border border-slate-200 p-3 mb-4">
             <ul id="priceTiers" class="text-sm space-y-1"></ul>
