@@ -141,4 +141,50 @@
         SELECT COUNT(*) FROM supplier WHERE status = 'PENDING'
     </select>
 
+    <select id="findAllUsersWithPaging" parameterType="com.finalProject.ali.admin.dto.UserSearchDTO"
+            resultMap="UserResultMap">
+        SELECT u.*, r.role_name
+        FROM users u
+        LEFT JOIN user_roles ur ON u.user_id = ur.user_id
+        LEFT JOIN roles r ON ur.role_id = r.role_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (u.user_id LIKE CONCAT('%', #{keyword}, '%') OR u.name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null and status != ''">
+                AND u.status = #{status}
+            </if>
+            <if test="role != null and role != ''">
+                AND u.user_id IN (
+                SELECT ur_sub.user_id
+                FROM user_roles ur_sub
+                JOIN roles r_sub ON ur_sub.role_id = r_sub.role_id
+                WHERE r_sub.role_name = #{role}
+                )
+            </if>
+        </where>
+        ORDER BY u.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countUsersWithPaging" parameterType="com.finalProject.ali.admin.dto.UserSearchDTO" resultType="int">
+        SELECT COUNT(DISTINCT u.user_id)
+        FROM users u
+        <if test="role != null and role != ''">
+            LEFT JOIN user_roles ur ON u.user_id = ur.user_id
+            LEFT JOIN roles r ON ur.role_id = r.role_id
+        </if>
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (u.user_id LIKE CONCAT('%', #{keyword}, '%') OR u.name LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null and status != ''">
+                AND u.status = #{status}
+            </if>
+            <if test="role != null and role != ''">
+                AND r.role_name = #{role}
+            </if>
+        </where>
+    </select>
+
 </mapper>

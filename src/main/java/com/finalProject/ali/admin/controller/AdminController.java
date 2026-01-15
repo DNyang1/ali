@@ -9,10 +9,7 @@ import com.finalProject.ali.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,6 +50,7 @@ public class AdminController {
     public String supplierList(Model model) {
         List<SupplierDTO> pendingList = userService.getPendingSuppliers();
         model.addAttribute("suppliers", pendingList);
+        model.addAttribute("activeMenu", "suppliers");
         return "admin/supplierList";
     }
 
@@ -73,11 +71,31 @@ public class AdminController {
     }
 
     // 2. 회원 관리 페이지
+    // 2. 회원 관리 페이지 (필터 + 페이징 적용)
     @GetMapping("/users")
-    public String userList(Model model) {
-        List<UserDTO> users = userService.getAllUsers();
+    public String userList(@ModelAttribute com.finalProject.ali.admin.dto.UserSearchDTO searchDTO, Model model) {
+
+        // 1. 데이터 조회
+        List<UserDTO> users = userService.getUsersWithPaging(searchDTO);
+        int totalCount = userService.getUsersCount(searchDTO);
+
+        // 2. 페이징 계산 (전체 페이지 수)
+        int totalPages = (int) Math.ceil((double) totalCount / searchDTO.getSize());
+
+        // 3. 페이지 네비게이션 범위 계산 (예: 1 2 3 4 5)
+        int startPage = Math.max(1, searchDTO.getPage() - 4);
+        int endPage = Math.min(totalPages, startPage + 9);
+        if (endPage == 0) endPage = 1; // 데이터가 없을 때 1페이지로 고정
+
+        // 4. 모델 담기
         model.addAttribute("users", users);
+        model.addAttribute("searchDTO", searchDTO); // 검색 상태 유지
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
         model.addAttribute("activeMenu", "users");
+
         return "admin/userList";
     }
 

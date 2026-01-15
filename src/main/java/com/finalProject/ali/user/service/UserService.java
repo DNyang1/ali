@@ -260,4 +260,14 @@ public class UserService implements UserDetailsService {
             userDAO.deleteUserRole(userId, roleName);
         }
     }
+
+    // [관리자] 회원 목록 조회 (페이징 + 검색)
+    public List<UserDTO> getUsersWithPaging(com.finalProject.ali.admin.dto.UserSearchDTO searchDTO) {
+        return userDAO.findAllUsersWithPaging(searchDTO);
+    }
+
+    // [관리자] 전체 회원 수 조회 (페이징 계산용)
+    public int getUsersCount(com.finalProject.ali.admin.dto.UserSearchDTO searchDTO) {
+        return userDAO.countUsersWithPaging(searchDTO);
+    }
 }

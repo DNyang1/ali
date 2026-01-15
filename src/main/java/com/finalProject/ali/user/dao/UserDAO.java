@@ -65,4 +65,9 @@ public interface UserDAO {
     int countTodayUsers();        // 오늘 가입 수
     int countPendingSuppliers();
 
+    // [관리자] 필터 및 페이징 적용 리스트
+    List<UserDTO> findAllUsersWithPaging(com.finalProject.ali.admin.dto.UserSearchDTO searchDTO);
+
+    // [관리자] 필터 적용 전체 개수
+    int countUsersWithPaging(com.finalProject.ali.admin.dto.UserSearchDTO searchDTO);
 }
