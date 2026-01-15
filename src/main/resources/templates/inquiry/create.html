@@ -1,133 +1,158 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>문의 작성</title>
-    <style>
-        .inquiry-wrap {
-            width: 600px;
-            margin: 40px auto;
-        }
-        .inquiry-wrap h2 {
-            margin-bottom: 20px;
-        }
-        .inquiry-wrap label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        .inquiry-wrap input,
-        .inquiry-wrap textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-        }
-        .inquiry-wrap textarea {
-            height: 150px;
-            resize: vertical;
-        }
-        .btn-group {
-            margin-top: 20px;
-            text-align: right;
-        }
-        .btn {
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-        .product-card{
-            display:flex;
-            gap:16px;
-            align-items:center;
-            padding:12px;
-            border:1px solid #ddd;
-            margin-bottom:16px;
-        }
-        .product-img{
-            width:96px;
-            height:96px;
-            object-fit:cover;
-            border-radius:8px;
-        }
-        .product-name{
-            font-weight:700;
-            margin-bottom:6px;
-        }
-        .product-link{
-            font-size:14px;
-            text-decoration:underline;
-        }
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle != null ? pageTitle : 'ALI'}">ALI</title>
 
-    </style>
+    <!-- 공통 헤더/사이트 CSS -->
+    <link rel="stylesheet" th:href="@{/main/css/main-header.css}">
+    <link rel="stylesheet" th:href="@{/main/css/common.css}">
+
+    <!-- Tailwind (검사용 CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="inquiry-wrap">
-        <h2>상품 문의 작성</h2>
 
-        <div id="productCard" class="product-card" style="display:none;">
-            <img id="productImg" class="product-img" alt="상품 이미지" style="display:none;">
-            <div class="product-text">
-                <div id="productName" class="product-name"></div>
-            </div>
+<body class="bg-slate-50 min-h-screen">
+<!-- 메인 공통 헤더 -->
+<div th:replace="layout/mainHeader :: mainHeader"></div>
+
+<!-- ===================== 페이지 내용 ===================== -->
+<main class="py-12">
+    <div class="w-full max-w-7xl mx-auto px-8">
+        <!-- 상단 타이틀 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-slate-900">상품 문의 작성</h1>
+            <p class="mt-2 text-base text-slate-500">문의 내용을 작성하고 빠르게 답변을 받아보세요.</p>
         </div>
 
+        <!-- 카드 래퍼 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-8">
 
-        <form th:action="@{/inquiry}" method="post">
-            <!-- 상품 ID -->
-            <input type="hidden" id="productId" name="productId" th:value="${param.productId}" readonly/>
+                <!-- 상품 카드 (요약 로딩되면 보이게) -->
+                <div id="productCard" class="hidden mb-8">
+                    <div class="flex gap-5 items-center p-5 rounded-2xl border border-slate-100 bg-slate-50">
+                        <div class="w-24 h-24 rounded-2xl bg-white border border-slate-100 overflow-hidden flex items-center justify-center">
+                            <img id="productImg" class="w-full h-full object-cover hidden" alt="상품 이미지">
+                            <div id="productImgPlaceholder" class="text-sm text-slate-400">No Image</div>
+                        </div>
 
-            <!-- 문의 내용 -->
-            <label for="content">문의 내용</label>
-            <textarea id="content" name="content" placeholder="문의하실 내용을 입력해주세요." required></textarea>
+                        <div class="flex-1 min-w-0">
+                            <div id="productName" class="text-lg font-semibold text-slate-900 truncate">상품명</div>
+                            <div class="mt-1 text-sm text-slate-500">선택하신 상품에 대해 문의를 남겨주세요.</div>
 
-            <div class="btn-group">
-                <button type="button" class="btn" onclick="history.back()">취소</button>
-                <button type="submit" class="btn">문의 등록</button>
+                            <div class="mt-3">
+                                <a id="productLink"
+                                   class="inline-flex items-center gap-1 text-sm font-semibold text-teal-700 hover:text-teal-800 underline underline-offset-4"
+                                   href="#"
+                                   target="_blank"
+                                   rel="noopener">
+                                    상품 상세로 이동 <span aria-hidden="true">↗</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="shrink-0">
+                            <span class="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700 border border-teal-100">
+                                PRODUCT
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 폼 -->
+                <form th:action="@{/inquiry}" method="post" class="space-y-6">
+                    <input type="hidden" id="productId" name="productId" th:value="${param.productId}"/>
+
+                    <div>
+                        <label for="content" class="block text-sm font-semibold text-slate-800">
+                            문의 내용 <span class="text-rose-500">*</span>
+                        </label>
+
+                        <div class="mt-3">
+                            <textarea id="content"
+                                      name="content"
+                                      required
+                                      placeholder="예) MOQ, 단가, 납기, 인증(성적서) 여부 등 궁금한 내용을 작성해주세요."
+                                      class="w-full min-h-[260px] rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-900
+                                             placeholder:text-slate-400 shadow-sm
+                                             focus:outline-none focus:ring-4 focus:ring-teal-100 focus:border-teal-300"></textarea>
+                        </div>
+
+                        <p class="mt-3 text-sm text-slate-500">
+                            답변 속도를 높이려면 수량/납기/인증 요구사항 등을 구체적으로 적어주세요.
+                        </p>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-end gap-3">
+                        <button type="button"
+                                onclick="history.back()"
+                                class="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold
+                                       border border-slate-200 bg-white text-slate-700 hover:bg-slate-50
+                                       focus:outline-none focus:ring-4 focus:ring-slate-100">
+                            취소
+                        </button>
+
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold
+                                       bg-teal-600 text-white hover:bg-teal-700
+                                       focus:outline-none focus:ring-4 focus:ring-teal-100">
+                            문의 등록
+                        </button>
+                    </div>
+                </form>
+
             </div>
-        </form>
+        </div>
     </div>
-    <script>
-        async function hydrateProductSummary(pid) {
-            const cardEl = document.getElementById("productCard");
-            const nameEl = document.getElementById("productName");
-            const imgEl  = document.getElementById("productImg");
-            const linkEl = document.getElementById("productLink");
+</main>
+<!-- ====================================================== -->
 
-            if (!pid || !cardEl) return;
+<!-- 공통 푸터 -->
+<div th:replace="layout/footer :: footer"></div>
 
-            try {
-                const res = await fetch(`/api/products/${encodeURIComponent(pid)}/summary`);
-                if (!res.ok) return;
+<script>
+    async function hydrateProductSummary(pid) {
+        const cardEl = document.getElementById("productCard");
+        const nameEl = document.getElementById("productName");
+        const imgEl  = document.getElementById("productImg");
+        const linkEl = document.getElementById("productLink");
+        const imgPlaceholder = document.getElementById("productImgPlaceholder");
 
-                const s = await res.json();
+        if (!pid || !cardEl) return;
 
-                // 상품명
-                if (nameEl && s?.productName) nameEl.textContent = s.productName;
+        try {
+            const res = await fetch(`/api/products/${encodeURIComponent(pid)}/summary`);
+            if (!res.ok) return;
 
-                // 링크
-                if (linkEl) {
-                    linkEl.textContent = "상품으로 이동";
-                    linkEl.href = `/products/${encodeURIComponent(pid)}`;
-                }
+            const s = await res.json();
 
-                // 썸네일
-                if (imgEl && s?.thumbnailUrl) {
-                    imgEl.src = s.thumbnailUrl;
-                    imgEl.alt = s.productName || "상품 이미지";
-                    imgEl.style.display = "block";
-                    imgEl.onerror = () => imgEl.style.display = "none";
-                }
+            if (nameEl && s?.productName) nameEl.textContent = s.productName;
+            if (linkEl) linkEl.href = `/products/${encodeURIComponent(pid)}`;
 
-                cardEl.style.display = "flex";
-            } catch (e) {
-                console.log("[product summary] fail", e);
+            if (imgEl && s?.thumbnailUrl) {
+                imgEl.src = s.thumbnailUrl;
+                imgEl.alt = s.productName || "상품 이미지";
+                imgEl.classList.remove("hidden");
+                if (imgPlaceholder) imgPlaceholder.classList.add("hidden");
+
+                imgEl.onerror = () => {
+                    imgEl.classList.add("hidden");
+                    if (imgPlaceholder) imgPlaceholder.classList.remove("hidden");
+                };
             }
+
+            cardEl.classList.remove("hidden");
+        } catch (e) {
+            console.log("[product summary] fail", e);
         }
+    }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const pid = document.getElementById("productId")?.value || new URLSearchParams(location.search).get("productId");
-            hydrateProductSummary(pid);
-        });
-    </script>
-
+    document.addEventListener("DOMContentLoaded", () => {
+        const pid = document.getElementById("productId")?.value || new URLSearchParams(location.search).get("productId");
+        hydrateProductSummary(pid);
+    });
+</script>
 </body>
 </html>
