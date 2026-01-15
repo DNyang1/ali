@@ -37,8 +37,8 @@
 
 <section class="max-w-[1200px] mx-auto px-6 my-14 grid grid-cols-2 gap-8">
 
-    <div class="bg-white rounded-xl p-8 shadow-sm">
-        <h2 class="text-xl font-bold mb-2">
+    <div class="bg-teal-100/70 border border-teal-200 rounded-xl p-8 shadow-sm">
+        <h2 class="text-xl font-bold mb-2 text-teal-700">
             <span class="text-teal-600">Ali</span> Guaranteed
         </h2>
         <p class="text-sm text-slate-600 mb-4">
@@ -51,16 +51,23 @@
         </button>
 
         <div class="grid grid-cols-4 gap-4 text-center text-sm">
-            <div th:each="i : ${#numbers.sequence(1,4)}">
-                <img class="rounded mb-1" th:src="|https://picsum.photos/200?${i}|">
-                <b>₩896</b>
+            <div th:each="p : ${aliRandomProducts}">
+                <img class="rounded mb-1"
+                     th:src="|https://picsum.photos/seed/${p.productId}/200|">
+
+                <div class="mt-1 text-sm font-semibold"
+                     th:text="${p.productName}"></div>
+
                 <div class="text-xs text-slate-500">무료 배송</div>
             </div>
+
         </div>
     </div>
 
-    <div class="bg-white rounded-xl p-8 shadow-sm">
-        <h2 class="text-xl font-bold mb-2">⚡ 빠른 커스터마이징</h2>
+    <div class="bg-sky-100/70 border border-sky-200 rounded-xl p-8 shadow-sm">
+        <h2 class="text-xl font-bold mb-2 text-sky-700">
+            ⚡ 빠른 커스터마이징
+        </h2>
         <p class="text-sm text-slate-600 mb-4">
             ✔ 낮은 MOQ ✔ 14일 발송 ✔ 디자인 충실
         </p>
@@ -71,11 +78,16 @@
         </button>
 
         <div class="grid grid-cols-4 gap-4 text-center text-sm">
-            <div th:each="i : ${#numbers.sequence(5,8)}">
-                <img class="rounded mb-1" th:src="|https://picsum.photos/200?${i}|">
-                <b>₩6,272</b>
-                <div class="text-xs text-slate-500">MOQ 10</div>
+            <div th:each="p : ${customRandomProducts}">
+                <img class="rounded mb-1"
+                     th:src="|https://picsum.photos/seed/${p.productId}/200|">
+
+                <div class="mt-1 text-sm font-semibold"
+                     th:text="${p.productName}"></div>
+
+                <div class="text-xs text-slate-500">무료 배송</div>
             </div>
+
         </div>
     </div>
 
@@ -105,13 +117,18 @@
 
         <main class="h-full overflow-hidden">
 
-            <div class="flex gap-6 overflow-x-auto pb-4 h-full items-start">
+            <div class="category-horizontal-wrap
+                flex gap-6
+                overflow-x-auto
+                overflow-y-hidden
+                h-[420px]
+                pb-4 pr-2
+                items-start">
 
-                <div
-                        th:each="entry : ${recommendByCategory}"
-                        th:if="${entry.value != null and #lists.size(entry.value) > 0}"
-                        class="min-w-[320px] h-[420px]
-                 bg-white border rounded-2xl p-4 flex flex-col">
+                <div th:each="entry : ${recommendByCategory}"
+                     th:if="${entry.value != null and #lists.size(entry.value) > 0}"
+                     class="min-w-[320px] h-[420px]
+                     bg-white border rounded-2xl p-4 flex flex-col">
 
                     <div class="flex justify-between items-center mb-3">
                         <h4 class="font-bold text-sm"
@@ -132,12 +149,9 @@
                             <img th:src="|https://picsum.photos/seed/${p.productId}/300/200|"
                                  class="w-full h-28 object-cover">
 
-                            <div class="px-2 py-1 text-sm font-bold text-teal-600"
-                                 th:text="${p.minPrice != null
-                     ? '₩' + #numbers.formatInteger(p.minPrice,3,'COMMA')
-                     : '가격문의'}">
+                            <div class="px-2 py-1 text-sm font-semibold text-slate-800"
+                                 th:text="${p.productName}">
                             </div>
-
                         </a>
 
                     </div>

@@ -46,7 +46,6 @@
     </select>
 
 
-    <!-- ================= 커스텀 여부 ================= -->
     <select id="selectByCustom"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
 
@@ -89,7 +88,6 @@
     </select>
 
 
-    <!-- ================= 루트 카테고리 ================= -->
     <select id="selectByRootCategory"
             parameterType="string"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
@@ -143,7 +141,6 @@
     </select>
 
 
-    <!-- ================= 카테고리 + 커스텀 ================= -->
     <select id="selectByCategoryAndCustom"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
 
@@ -484,6 +481,28 @@
         AND NOW() BETWEEN e.start_at AND e.end_at
 
         ORDER BY e.discount_value DESC, p.created_at DESC
-
     </select>
+
+    <select id="selectRandomAliProducts"
+            resultType="com.finalProject.ali.product.dto.ProductDTO">
+        SELECT
+        p.product_id AS productId,
+        p.product_name AS productName
+        FROM products p
+        WHERE p.is_customizable = 0
+        ORDER BY RAND()
+        LIMIT 4
+    </select>
+
+    <select id="selectRandomCustomProducts"
+            resultType="com.finalProject.ali.product.dto.ProductDTO">
+        SELECT
+        p.product_id AS productId,
+        p.product_name AS productName
+        FROM products p
+        WHERE p.is_customizable = 1
+        ORDER BY RAND()
+        LIMIT 4
+    </select>
+
 </mapper>
