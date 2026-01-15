@@ -131,8 +131,7 @@ function renderDetailServerPreview(list) {
 
         const img = document.createElement("img");
         img.src = row.imagePath;
-        img.style.cssText =
-            "width:120px; height:120px; object-fit:cover; border:1px solid #ddd; border-radius:8px; margin:6px;";
+        img.className = "w-[200px] h-[200px] object-cover rounded-xl border border-slate-200 shadow-sm m-2";
         wrap.appendChild(img);
     });
 }
