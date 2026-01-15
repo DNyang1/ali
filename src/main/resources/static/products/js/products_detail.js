@@ -556,3 +556,42 @@ document.querySelector('.btn.chat')?.addEventListener('click', async (e) => {
 
     location.href = `/chat/messages-user?roomId=${data.roomId}&productId=${productId}`;
 });
+
+// --- 최근 본 상품 로직 추가 ---
+(function() {
+    try {
+        const product = {
+            id: window.PRODUCT_ID,
+            name: document.querySelector('h1').textContent.trim(),
+            // 'picsum' 이미지를 사용하므로, 상품 ID를 기반으로 이미지 URL을 생성합니다.
+            imageUrl: `https://picsum.photos/200?random=${window.PRODUCT_ID}`,
+            productUrl: window.location.pathname // 현재 페이지 URL 저장
+        };
+
+        if (!product.id || !product.name || !product.imageUrl) {
+            console.error("최근 본 상품 목록에 필요한 상품 정보를 가져올 수 없습니다.");
+            return;
+        }
+
+        const maxItems = 6;
+        let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+        // 이미 목록에 있으면 제거하여 맨 앞으로 옮깁니다.
+        recentlyViewed = recentlyViewed.filter(item => item.id !== product.id);
+
+        // 새 상품을 배열 맨 앞에 추가합니다.
+        recentlyViewed.unshift(product);
+
+        // 최대 개수를 초과하면 잘라냅니다.
+        if (recentlyViewed.length > maxItems) {
+            recentlyViewed = recentlyViewed.slice(0, maxItems);
+        }
+
+        localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+        console.log('최근 본 상품 목록:', recentlyViewed);
+
+    } catch (error) {
+        console.error('최근 본 상품 로직 실행 중 오류 발생:', error);
+    }
+})();
+

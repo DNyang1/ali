@@ -40,6 +40,14 @@
             </button>
         </div>
     </div>
+    
+    <!-- ====== 최근 본 상품 ====== -->
+    <div id="recently-viewed-container" class="mt-16">
+        <h2 class="text-2xl font-extrabold mb-6 text-slate-800">🧐 &nbsp;최근 본 상품</h2>
+        <div id="recently-viewed-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            <!-- 최근 본 상품이 여기에 동적으로 추가됩니다. -->
+        </div>
+    </div>
 </main>
 
 
@@ -163,7 +171,39 @@
     }
 
     loadCart();
+
+    // --- 최근 본 상품 로드 ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const recentlyViewedList = document.getElementById('recently-viewed-list');
+        const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+        if (recentlyViewed.length === 0) {
+            const emptyMessage = `
+                <div class="col-span-full text-center p-8 bg-white rounded-xl shadow-sm text-slate-500">
+                    최근 본 상품이 없습니다.
+                </div>
+            `;
+            recentlyViewedList.innerHTML = emptyMessage;
+            return;
+        }
+
+        recentlyViewed.forEach(item => {
+            // 현재 보고 있는 장바구니 상품은 제외하고 렌더링 (선택적)
+            // if (isProductInCart(item.id)) return;
+
+            const productCard = `
+                <a href="/products/${item.id}" class="block bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <img src="${item.imageUrl}" alt="${item.name}" class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300">
+                    <div class="p-3">
+                        <p class="text-sm font-semibold text-slate-800 truncate group-hover:underline">${item.name}</p>
+                    </div>
+                </a>
+            `;
+            recentlyViewedList.innerHTML += productCard;
+        });
+    });
 </script>
+
 
 </body>
 </html>
