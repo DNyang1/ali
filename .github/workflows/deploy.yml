@@ -51,7 +51,7 @@ jobs:
             # 최신 이미지 다운로드
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/ali-project:latest
             
-            # 기존 컨테이너 삭제 (없으면 패스)
+            # 기존 컨테이너 삭제 (없으면 패스) 
             sudo docker stop ali-server || true
             sudo docker rm ali-server || true
             
