@@ -35,13 +35,16 @@
             <ul class="space-y-1 text-sm">
 
                 <li>
-                    <a th:href="@{/products/list(custom=${custom}, discount=${discount})}"
+                    <a th:href="@{/products/list(
+                        custom=${custom != null ? custom : false},
+                        discount=${discount}
+                    )}"
                        class="flex items-center gap-2 px-3 py-2 rounded-lg font-semibold hover:bg-white/60"
                        th:classappend="${category == null}
-                            ? (custom == true
-                                ? ' bg-sky-100 text-sky-700'
-                                : ' bg-teal-100 text-teal-700')
-                            : ''">
+                        ? (custom == true
+                            ? ' bg-sky-100 text-sky-700'
+                            : ' bg-teal-100 text-teal-700')
+                        : ''">
                         전체 상품
                     </a>
                 </li>

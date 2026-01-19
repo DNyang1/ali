@@ -44,6 +44,8 @@
         AND NOW() BETWEEN e.start_at AND e.end_at
 
         WHERE p.status = 'ACTIVE'
+            AND p.is_customizable = 0           
+            AND pr.min_price IS NOT NULL
             AND EXISTS(SELECT 1 FROM sku s
                         WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
@@ -89,10 +91,15 @@
         AND NOW() BETWEEN e.start_at AND e.end_at
 
         WHERE p.is_customizable = #{isCustomizable}
-            AND p.status = 'ACTIVE'
+        AND p.status = 'ACTIVE'
+        AND p.is_customizable = 1
+        AND NOT EXISTS (
+        SELECT 1
+        FROM sku s
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.product_id = p.product_id
+        )
 
-            AND EXISTS(SELECT 1 FROM sku s
-            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -203,9 +210,22 @@
 
         WHERE p.is_customizable = #{isCustomizable}
             AND p.status = 'ACTIVE'
-            AND EXISTS (SELECT 1 FROM sku s
-            WHERE s.product_id = p.product_id
-            AND s.status = 'ACTIVE')
+        AND (
+        (p.is_customizable = 0 AND EXISTS (
+        SELECT 1
+        FROM sku s
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.product_id = p.product_id
+        ))
+        OR
+        (p.is_customizable = 1 AND NOT EXISTS (
+        SELECT 1
+        FROM sku s
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.product_id = p.product_id
+        ))
+        )
+
         ORDER BY p.created_at DESC
     </select>
 
