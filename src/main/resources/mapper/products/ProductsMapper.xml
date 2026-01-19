@@ -4,6 +4,16 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.product.dao.ProductDAO">
+    <sql id="thumbPathSelect">
+        (
+        SELECT pi.image_path
+        FROM product_image pi
+        WHERE pi.product_id = p.product_id
+        AND pi.image_type = 'THUMB'
+        ORDER BY pi.sort_order ASC, pi.image_id ASC
+        LIMIT 1
+        ) AS thumbPath
+    </sql>
     <select id="productList"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
 
@@ -16,6 +26,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
+        <include refid="thumbPathSelect"/>,
 
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
@@ -61,7 +72,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price,
         pr.max_price,
 
@@ -119,7 +130,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -173,7 +184,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price,
         pr.max_price,
 
@@ -233,7 +244,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -293,7 +304,7 @@
         p.product_name    AS productName,
         p.category_id     AS categoryId,
         p.is_customizable AS isCustomizable,
-
+        <include refid="thumbPathSelect"/>,
         (
         SELECT MIN(sp.price)
         FROM sku s
@@ -335,6 +346,7 @@
         p.category_id     AS categoryId,
         p.is_customizable AS customYn,
         p.created_at      AS createdAt,
+        <include refid="thumbPathSelect"/>,
 
         (
         SELECT MIN(sp.price)
@@ -362,7 +374,7 @@
         p.product_name    AS productName,
         p.description     AS description,
         p.is_customizable AS isCustomizable,
-
+        <include refid="thumbPathSelect"/>,
         MIN(CAST(sp.price AS UNSIGNED)) AS minPrice,
         MAX(CAST(sp.price AS UNSIGNED)) AS maxPrice,
 
@@ -416,7 +428,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -477,7 +489,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -519,7 +531,9 @@
             resultType="com.finalProject.ali.product.dto.ProductDTO">
         SELECT
         p.product_id AS productId,
-        p.product_name AS productName
+        p.product_name AS productName,
+        <include refid="thumbPathSelect"/>
+
         FROM products p
         WHERE p.is_customizable = 0
             AND p.status = 'ACTIVE'
@@ -533,7 +547,9 @@
             resultType="com.finalProject.ali.product.dto.ProductDTO">
         SELECT
         p.product_id AS productId,
-        p.product_name AS productName
+        p.product_name AS productName,
+        <include refid="thumbPathSelect"/>
+
         FROM products p
         WHERE p.is_customizable = 1
             AND p.status = 'ACTIVE'
