@@ -65,8 +65,8 @@
 
         <div class="grid grid-cols-4 gap-4 text-center text-sm">
             <div th:each="p : ${aliRandomProducts}">
-                <img class="rounded mb-1"
-                     th:src="|https://picsum.photos/seed/${p.productId}/200|">
+                <img class="rounded mb-1 w-full aspect-square object-cover"
+                     th:src="${p.thumbPath != null ? p.thumbPath : '/images/default-product.png'}">
 
                 <div class="mt-1 text-sm font-semibold"
                      th:text="${p.productName}"></div>
@@ -92,8 +92,8 @@
 
         <div class="grid grid-cols-4 gap-4 text-center text-sm">
             <div th:each="p : ${customRandomProducts}">
-                <img class="rounded mb-1"
-                     th:src="|https://picsum.photos/seed/${p.productId}/200|">
+                <img class="rounded mb-1 w-full aspect-square object-cover"
+                     th:src="${p.thumbPath != null ? p.thumbPath : '/images/default-product.png'}">
 
                 <div class="mt-1 text-sm font-semibold"
                      th:text="${p.productName}"></div>
@@ -159,8 +159,9 @@
                            th:href="@{/products/{id}(id=${p.productId})}"
                            class="bg-slate-50 rounded-xl overflow-hidden hover:shadow">
 
-                            <img th:src="|https://picsum.photos/seed/${p.productId}/300/200|"
+                            <img th:src="${p.thumbPath != null ? p.thumbPath : '/images/default-product.png'}"
                                  class="w-full h-28 object-cover">
+
 
                             <div class="px-2 py-1 text-sm font-semibold text-slate-800"
                                  th:text="${p.productName}">
@@ -247,6 +248,8 @@
         });
     });
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="/common/js/header-unread.js"></script>
 </body>
 </html>

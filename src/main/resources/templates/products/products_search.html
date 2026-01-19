@@ -151,9 +151,9 @@
 
             <!-- 이미지 -->
             <div class="relative bg-slate-100 rounded-t-2xl overflow-hidden">
-                <img class="w-full h-[180px] object-cover
-                            transition group-hover:scale-105"
-                     th:src="@{|https://picsum.photos/300?random=${p.productId}|}">
+                <img th:src="${p.thumbPath != null ? p.thumbPath : '/images/default-product.png'}"
+                     class="w-full aspect-square object-cover
+            group-hover:scale-105 transition">
 
                 <span th:if="${p.isCustomizable == 1}"
                       class="absolute top-3 left-3

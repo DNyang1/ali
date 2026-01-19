@@ -120,9 +120,10 @@
                         : '-' + p.discountValue + '원'}">
                 </div>
 
-                <img th:src="@{|https://picsum.photos/400?random=${p.productId}|}"
+                <img th:src="${p.thumbPath != null ? p.thumbPath : '/images/default-product.png'}"
                      class="w-full aspect-square object-cover
-                            group-hover:scale-105 transition">
+            group-hover:scale-105 transition">
+
 
                 <div class="p-4 space-y-2">
 

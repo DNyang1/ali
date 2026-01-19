@@ -43,8 +43,10 @@
                 grid grid-cols-1 lg:grid-cols-[600px_1fr] gap-8">
 
     <div class="bg-white border border-slate-200">
-        <img class="w-full aspect-square object-cover"
-             th:src="@{|https://picsum.photos/900?random=${product.productId}|}">
+
+        <img th:src="${product.thumbPath != null ? product.thumbPath : '/images/default-product.png'}"
+             class="w-full aspect-square object-cover group-hover:scale-105 transition"
+             alt="상품 이미지">
     </div>
 
     <div class="bg-white border border-slate-200 p-6 space-y-6">

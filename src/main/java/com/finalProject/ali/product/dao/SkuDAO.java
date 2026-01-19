@@ -1,5 +1,6 @@
 package com.finalProject.ali.product.dao;
 
+import com.finalProject.ali.product.dto.EventDTO;
 import com.finalProject.ali.product.dto.OptionDTO;
 import com.finalProject.ali.product.dto.SkuDTO;
 import com.finalProject.ali.product.dto.SkuRowDTO;
@@ -39,6 +40,9 @@ public interface SkuDAO {
     );
 
     List<SkuDTO> findProductDetailSkus(@Param("productId") Long productId);
-
+    EventDTO findActiveEvent(
+            @Param("targetType") String targetType,
+            @Param("targetId") String targetId
+    );
 
 }
