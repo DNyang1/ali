@@ -77,5 +77,24 @@
         AND s.stock_quantity > 0
         GROUP BY s.sku_id
     </select>
+    <select id="findActiveEvent"
+            resultType="com.finalProject.ali.product.dto.EventDTO">
+        SELECT
+        event_id        AS eventId,
+        event_type      AS eventType,
+        target_type     AS targetType,
+        target_id       AS targetId,
+        discount_type   AS discountType,
+        discount_value  AS discountValue,
+        start_at        AS startAt,
+        end_at          AS endAt
+        FROM event
+        WHERE is_active = 1
+        AND target_type = #{targetType}
+        AND target_id = #{targetId}
+        AND NOW() BETWEEN start_at AND end_at
+        ORDER BY start_at DESC
+        LIMIT 1
+    </select>
 
 </mapper>
