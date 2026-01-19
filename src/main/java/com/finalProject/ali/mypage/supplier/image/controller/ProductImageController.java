@@ -19,7 +19,7 @@ public class ProductImageController {
     @PostMapping("/{productId}/images/thumb")
     public ResponseEntity<List<ProductImageDTO>> uploadThumb(
             @PathVariable Long productId,
-            @RequestPart("file") MultipartFile file
+            @RequestParam("file") MultipartFile file
     ) {
         return ResponseEntity.ok(service.uploadThumb(productId, file));
     }
@@ -27,7 +27,7 @@ public class ProductImageController {
     @PostMapping("/{productId}/images/detail")
     public ResponseEntity<List<ProductImageDTO>> uploadDetail(
             @PathVariable Long productId,
-            @RequestPart("files") MultipartFile[] files
+            @RequestParam("files") MultipartFile[] files
     ) {
         return ResponseEntity.ok(service.uploadDetails(productId, files));
     }
@@ -46,3 +46,4 @@ public class ProductImageController {
         return ResponseEntity.ok().build();
     }
 }
+

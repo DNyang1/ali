@@ -1,5 +1,6 @@
-<header th:fragment="mainHeader"
-        class="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
+<header class="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur"
+        th:attr="data-user-id=${session.loginUser != null ? session.loginUser.userId : ''}"
+        th:fragment="mainHeader">
 
     <div class="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-3 lg:px-6">
 
@@ -59,3 +60,4 @@
         </div>
     </div>
 </header>
+
