@@ -48,31 +48,40 @@ public class ProductController {
         List<ProductDTO> products;
         String pageTitle = "전체 상품";
 
-        if (Boolean.TRUE.equals(discount) && category != null) {
+        if (custom == null && category == null && discount == null) {
+            products = productService.productList();
+        }
+
+        else if (Boolean.TRUE.equals(discount) && category != null) {
             products = productService.getDiscountProductsByCategory(category);
             pageTitle = "할인 상품";
 
         } else if (Boolean.TRUE.equals(discount)) {
             products = productService.getDiscountProducts();
             pageTitle = "할인 상품";
+        }
 
-        } else if (custom != null && category != null) {
+        else if (custom != null && category != null) {
             products = productService.getProductsByCategoryAndCustom(category, custom);
             pageTitle = (custom ? "커스텀 " : "Ali ") + "카테고리 상품";
+        }
 
-        } else if (category != null) {
+        else if (category != null) {
             products = productService.getProductsByRootCategory(category);
             pageTitle = "카테고리 상품";
+        }
 
-        } else if (Boolean.TRUE.equals(custom)) {
+        else if (Boolean.FALSE.equals(custom)) {
+            products = productService.productList();
+            pageTitle = "Ali 상품";
+        }
+
+        else if (Boolean.TRUE.equals(custom)) {
             products = productService.getProductsByCustom(true);
             pageTitle = "커스텀 상품";
+        }
 
-        } else if (Boolean.FALSE.equals(custom)) {
-            products = productService.getProductsByCustom(false);
-            pageTitle = "Ali 상품";
-
-        } else {
+        else {
             products = productService.productList();
         }
 
@@ -85,6 +94,7 @@ public class ProductController {
 
         return "products/products_list";
     }
+
 
     @GetMapping("/{productId:\\d+}")
     public String productsDetail(
