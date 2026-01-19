@@ -99,14 +99,17 @@
         <div th:if="${!#lists.isEmpty(products)}"
              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-            <a th:each="p : ${products}"
-               th:href="@{/products/{id}(id=${p.productId})}"
+            <a th:each="p : ${products}" th:href="@{/products/{id}(
+                id=${p.productId},
+                from=${discount == true ? 'discount' : (custom == true ? 'custom' : 'ali')}
+                )}"
                class="group relative rounded-2xl border bg-white
-                      overflow-hidden
-                      hover:shadow-xl hover:-translate-y-1
-                      transition-all duration-200">
+                  overflow-hidden
+                  hover:shadow-xl hover:-translate-y-1
+                  transition-all duration-200">
 
-                <div th:if="${p.discountType != null}"
+
+            <div th:if="${p.discountType != null}"
                      class="absolute top-3 left-3 bg-red-500 text-white
                             text-xs font-bold px-2 py-1 rounded-md z-10"
                      th:text="${p.discountType == 'RATE'
@@ -114,9 +117,10 @@
                         : '-' + p.discountValue + '원'}">
                 </div>
 
-                <img th:src="@{|https://picsum.photos/400?random=${p.productId}|}"
+                <img th:src="${p.thumbPath != null ? p.thumbPath : '/images/default-product.png'}"
                      class="w-full aspect-square object-cover
-                            group-hover:scale-105 transition">
+            group-hover:scale-105 transition">
+
 
                 <div class="p-4 space-y-2">
 
@@ -140,14 +144,17 @@
                         </th:block>
 
                         <th:block th:if="${p.discountType == null}">
-                            <div th:if="${p.minPrice != null}"
-                                 class="font-bold"
-                                 th:classappend="${custom == true}
-                                    ? ' text-sky-600'
-                                    : ' text-teal-600'">
-                                ₩<span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
-                                ~
-                                ₩<span th:text="${#numbers.formatInteger(p.maxPrice,3,'COMMA')}"></span>
+                            <div th:if="${p.minPrice != null}" class="font-bold" th:classappend="${custom == true} ? ' text-sky-600' : ' text-teal-600'">
+
+                                <span th:if="${p.minPrice == p.maxPrice}">
+                                    ₩<span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
+                                </span>
+
+                                <span th:if="${p.minPrice != p.maxPrice}">
+                                    ₩<span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
+                                    ~
+                                    ₩<span th:text="${#numbers.formatInteger(p.maxPrice,3,'COMMA')}"></span>
+                                </span>
                             </div>
 
                             <div th:if="${p.minPrice == null}"
@@ -155,6 +162,7 @@
                                 가격 문의
                             </div>
                         </th:block>
+
                     </div>
 
                     <span th:if="${p.isCustomizable == 1}"

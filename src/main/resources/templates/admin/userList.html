@@ -8,11 +8,30 @@
 <section>
   <h2>전체 회원 관리</h2>
 
-  <div th:if="${users == null or users.isEmpty()}" style="padding: 20px; text-align: center;">
-    등록된 회원이 없습니다.
+  <div class="search-container">
+    <form action="/admin/users" method="get" style="display: flex; gap: 10px;">
+      <select name="role" class="search-select">
+        <option value="">전체 권한</option>
+        <option value="ROLE_USER" th:selected="${searchDTO.role == 'ROLE_USER'}">일반 회원</option>
+        <option value="ROLE_SUPPLIER" th:selected="${searchDTO.role == 'ROLE_SUPPLIER'}">판매자</option>
+        <option value="ROLE_ADMIN" th:selected="${searchDTO.role == 'ROLE_ADMIN'}">관리자</option>
+      </select>
+
+      <select name="status" class="search-select">
+        <option value="">전체 상태</option>
+        <option value="ACTIVE" th:selected="${searchDTO.status == 'ACTIVE'}">활동중</option>
+        <option value="SUSPENDED" th:selected="${searchDTO.status == 'SUSPENDED'}">정지됨</option>
+      </select>
+
+      <input type="text" name="keyword" class="search-input" placeholder="ID 또는 이름 검색"
+             th:value="${searchDTO.keyword}">
+
+      <button type="submit" class="btn-search">검색</button>
+      <a href="/admin/users" class="btn-reset">초기화</a>
+    </form>
   </div>
 
-  <table th:unless="${users == null or users.isEmpty()}">
+  <table class="table">
     <thead>
     <tr>
       <th>가입일</th>
@@ -24,6 +43,12 @@
     </tr>
     </thead>
     <tbody>
+    <tr th:if="${users == null or users.isEmpty()}">
+      <td colspan="6" style="text-align: center; padding: 30px;">
+        조건에 맞는 회원이 없습니다.
+      </td>
+    </tr>
+
     <tr th:each="user : ${users}">
       <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}"></td>
       <td th:text="${user.userId}" style="font-weight:bold;"></td>
@@ -32,23 +57,20 @@
       <td>
         <form th:action="@{/admin/users/role}" method="post">
           <input type="hidden" name="userId" th:value="${user.userId}">
-
           <select name="role" onchange="this.form.submit()" class="role-select"
-                  th:classappend="${user.roles.contains('ROLE_ADMIN') ? 'admin-role' : (user.roles.contains('ROLE_SUPPLIER') ? 'supplier-role' : '')}">
-
+                  th:classappend="${user.roles != null and user.roles.contains('ROLE_ADMIN') ? 'admin-role' : (user.roles != null and user.roles.contains('ROLE_SUPPLIER') ? 'supplier-role' : '')}">
             <option value="ROLE_USER"
-                    th:selected="${user.roles.contains('ROLE_USER') and !user.roles.contains('ROLE_SUPPLIER') and !user.roles.contains('ROLE_ADMIN')}">
+                    th:selected="${user.roles != null and user.roles.contains('ROLE_USER') and !user.roles.contains('ROLE_SUPPLIER') and !user.roles.contains('ROLE_ADMIN')}">
               일반 회원
             </option>
             <option value="ROLE_SUPPLIER"
-                    th:selected="${user.roles.contains('ROLE_SUPPLIER') and !user.roles.contains('ROLE_ADMIN')}">
+                    th:selected="${user.roles != null and user.roles.contains('ROLE_SUPPLIER') and !user.roles.contains('ROLE_ADMIN')}">
               판매자
             </option>
             <option value="ROLE_ADMIN"
-                    th:selected="${user.roles.contains('ROLE_ADMIN')}">
+                    th:selected="${user.roles != null and user.roles.contains('ROLE_ADMIN')}">
               관리자
             </option>
-
           </select>
         </form>
       </td>
@@ -57,7 +79,6 @@
         <div th:if="${user.status == 'ACTIVE'}">
           <span class="badge active">활동중</span>
         </div>
-
         <div th:if="${user.status == 'SUSPENDED'}">
           <span class="badge suspended">정지됨</span>
           <div style="font-size: 11px; color: red; margin-top: 4px;"
@@ -73,7 +94,6 @@
           <input type="hidden" name="userId" th:value="${user.userId}">
           <input type="hidden" name="status" value="SUSPENDED">
           <input type="hidden" name="reason" id="reasonInput">
-
           <button type="submit" class="btn-suspend">정지</button>
         </form>
 
@@ -88,6 +108,31 @@
     </tbody>
   </table>
 
+  <div class="pagination-container" th:if="${totalPages > 0}">
+    <ul class="pagination">
+      <li class="page-item" th:classappend="${searchDTO.page == 1} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${searchDTO.page - 1}, keyword=${searchDTO.keyword}, role=${searchDTO.role}, status=${searchDTO.status})}">
+          &laquo; 이전
+        </a>
+      </li>
+
+      <li class="page-item" th:each="num : ${#numbers.sequence(startPage, endPage)}"
+          th:classappend="${num == searchDTO.page} ? 'active'">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${num}, keyword=${searchDTO.keyword}, role=${searchDTO.role}, status=${searchDTO.status})}"
+           th:text="${num}">1</a>
+      </li>
+
+      <li class="page-item" th:classappend="${searchDTO.page == totalPages} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${searchDTO.page + 1}, keyword=${searchDTO.keyword}, role=${searchDTO.role}, status=${searchDTO.status})}">
+          다음 &raquo;
+        </a>
+      </li>
+    </ul>
+  </div>
+
   <script>
     function promptReason(form) {
       const reason = prompt("정지 사유를 입력해주세요:");
@@ -96,10 +141,8 @@
         alert("사유를 반드시 입력해야 합니다.");
         return false;
       }
-
-      // form 안에 있는 hidden input(name="reason")에 값 넣기
       form.reason.value = reason;
-      return true; // 전송 진행
+      return true;
     }
   </script>
 </section>

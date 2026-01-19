@@ -102,17 +102,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            allCategoryGrid.innerHTML = products.map(p => `
-            <a href="/products/${p.productId}"
-               class="group bg-slate-50 rounded-xl overflow-hidden border hover:shadow transition">
-                <img
-                    src="https://picsum.photos/seed/${p.productId}/300/200"
-                    class="w-full h-32 object-cover">
-                <div class="text-sm font-semibold text-slate-800 truncate">
-                    ${p.productName}
-                </div>
-            </a>
-        `).join('');
+            allCategoryGrid.innerHTML = products.map(p => {
+                const img = (p.thumbPath && String(p.thumbPath).trim().length > 0)
+                    ? p.thumbPath
+                    : '/images/default-product.png';
+
+                return `
+    <a href="/products/${p.productId}"
+       class="group bg-slate-50 rounded-xl overflow-hidden border hover:shadow transition">
+      <img src="${img}"
+           class="w-full aspect-square object-cover group-hover:scale-105 transition">
+      <div class="p-2 text-sm font-semibold text-slate-800 truncate">
+        ${p.productName}
+      </div>
+    </a>
+  `;
+            }).join('');
         } catch (e) {
             console.error(e);
             allCategoryGrid.innerHTML = '<p>오류 발생</p>';

@@ -4,6 +4,16 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.finalProject.ali.product.dao.ProductDAO">
+    <sql id="thumbPathSelect">
+        (
+        SELECT pi.image_path
+        FROM product_image pi
+        WHERE pi.product_id = p.product_id
+        AND pi.image_type = 'THUMB'
+        ORDER BY pi.sort_order ASC, pi.image_id ASC
+        LIMIT 1
+        ) AS thumbPath
+    </sql>
     <select id="productList"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
 
@@ -16,6 +26,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
+        <include refid="thumbPathSelect"/>,
 
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
@@ -32,6 +43,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -42,6 +54,9 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+                        WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -57,7 +72,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price,
         pr.max_price,
 
@@ -73,6 +88,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -84,6 +100,10 @@
         AND NOW() BETWEEN e.start_at AND e.end_at
 
         WHERE p.is_customizable = #{isCustomizable}
+            AND p.status = 'ACTIVE'
+
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -110,7 +130,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -127,6 +147,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -137,6 +158,8 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s WHERE s.product_id = p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -161,7 +184,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price,
         pr.max_price,
 
@@ -178,6 +201,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -189,6 +213,10 @@
         AND NOW() BETWEEN e.start_at AND e.end_at
 
         WHERE p.is_customizable = #{isCustomizable}
+            AND p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s
+            WHERE s.product_id = p.product_id
+            AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
     </select>
 
@@ -216,7 +244,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -234,6 +262,7 @@
         MAX(CAST(sp.price AS UNSIGNED)) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr ON pr.product_id = p.product_id
 
@@ -244,9 +273,12 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
-        WHERE
-        p.product_name LIKE CONCAT('%', #{keyword}, '%')
-        OR c.category_name LIKE CONCAT('%', #{keyword}, '%')
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
+            AND (p.product_name LIKE CONCAT('%', #{keyword}, '%')
+            OR c.category_name LIKE CONCAT('%', #{keyword}, '%'))
+
 
         ORDER BY p.created_at DESC
     </select>
@@ -272,7 +304,7 @@
         p.product_name    AS productName,
         p.category_id     AS categoryId,
         p.is_customizable AS isCustomizable,
-
+        <include refid="thumbPathSelect"/>,
         (
         SELECT MIN(sp.price)
         FROM sku s
@@ -282,6 +314,7 @@
 
         FROM products p
         JOIN cat_tree ct ON p.category_id = ct.category_id
+        WHERE EXISTS (SELECT 1 FROM sku s WHERE s.product_id = p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
         LIMIT 12
     </select>
@@ -313,6 +346,7 @@
         p.category_id     AS categoryId,
         p.is_customizable AS customYn,
         p.created_at      AS createdAt,
+        <include refid="thumbPathSelect"/>,
 
         (
         SELECT MIN(sp.price)
@@ -324,6 +358,7 @@
         FROM products p
         JOIN cat_tree ct ON p.category_id = ct.category_id
         WHERE p.status = 'ACTIVE'
+            AND EXISTS ( SELECT 1 FROM sku s WHERE s.product_id = p.product_id AND s.status = 'ACTIVE')
         ORDER BY p.created_at DESC
         LIMIT #{limit};
     </select>
@@ -339,7 +374,7 @@
         p.product_name    AS productName,
         p.description     AS description,
         p.is_customizable AS isCustomizable,
-
+        <include refid="thumbPathSelect"/>,
         MIN(CAST(sp.price AS UNSIGNED)) AS minPrice,
         MAX(CAST(sp.price AS UNSIGNED)) AS maxPrice,
 
@@ -348,7 +383,7 @@
         e.end_at          AS eventEndAt
 
         FROM products p
-        LEFT JOIN sku s ON s.product_id = p.product_id
+        LEFT JOIN sku s ON s.product_id = p.product_id AND s.status = 'ACTIVE'
         LEFT JOIN sku_price sp ON sp.sku_id = s.sku_id
 
         LEFT JOIN event e
@@ -393,7 +428,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -410,6 +445,7 @@
         MAX(sp.price) AS max_price
         FROM sku s
         JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr
         ON pr.product_id = p.product_id
@@ -421,6 +457,10 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s
+            WHERE s.product_id = p.product_id
+            AND s.status = 'ACTIVE')
         ORDER BY e.discount_value DESC
     </select>
 
@@ -449,7 +489,7 @@
         p.is_customizable,
         p.created_at,
         p.updated_at,
-
+        <include refid="thumbPathSelect"/>,
         pr.min_price AS minPrice,
         pr.max_price AS maxPrice,
 
@@ -467,8 +507,8 @@
         MIN(sp.price) AS min_price,
         MAX(sp.price) AS max_price
         FROM sku s
-        JOIN sku_price sp
-        ON sp.sku_id = s.sku_id
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.status = 'ACTIVE'
         GROUP BY s.product_id
         ) pr
         ON pr.product_id = p.product_id
@@ -480,6 +520,10 @@
         AND e.is_active = 1
         AND NOW() BETWEEN e.start_at AND e.end_at
 
+        WHERE p.status = 'ACTIVE'
+            AND EXISTS (SELECT 1 FROM sku s
+            WHERE s.product_id = p.product_id
+            AND s.status = 'ACTIVE')
         ORDER BY e.discount_value DESC, p.created_at DESC
     </select>
 
@@ -487,9 +531,14 @@
             resultType="com.finalProject.ali.product.dto.ProductDTO">
         SELECT
         p.product_id AS productId,
-        p.product_name AS productName
+        p.product_name AS productName,
+        <include refid="thumbPathSelect"/>
+
         FROM products p
         WHERE p.is_customizable = 0
+            AND p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY RAND()
         LIMIT 4
     </select>
@@ -498,9 +547,14 @@
             resultType="com.finalProject.ali.product.dto.ProductDTO">
         SELECT
         p.product_id AS productId,
-        p.product_name AS productName
+        p.product_name AS productName,
+        <include refid="thumbPathSelect"/>
+
         FROM products p
         WHERE p.is_customizable = 1
+            AND p.status = 'ACTIVE'
+            AND EXISTS(SELECT 1 FROM sku s
+            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
         ORDER BY RAND()
         LIMIT 4
     </select>

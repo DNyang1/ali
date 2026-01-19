@@ -24,6 +24,8 @@
             LEFT JOIN option_value_sku ovs
             ON ovs.sku_id = s.sku_id
         WHERE s.product_id = #{productId}
+            AND s.status = 'ACTIVE'
+            AND s.stock_quantity > 0
         ORDER BY s.sku_id
     </select>
 
@@ -48,6 +50,8 @@
                  separator=",">
             #{id}
         </foreach>
+            AND s.status = 'ACTIVE'
+            AND s.stock_quantity > 0
         GROUP BY s.sku_id
         HAVING COUNT(DISTINCT so.option_value_id) = #{optionCount}
     </select>
@@ -69,6 +73,8 @@
         LEFT JOIN product_option_value pov ON ovs.option_value_id = pov.option_value_id
         LEFT JOIN product_option po ON pov.option_id = po.option_id
         WHERE s.product_id = #{productId}
+        AND s.status = 'ACTIVE'
+        AND s.stock_quantity > 0
         GROUP BY s.sku_id
     </select>
     <select id="findActiveEvent"

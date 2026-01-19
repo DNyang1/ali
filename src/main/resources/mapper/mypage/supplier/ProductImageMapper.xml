@@ -42,7 +42,7 @@
     </delete>
 
     <select id="nextSort" resultType="int">
-        SELECT COALESCE(MAX(sort_order) + 1, 0)
+        SELECT COALESCE(MAX(sort_order), 0) + 1
         FROM product_image
         WHERE product_id = #{productId}
           AND image_type = #{imageType}

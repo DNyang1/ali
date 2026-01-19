@@ -5,6 +5,8 @@ import com.finalProject.ali.product.service.OptionService;
 import com.finalProject.ali.product.service.ProductService;
 import com.finalProject.ali.product.service.SkuPriceService;
 import com.finalProject.ali.product.service.SkuService;
+import com.finalProject.ali.user.dto.SupplierDTO;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -84,26 +86,15 @@ public class ProductController {
         return "products/products_list";
     }
 
-
-
-
     @GetMapping("/{productId:\\d+}")
     public String productsDetail(
             @PathVariable Long productId,
+            @RequestParam(required = false) String from,
             Model model
     ) throws Exception {
 
         ProductDTO product =
                 productService.productDetail(productId);
-
-        log.info(
-                "[EVENT CHECK] productId={}, discountType={}, discountValue={}, endAt={}",
-                productId,
-                product.getDiscountType(),
-                product.getDiscountValue(),
-                product.getEventEndAt()
-        );
-
 
         Map<String, List<StockOptionDTO>> options =
                 optionService.getStockOptions(productId);
@@ -113,6 +104,15 @@ public class ProductController {
 
         List<SkuPriceDTO> defaultPriceRules =
                 skuPriceService.getPriceRulesByProductId(productId);
+
+        String backUrl = "/products/list";
+        if ("ali".equals(from)) {
+            backUrl = "/products/list?custom=false";
+        } else if ("custom".equals(from)) {
+            backUrl = "/products/list?custom=true";
+        } else if ("discount".equals(from)) {
+            backUrl = "/products/list?discount=true";
+        }
 
         model.addAttribute("product", product);
         model.addAttribute("options", options);
@@ -125,6 +125,8 @@ public class ProductController {
                 "defaultPriceRulesJson",
                 objectMapper.writeValueAsString(defaultPriceRules)
         );
+        model.addAttribute("from", from);
+        model.addAttribute("backUrl", backUrl);
 
         return "products/products_detail";
     }

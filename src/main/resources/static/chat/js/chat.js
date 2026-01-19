@@ -326,12 +326,26 @@ function appendMessage(m) {
     wrap.className = "msg-wrap" + (isMe ? " me" : "");
 
     // 이름(상대만)
-    if (!isMe && senderLabel) {
+    if (!isMe) {
+        const head = document.createElement("div");
+        head.className = "msg-head";
+
+        const img = document.createElement("img");
+        img.className = "avatar";
+        img.alt = "profile";
+        img.src = (m.senderProfileImg && m.senderProfileImg.trim())
+            ? m.senderProfileImg
+            : "/images/default.png";
+
         const nameEl = document.createElement("div");
         nameEl.className = "sender";
         nameEl.textContent = senderLabel;
-        wrap.appendChild(nameEl);
+
+        head.appendChild(img);
+        head.appendChild(nameEl);
+        wrap.appendChild(head);
     }
+
 
     // bubble: 말풍선(여기엔 me 붙이지 말 것!)
     const bubble = document.createElement("div");

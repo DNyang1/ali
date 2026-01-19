@@ -28,28 +28,8 @@ public class HomeController {
                 categoryService.getMainCategories()
         );
 
-        Map<String, List<ProductDTO>> raw =
-                productService.getRecommendedProducts(4);
-
-        Map<String, List<List<ProductDTO>>> recommendByCategory = new LinkedHashMap<>();
-
-        for (Map.Entry<String, List<ProductDTO>> entry : raw.entrySet()) {
-            List<ProductDTO> products = entry.getValue();
-
-            List<List<ProductDTO>> chunks = new ArrayList<>();
-            for (int i = 0; i < products.size(); i += 4) {
-                chunks.add(
-                        products.subList(i, Math.min(i + 4, products.size()))
-                );
-            }
-
-            recommendByCategory.put(entry.getKey(), chunks);
-        }
-
-        model.addAttribute(
-                "recommendByCategory",
-                productService.getRecommendedProducts(4)
-        );
+        Map<String, List<ProductDTO>> recommendByCategory = productService.getRecommendedProducts(4);
+        model.addAttribute("recommendByCategory", recommendByCategory);
 
         model.addAttribute(
                 "discountProductCount",

@@ -22,6 +22,8 @@ public class ProductDTO {
     public boolean isCustomizable() {
         return this.isCustomizable == 1;
     }
+    private String thumbPath;
+
     // 현성
     private Long moq;
     private Long minPrice;

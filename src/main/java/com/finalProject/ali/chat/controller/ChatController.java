@@ -4,6 +4,7 @@ import com.finalProject.ali.chat.dto.ChatDTO;
 import com.finalProject.ali.chat.dto.ChatSendDTO;
 import com.finalProject.ali.chat.dto.UnreadTotalDTO;
 import com.finalProject.ali.chat.service.ChatService;
+import com.finalProject.ali.user.dao.UserDAO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,6 +21,7 @@ public class ChatController {
 
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserDAO userDAO;
 
     // 보내는 쪽: /app/chat.send
     // 받는 쪽(구독): /topic/rooms/{roomId}
@@ -47,6 +49,8 @@ public class ChatController {
         payload.setChatAt(LocalDateTime.now());
         String senderName = chatService.getUserName(req.getSenderId()); // users에서 조회
         payload.setSenderName(senderName);
+        payload.setSenderName(chatService.getUserName(req.getSenderId()));
+        payload.setSenderProfileImg(userDAO.findProfileImgByUserId(req.getSenderId()));
 
         messagingTemplate.convertAndSend("/topic/rooms/" + req.getRoomId(), payload);
 
