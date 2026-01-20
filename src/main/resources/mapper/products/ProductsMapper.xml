@@ -565,6 +565,7 @@
 
     <select id="selectRandomCustomProducts"
             resultType="com.finalProject.ali.product.dto.ProductDTO">
+
         SELECT
         p.product_id AS productId,
         p.product_name AS productName,
@@ -572,11 +573,18 @@
 
         FROM products p
         WHERE p.is_customizable = 1
-            AND p.status = 'ACTIVE'
-            AND EXISTS(SELECT 1 FROM sku s
-            WHERE s.product_id =p.product_id AND s.status = 'ACTIVE')
+        AND p.status = 'ACTIVE'
+        AND NOT EXISTS (
+        SELECT 1
+        FROM sku s
+        JOIN sku_price sp ON sp.sku_id = s.sku_id
+        WHERE s.product_id = p.product_id
+        )
+
         ORDER BY RAND()
         LIMIT 4
     </select>
+
+
 
 </mapper>
