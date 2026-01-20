@@ -108,31 +108,6 @@
     </tbody>
   </table>
 
-  <div class="pagination-container" th:if="${totalPages > 0}">
-    <ul class="pagination">
-      <li class="page-item" th:classappend="${searchDTO.page == 1} ? 'disabled'">
-        <a class="page-link"
-           th:href="@{/admin/users(page=${searchDTO.page - 1}, keyword=${searchDTO.keyword}, role=${searchDTO.role}, status=${searchDTO.status})}">
-          &laquo; 이전
-        </a>
-      </li>
-
-      <li class="page-item" th:each="num : ${#numbers.sequence(startPage, endPage)}"
-          th:classappend="${num == searchDTO.page} ? 'active'">
-        <a class="page-link"
-           th:href="@{/admin/users(page=${num}, keyword=${searchDTO.keyword}, role=${searchDTO.role}, status=${searchDTO.status})}"
-           th:text="${num}">1</a>
-      </li>
-
-      <li class="page-item" th:classappend="${searchDTO.page == totalPages} ? 'disabled'">
-        <a class="page-link"
-           th:href="@{/admin/users(page=${searchDTO.page + 1}, keyword=${searchDTO.keyword}, role=${searchDTO.role}, status=${searchDTO.status})}">
-          다음 &raquo;
-        </a>
-      </li>
-    </ul>
-  </div>
-
   <script>
     function promptReason(form) {
       const reason = prompt("정지 사유를 입력해주세요:");

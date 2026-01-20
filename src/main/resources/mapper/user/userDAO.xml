@@ -164,7 +164,6 @@
             </if>
         </where>
         ORDER BY u.created_at DESC
-        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <select id="countUsersWithPaging" parameterType="com.finalProject.ali.admin.dto.UserSearchDTO" resultType="int">
