@@ -23,7 +23,6 @@ public class ProductApiController {
     public List<ProductDTO> previewByCategory(
             @RequestParam("category") String categoryId
     ) {
-        System.out.println("🔥 PREVIEW API categoryId = " + categoryId);
         return productService.getPreviewProductsByCategory(categoryId);
     }
 

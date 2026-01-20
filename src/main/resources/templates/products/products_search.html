@@ -185,20 +185,40 @@
                     </span>
                 </div>
 
-                <!-- 가격 -->
                 <div class="mt-3">
-                    <p th:if="${p.minPrice != null}"
-                       class="text-base font-extrabold text-slate-900">
-                        ₩ <span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
-                        <span class="mx-1 text-slate-400">~</span>
-                        ₩ <span th:text="${#numbers.formatInteger(p.maxPrice,3,'COMMA')}"></span>
-                    </p>
 
-                    <p th:if="${p.minPrice == null}"
-                       class="text-sm font-bold text-slate-500">
-                        가격 문의
-                    </p>
+                    <th:block th:if="${p.discountType != null}">
+                        <p class="text-xs line-through text-slate-400">
+                            ₩ <span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
+                        </p>
+
+                        <p class="text-base font-extrabold text-red-600">
+                            ₩
+                            <span th:text="${#numbers.formatInteger(
+                                p.discountType == 'RATE'
+                                    ? p.minPrice - (p.minPrice * p.discountValue / 100)
+                                    : p.minPrice - p.discountValue,
+                                3,'COMMA')}">
+                            </span>
+                        </p>
+                    </th:block>
+
+                    <th:block th:if="${p.discountType == null}">
+                        <p th:if="${p.minPrice != null}"
+                           class="text-base font-extrabold text-slate-900">
+                            ₩ <span th:text="${#numbers.formatInteger(p.minPrice,3,'COMMA')}"></span>
+                            <span class="mx-1 text-slate-400">~</span>
+                            ₩ <span th:text="${#numbers.formatInteger(p.maxPrice,3,'COMMA')}"></span>
+                        </p>
+
+                        <p th:if="${p.minPrice == null}"
+                           class="text-sm font-bold text-slate-500">
+                            가격 문의
+                        </p>
+                    </th:block>
+
                 </div>
+
             </div>
         </div>
     </section>
