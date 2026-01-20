@@ -151,7 +151,8 @@ public class ProductOptionSkuService {
             if (optionDAO.existsProductOption(productId, optionName) > 0) {
                 optionId = optionDAO.findProductOptionId(productId, optionName);
             } else {
-                optionId = productId + "-" + leafCategoryId + "@" + optionName;
+                String safeOptionName = optionName.replace("/", "@");
+                optionId = productId + "-" + leafCategoryId + "@" + safeOptionName;
                 optionDAO.insertProductOption(optionId, productId, leafCategoryId, optionName);
             }
 
@@ -162,7 +163,9 @@ public class ProductOptionSkuService {
                 String value = v.getOptionValue();
                 if (value == null || value.isBlank()) continue;
 
-                String optionValueId = optionId + "@" + value;
+
+                String safeValue = value.replace("/", "@");
+                String optionValueId = optionId + "@" + safeValue;
                 optionDAO.insertProductOptionValue(optionValueId, optionId, value, v.getSortOrder());
             }
         }
