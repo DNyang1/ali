@@ -44,7 +44,7 @@
 
     <div class="bg-white border border-slate-200">
 
-        <img th:src="${product.thumbPath != null ? product.thumbPath : '/images/default-product.png'}"
+        <img id="product-thumbnail" th:src="${product.thumbPath != null ? product.thumbPath : '/images/default-product.png'}"
              class="w-full aspect-square object-cover group-hover:scale-105 transition"
              alt="상품 이미지">
     </div>
