@@ -56,8 +56,6 @@ public class UserSecurity {
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 )
 
-                // ✅ [핵심 수정 구간] 권한 설정
-                // [UserSecurity.java 수정]
 
                 .authorizeHttpRequests(auth -> auth
                         // 1. 정적 리소스 (CSS, JS, 이미지, 폰트 등) 전면 허용
@@ -75,7 +73,7 @@ public class UserSecurity {
                                 "/user/login", "/user/register", "/user/signup",
                                 "/user/find_id", "/user/reset_pw**",
                                 "/user/send**", "/user/verify**",
-                                "/v3/api-docs/**", "/swagger/**","/swagger-ui/index.html#/",
+                                "/v3/api-docs/**","/swagger-ui/**", "/swagger-ui.html",
                                 "/api/**"
                         ).permitAll()
 
