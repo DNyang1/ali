@@ -13,4 +13,5 @@ public class CheckoutItem {
     private Long quantity;
     private Long unitPrice;
     private Long lineAmount;
+    private String thumbPath;
 }
