@@ -31,18 +31,28 @@
     <select id="findByOrderId"
             resultType="com.finalProject.ali.order.dto.OrderItemResponse">
         SELECT
-        order_item_id           AS orderItemId,
-        product_name            AS productName,
-        option_summary          AS optionSummary,
-        sku_id                  AS skuId,
-        quantity                AS quantity,
-        unit_price              AS unitPrice,
-        quantity * unit_price   AS lineAmount,
-        supplier_status         AS status,
-        carrier                 AS carrier,
-        tracking_no             AS trackingNo
-        FROM order_item
-        WHERE order_id = #{orderId}
+            oi.order_item_id           AS orderItemId,
+            oi.product_name            AS productName,
+            oi.option_summary          AS optionSummary,
+            oi.sku_id                  AS skuId,
+            oi.quantity                AS quantity,
+            oi.unit_price              AS unitPrice,
+            oi.quantity * oi.unit_price   AS lineAmount,
+            oi.supplier_status         AS status,
+            oi.carrier                 AS carrier,
+            oi.tracking_no             AS trackingNo,
+            (
+                SELECT pi.image_path
+                FROM product_image pi
+                WHERE pi.product_id = p.product_id
+                AND pi.image_type = 'THUMB'
+                ORDER BY pi.sort_order ASC, pi.image_id ASC
+                LIMIT 1
+            ) AS thumbPath
+        FROM order_item oi
+        JOIN sku s ON oi.sku_id = s.sku_id
+        JOIN products p ON s.product_id = p.product_id
+        WHERE oi.order_id = #{orderId}
     </select>
 
 
