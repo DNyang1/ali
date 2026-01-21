@@ -13,6 +13,7 @@ public class CartItemViewResponse {
     private Long quantity;
     private Long unitPrice;
     private Long lineAmount;
+    private String thumbPath;
 
     private String optionSummary;
 }

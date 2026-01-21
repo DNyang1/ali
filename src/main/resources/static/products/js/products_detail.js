@@ -586,12 +586,11 @@ document.getElementById('btnInquiry')?.addEventListener('click', () => {
         const product = {
             id: window.PRODUCT_ID,
             name: document.querySelector('h1').textContent.trim(),
-            // 'picsum' 이미지를 사용하므로, 상품 ID를 기반으로 이미지 URL을 생성합니다.
-            imageUrl: `https://picsum.photos/200?random=${window.PRODUCT_ID}`,
+            thumbPath: document.getElementById('product-thumbnail').src,
             productUrl: window.location.pathname // 현재 페이지 URL 저장
         };
 
-        if (!product.id || !product.name || !product.imageUrl) {
+        if (!product.id || !product.name || !product.thumbPath) {
             console.error("최근 본 상품 목록에 필요한 상품 정보를 가져올 수 없습니다.");
             return;
         }
