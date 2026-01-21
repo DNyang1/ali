@@ -406,7 +406,7 @@
             container.innerHTML += `
                 <div class="flex items-center gap-4 py-4 border-b last:border-0 px-6">
                     <div class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
-                         <img src="${item.imageUrl}" alt="${item.productName}" class="w-full h-full object-cover">
+                         <img src="${item.thumbPath ? item.thumbPath : '/images/default-product.png'}" alt="${item.productName}" class="w-full h-full object-cover">
                     </div>
                     <div class="flex-1 min-w-[250px]">
                         <div class="font-bold text-slate-800">${item.productName}</div>
