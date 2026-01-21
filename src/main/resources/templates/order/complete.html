@@ -102,7 +102,7 @@
                     itemElement.className = 'flex items-center gap-4 py-4 border-b last:border-b-0';
                     itemElement.innerHTML = `
                         <div class="w-16 h-16 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
-                             <img src="https://picsum.photos/seed/${item.skuId}/200" alt="${item.productName}" class="w-full h-full object-cover">
+                             <img src="${item.imageUrl}" alt="${item.productName}" class="w-full h-full object-cover">
                         </div>
                         <div class="flex-1">
                             <div class="font-bold text-slate-800">${item.productName}</div>
