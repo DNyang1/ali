@@ -12,6 +12,14 @@
             s.sku_id       AS skuId,
             s.product_id   AS productId,
             p.product_name AS productName,
+            (
+                SELECT pi.image_path
+                FROM product_image pi
+                WHERE pi.product_id = p.product_id
+                AND pi.image_type = 'THUMB'
+                ORDER BY pi.sort_order ASC, pi.image_id ASC
+                LIMIT 1
+            ) AS thumbPath,
             GROUP_CONCAT(
                 CONCAT(po.option_name, ': ', pov.option_value)
                 ORDER BY pov.sort_order
