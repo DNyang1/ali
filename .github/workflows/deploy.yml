@@ -65,7 +65,7 @@ jobs:
             # 컨테이너 실행
             sudo docker run -d \
               --name ali-server \
-              --net=host \
+              --net=host \ 
               -v /home/ubuntu/app/application-dev.properties:/app/application-dev.properties \
               -v /home/ubuntu/app/uploads:/home/ubuntu/app/uploads \
               ${{ secrets.DOCKER_USERNAME }}/ali-project:latest \
