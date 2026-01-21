@@ -27,6 +27,9 @@ public class BizApiService {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
+            conn.setConnectTimeout(3000); // 3초 안에 연결 안 되면 끊기
+            conn.setReadTimeout(3000);    // 3초 안에 응답 없으면 끊기
+
             // 3. 요청 데이터 구성 (JSON)
             JSONObject requestBody = new JSONObject();
             JSONArray bNoArray = new JSONArray();
