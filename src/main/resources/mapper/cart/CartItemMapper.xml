@@ -35,6 +35,11 @@
         WHERE cart_item_id = #{cartItemId}
     </delete>
 
+    <delete id="deleteByCartIdAndSkuId">
+        DELETE FROM cart_item
+        WHERE cart_id = #{cartId} AND sku_id = #{skuId}
+    </delete>
+
     <select id="findCartItemViews"
             resultType="com.finalProject.ali.cart.dto.CartItemViewResponse">
         SELECT

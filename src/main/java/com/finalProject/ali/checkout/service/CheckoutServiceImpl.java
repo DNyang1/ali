@@ -6,6 +6,7 @@ import com.finalProject.ali.checkout.dto.CheckoutResponse;
 import com.finalProject.ali.checkout.mapper.CheckoutMapper;
 import com.finalProject.ali.pricing.PricingService;
 import com.finalProject.ali.product.dao.SkuPriceDAO;
+import com.finalProject.ali.product.dao.SkuStockDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.List;
 public class CheckoutServiceImpl implements CheckoutService{
     private final CheckoutMapper checkoutMapper;
     private final PricingService pricingService;
+    private final SkuStockDAO skuStockDAO;
 
     @Override
     public CheckoutResponse checkout(String userId, CheckoutRequest request) {
@@ -28,6 +30,12 @@ public class CheckoutServiceImpl implements CheckoutService{
 
             String skuId = itemReq.getSkuId();
             Long quantity = itemReq.getQuantity();
+
+            // 1. 재고 확인 가드
+            Long stock = skuStockDAO.getStockQuantity(skuId);
+            if (stock == null || stock < quantity) {
+                throw new IllegalArgumentException("상품 재고가 부족합니다. (SKU: " + skuId + ")");
+            }
 
             Long unitPrice =
                     pricingService.getFinalUnitPrice(skuId, quantity);

@@ -32,6 +32,14 @@ public class PaymentServiceImpl implements PaymentService{
     public PaymentResponse pay(PaymentRequest request) {
 
         Order order = orderMapper.findById(request.getOrderId());
+        if (order == null) {
+            throw new IllegalArgumentException("주문 정보를 찾을 수 없습니다.");
+        }
+
+        // 1. 주문 상태 가드: 이미 결제되었거나 취소된 주문인지 확인
+        if (!"CREATED".equals(order.getStatus())) {
+            throw new IllegalStateException("결제 가능한 상태가 아닙니다. (현재 상태: " + order.getStatus() + ")");
+        }
 
         Payment payment = new Payment();
         payment.setPaymentId(UUID.randomUUID().toString());

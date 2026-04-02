@@ -5,6 +5,16 @@
 
 <mapper namespace="com.finalProject.ali.product.dao.SkuStockDAO">
 
+    <select id="getStockQuantity" resultType="long">
+        SELECT stock_quantity FROM sku WHERE sku_id = #{skuId}
+    </select>
+
+    <update id="deductStock">
+        UPDATE sku
+        SET stock_quantity = stock_quantity - #{quantity}
+        WHERE sku_id = #{skuId} AND stock_quantity >= #{quantity}
+    </update>
+
     <update id="deductOnShip">
         UPDATE sku s
         JOIN order_item oi ON oi.sku_id = s.sku_id

@@ -13,5 +13,6 @@ public interface CartItemMapper {
     void insert(CartItem item);
     void updateQuantity(CartItem item);
     void deleteById(String cartItemId);
+    void deleteByCartIdAndSkuId(String cartId, String skuId);
     List<CartItemViewResponse> findCartItemViews(String cartId);
 }
